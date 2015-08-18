@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{09089673-669F-4184-85E8-6D118E963BDB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SignaloBot.Sender</RootNamespace>
+    <AssemblyName>SignaloBot.Sender</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Common.EntityFramework, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\Common.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Utility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\Common.Utility.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Model\Queue\InsertNotifier\ManualInsertNotifier.cs" />
+    <Compile Include="Model\Dispatcher\ParallelDequeuer.cs" />
+    <Compile Include="Model\Dispatcher\MessageDispatcher.cs" />
+    <Compile Include="Model\Queue\IMessageQueue.cs" />
+    <Compile Include="Model\Dispatcher\DispatcherWorker.cs" />
+    <Compile Include="Model\Queue\MessageProvider.cs" />
+    <Compile Include="Model\Senders\FailCounter\IFailCounter.cs" />
+    <Compile Include="Model\Senders\FailCounter\ProgressiveFailCounter.cs" />
+    <Compile Include="Model\Senders\Results\SenderAvailability.cs" />
+    <Compile Include="Model\Senders\Results\SendResult.cs" />
+    <Compile Include="Model\Senders\SendChannel.cs" />
+    <Compile Include="Model\Senders\LimitManager\NoLimit\NoLimitManager.cs" />
+    <Compile Include="Model\Senders\LimitManager\PeriodLimit\JournalStorage\IJournalStorage.cs" />
+    <Compile Include="Model\Senders\LimitManager\PeriodLimit\JournalStorage\MemoryJournalStorage.cs" />
+    <Compile Include="Model\Senders\LimitManager\PeriodLimit\JournalStorage\FileJournalStorage.cs" />
+    <Compile Include="Model\Senders\Email\SmtpSettings.cs" />
+    <Compile Include="Model\Queue\MessageQueue.cs" />
+    <Compile Include="Model\Queue\InsertNotifier\IStorageInsertNotifier.cs" />
+    <Compile Include="Model\Queue\InsertNotifier\SqlInsertNotifier.cs" />
+    <Compile Include="Model\Senders\ISender.cs" />
+    <Compile Include="Model\Senders\SenderProvider.cs" />
+    <Compile Include="Model\Statistics\IStatisticsCollector.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Model\SenderConstants.cs" />
+    <Compile Include="Model\Senders\LimitManager\PeriodLimit\LimitedPeriod.cs" />
+    <Compile Include="Model\Senders\LimitManager\ILimitManager.cs" />
+    <Compile Include="Model\Senders\LimitManager\PeriodLimit\PeriodLimitManager.cs" />
+    <Compile Include="Model\Senders\Email\SmtpEmailSender.cs" />
+    <Compile Include="Resources\SenderScripts.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SenderScripts.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\SenderScripts.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SenderScripts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SignaloBot.DAL\SignaloBot.DAL.csproj">
+      <Project>{8c96a3f3-4caf-4482-81df-56b92fe6af4e}</Project>
+      <Name>SignaloBot.DAL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "..\..\..\..\Build\$(TargetFileName)"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

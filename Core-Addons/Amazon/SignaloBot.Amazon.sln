@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Amazon", "SignaloBot.Amazon\SignaloBot.Amazon.csproj", "{22826571-35CE-4CBE-9865-DD9106ABD853}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferenceProjects", "ReferenceProjects", "{75FB9634-1068-435E-AB1B-5C5479862146}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.TestParameters", "..\..\TestParameters\SignaloBot.TestParameters\SignaloBot.TestParameters.csproj", "{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Amazon.Tests", "SignaloBot.Amazon.Tests\SignaloBot.Amazon.Tests.csproj", "{E177BA33-1E10-421E-919F-B927B3D3B6A6}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://electro.qwell.ru:28080/tfs/web%20projects
+		SccProjectUniqueName0 = SignaloBot.Amazon\\SignaloBot.Amazon.csproj
+		SccProjectName0 = SignaloBot.Amazon
+		SccAuxPath0 = http://electro.qwell.ru:28080/tfs/web%20projects
+		SccLocalPath0 = SignaloBot.Amazon
+		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName1 = ..\\..\\TestParameters\\SignaloBot.TestParameters\\SignaloBot.TestParameters.csproj
+		SccProjectTopLevelParentUniqueName1 = SignaloBot.Amazon.sln
+		SccProjectName1 = ../../TestParameters/SignaloBot.TestParameters
+		SccAuxPath1 = http://electro.qwell.ru:28080/tfs/web%20projects
+		SccLocalPath1 = ..\\..\\TestParameters\\SignaloBot.TestParameters
+		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName2 = SignaloBot.Amazon.Tests\\SignaloBot.Amazon.Tests.csproj
+		SccProjectName2 = SignaloBot.Amazon.Tests
+		SccAuxPath2 = http://electro.qwell.ru:28080/tfs/web%20projects
+		SccLocalPath2 = SignaloBot.Amazon.Tests
+		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22826571-35CE-4CBE-9865-DD9106ABD853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22826571-35CE-4CBE-9865-DD9106ABD853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22826571-35CE-4CBE-9865-DD9106ABD853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22826571-35CE-4CBE-9865-DD9106ABD853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E177BA33-1E10-421E-919F-B927B3D3B6A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E177BA33-1E10-421E-919F-B927B3D3B6A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E177BA33-1E10-421E-919F-B927B3D3B6A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E177BA33-1E10-421E-919F-B927B3D3B6A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C} = {75FB9634-1068-435E-AB1B-5C5479862146}
+	EndGlobalSection
+EndGlobal

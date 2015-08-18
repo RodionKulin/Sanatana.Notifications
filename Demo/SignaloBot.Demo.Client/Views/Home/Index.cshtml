@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = ViewContent.Home_Index_Title;
+}
+
+<div class="jumbotron">
+    <h1>SignaloBot DEMO</h1>
+    <p class="lead">@ViewContent.Home_Index_Description</p>
+    <p>@Html.ActionLink(ViewContent.Home_Index_Start, "List", "Users", null, new { @class = "btn btn-primary btn-lg" })</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>@ViewContent.Home_Index_UsersTitle</h2>
+        <p>@ViewContent.Home_Index_UsersMessage</p>
+        <p>@Html.ActionLink(ViewContent.Home_Index_Visit, "List", "Users", null, new { @class = "btn btn-default" })</p>
+    </div>
+    <div class="col-md-6">
+        <h2>@ViewContent.Home_Index_SendTitle</h2>
+        <p>@ViewContent.Home_Index_SendMessage</p>
+        <p>@Html.ActionLink(ViewContent.Home_Index_Visit, "Send", "Home", null, new { @class = "btn btn-default" })</p>
+    </div>
+</div>

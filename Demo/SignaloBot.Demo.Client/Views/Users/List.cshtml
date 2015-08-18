@@ -1,0 +1,48 @@
+﻿@using SignaloBot.DAL.Entities.Core
+@model List<UserDeliveryTypeSettings>
+
+@{
+    ViewBag.Title = ViewContent.Users_List_Title;
+}
+
+@section head
+{
+    @Styles.Render("~/Content/UsersList.css")
+}    
+
+<div class="page-content"></div>
+
+<h2>@ViewContent.Users_List_ListTitle</h2>
+
+<p">
+    @Html.ActionLink(ViewContent.Users_List_AddUser, "Add")
+</p>
+
+<table>
+    <tr class="bold">
+        <td class="wide-column">
+            @ViewContent.Users_List_EmailAddressCol
+        </td>
+        <td class="wide-column">
+            @ViewContent.Users_List_UserIDCol
+        </td>
+        <td>
+            @ViewContent.Users_List_EmailEnabledCol
+        </td>
+    </tr>
+@foreach (UserDeliveryTypeSettings user in Model)
+{
+    <tr>
+        <td>
+            @user.Address
+        </td>
+        <td>
+            @user.UserID
+        </td>
+        <td>
+            @user.IsEnabled
+        </td>
+    </tr>   
+}
+</table>
+
