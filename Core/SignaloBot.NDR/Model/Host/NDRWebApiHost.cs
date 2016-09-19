@@ -11,7 +11,7 @@ namespace SignaloBot.NDR.Host
     public class NDRWebApiHost : IDisposable
     {
         //поля
-        HttpSelfHostServer _server;
+        protected HttpSelfHostServer _server;
 
 
         //методы
@@ -55,7 +55,7 @@ namespace SignaloBot.NDR.Host
                 {
                     _server.Dispose();
                 }
-                catch (ObjectDisposedException disposed)
+                catch 
                 {
 
                 }

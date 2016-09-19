@@ -1,5 +1,4 @@
-﻿using SignaloBot.DAL.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -13,7 +12,7 @@ namespace SignaloBot.WebNotifications.Entities.Results
         public Guid NotificationID { get; set; }
         public Guid UserID { get; set; }
         public int CategoryID { get; set; }
-        public int TopicID { get; set; }
+        public string TopicID { get; set; }
         public string NotifyText { get; set; }
         public DateTime SendDateUtc { get; set; }
         public bool IsDirty { get; set; }

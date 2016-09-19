@@ -79,7 +79,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\LimitManager\PeriodLimitManagerTest.cs" />
+    <Compile Include="Model\Queues\QueueBaseTests.cs" />
+    <Compile Include="Model\Templates\ExampleClasses\Product.cs" />
+    <Compile Include="Model\Templates\ExampleClasses\ProductsOrderMailData.cs" />
+    <Compile Include="Model\Templates\StringUtilityTests.cs" />
+    <Compile Include="Model\Templates\SubjectDispatchTemplateTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resource\ContentRes.Designer.cs">
+      <DependentUpon>ContentRes.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -98,6 +108,18 @@
       <Project>{09089673-669f-4184-85e8-6d118e963bdb}</Project>
       <Name>SignaloBot.Sender</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\ProductsOrder.xslt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resource\ContentRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ContentRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resource\ContentRes.ru.resx" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

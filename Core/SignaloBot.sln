@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Client", "SignaloBot.Client\SignaloBot.Client.csproj", "{4C81E273-16D2-4B0B-82BB-1520BA1C5A43}"
-EndProject
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.DAL", "SignaloBot.DAL\SignaloBot.DAL.csproj", "{8C96A3F3-4CAF-4482-81DF-56B92FE6AF4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.NDR", "SignaloBot.NDR\SignaloBot.NDR.csproj", "{515CC227-DFE0-457A-9499-DB8EA0CBCC2F}"
@@ -11,73 +11,30 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Sender", "Signal
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D5B0C0F2-A993-4707-9B12-DE30B8752D6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.DAL.Tests", "SignaloBot.DAL.Tests\SignaloBot.DAL.Tests.csproj", "{34761E9F-FB9D-4577-9AC8-E0FDE59D7302}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Sender.Tests", "SignaloBot.Sender.Tests\SignaloBot.Sender.Tests.csproj", "{5A92D16E-AABC-4FAC-A49B-B9F32EF2145B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Client.Tests", "SignaloBot.Client.Tests\SignaloBot.Client.Tests.csproj", "{14D0502C-7E28-46FA-93EB-CEBA00613436}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4C81E273-16D2-4B0B-82BB-1520BA1C5A43} = {4C81E273-16D2-4B0B-82BB-1520BA1C5A43}
-		{8C96A3F3-4CAF-4482-81DF-56B92FE6AF4E} = {8C96A3F3-4CAF-4482-81DF-56B92FE6AF4E}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.TestParameters", "..\TestParameters\SignaloBot.TestParameters\SignaloBot.TestParameters.csproj", "{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferenceProjects", "ReferenceProjects", "{DCC2C4D8-FAD8-43B0-AC2A-A9925C2B102C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.DAL.SQL", "SignaloBot.DAL.SQL\SignaloBot.DAL.SQL.csproj", "{1351A326-8095-4221-8C9A-21B4505B97D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.DAL.SQL.Tests", "SignaloBot.DAL.SQL.Tests\SignaloBot.DAL.SQL.Tests.csproj", "{40F307C3-24AE-41AB-8BF3-97141BACA723}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.DAL.MongoDb", "SignaloBot.DAL.MongoDb\SignaloBot.DAL.MongoDb.csproj", "{206DDE2D-8F6F-49E1-A666-38C8C7DB7CB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.DAL.MongoDb.Tests", "SignaloBot.DAL.MongoDb.Tests\SignaloBot.DAL.MongoDb.Tests.csproj", "{87815527-7243-4735-8AAE-D3B79B993335}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Initializer", "..\Initializer\SignaloBot.Initializer\SignaloBot.Initializer.csproj", "{378E8B07-6E26-41C6-ABFA-36A805D53934}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaloBot.Demo.Sender", "..\Demo\SignaloBot.Demo.Sender\SignaloBot.Demo.Sender.csproj", "{08CAD194-5F9E-458B-8567-EACB3E3C86F0}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccProjectUniqueName0 = SignaloBot.Client\\SignaloBot.Client.csproj
-		SccProjectName0 = SignaloBot.Client
-		SccAuxPath0 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath0 = SignaloBot.Client
-		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName1 = SignaloBot.DAL\\SignaloBot.DAL.csproj
-		SccProjectName1 = SignaloBot.DAL
-		SccAuxPath1 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath1 = SignaloBot.DAL
-		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName2 = SignaloBot.NDR\\SignaloBot.NDR.csproj
-		SccProjectName2 = SignaloBot.NDR
-		SccAuxPath2 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath2 = SignaloBot.NDR
-		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName3 = SignaloBot.Sender\\SignaloBot.Sender.csproj
-		SccProjectName3 = SignaloBot.Sender
-		SccAuxPath3 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath3 = SignaloBot.Sender
-		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName4 = SignaloBot.DAL.Tests\\SignaloBot.DAL.Tests.csproj
-		SccProjectTopLevelParentUniqueName4 = SignaloBot.sln
-		SccProjectName4 = SignaloBot.DAL.Tests
-		SccAuxPath4 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath4 = SignaloBot.DAL.Tests
-		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName5 = SignaloBot.Sender.Tests\\SignaloBot.Sender.Tests.csproj
-		SccProjectTopLevelParentUniqueName5 = SignaloBot.sln
-		SccProjectName5 = SignaloBot.Sender.Tests
-		SccAuxPath5 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath5 = SignaloBot.Sender.Tests
-		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName6 = ..\\TestParameters\\SignaloBot.TestParameters\\SignaloBot.TestParameters.csproj
-		SccProjectTopLevelParentUniqueName6 = SignaloBot.sln
-		SccProjectName6 = ../TestParameters/SignaloBot.TestParameters
-		SccAuxPath6 = http://electro.qwell.ru:28080/tfs/web%20projects
-		SccLocalPath6 = ..\\TestParameters\\SignaloBot.TestParameters
-		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4C81E273-16D2-4B0B-82BB-1520BA1C5A43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C81E273-16D2-4B0B-82BB-1520BA1C5A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C81E273-16D2-4B0B-82BB-1520BA1C5A43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C81E273-16D2-4B0B-82BB-1520BA1C5A43}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8C96A3F3-4CAF-4482-81DF-56B92FE6AF4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8C96A3F3-4CAF-4482-81DF-56B92FE6AF4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C96A3F3-4CAF-4482-81DF-56B92FE6AF4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -90,30 +47,48 @@ Global
 		{09089673-669F-4184-85E8-6D118E963BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09089673-669F-4184-85E8-6D118E963BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09089673-669F-4184-85E8-6D118E963BDB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34761E9F-FB9D-4577-9AC8-E0FDE59D7302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34761E9F-FB9D-4577-9AC8-E0FDE59D7302}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34761E9F-FB9D-4577-9AC8-E0FDE59D7302}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34761E9F-FB9D-4577-9AC8-E0FDE59D7302}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A92D16E-AABC-4FAC-A49B-B9F32EF2145B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A92D16E-AABC-4FAC-A49B-B9F32EF2145B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A92D16E-AABC-4FAC-A49B-B9F32EF2145B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A92D16E-AABC-4FAC-A49B-B9F32EF2145B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14D0502C-7E28-46FA-93EB-CEBA00613436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14D0502C-7E28-46FA-93EB-CEBA00613436}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14D0502C-7E28-46FA-93EB-CEBA00613436}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14D0502C-7E28-46FA-93EB-CEBA00613436}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1351A326-8095-4221-8C9A-21B4505B97D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1351A326-8095-4221-8C9A-21B4505B97D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1351A326-8095-4221-8C9A-21B4505B97D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1351A326-8095-4221-8C9A-21B4505B97D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40F307C3-24AE-41AB-8BF3-97141BACA723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40F307C3-24AE-41AB-8BF3-97141BACA723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40F307C3-24AE-41AB-8BF3-97141BACA723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40F307C3-24AE-41AB-8BF3-97141BACA723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206DDE2D-8F6F-49E1-A666-38C8C7DB7CB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206DDE2D-8F6F-49E1-A666-38C8C7DB7CB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206DDE2D-8F6F-49E1-A666-38C8C7DB7CB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206DDE2D-8F6F-49E1-A666-38C8C7DB7CB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87815527-7243-4735-8AAE-D3B79B993335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87815527-7243-4735-8AAE-D3B79B993335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87815527-7243-4735-8AAE-D3B79B993335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87815527-7243-4735-8AAE-D3B79B993335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{378E8B07-6E26-41C6-ABFA-36A805D53934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{378E8B07-6E26-41C6-ABFA-36A805D53934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{378E8B07-6E26-41C6-ABFA-36A805D53934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{378E8B07-6E26-41C6-ABFA-36A805D53934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08CAD194-5F9E-458B-8567-EACB3E3C86F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08CAD194-5F9E-458B-8567-EACB3E3C86F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08CAD194-5F9E-458B-8567-EACB3E3C86F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08CAD194-5F9E-458B-8567-EACB3E3C86F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{34761E9F-FB9D-4577-9AC8-E0FDE59D7302} = {D5B0C0F2-A993-4707-9B12-DE30B8752D6D}
 		{5A92D16E-AABC-4FAC-A49B-B9F32EF2145B} = {D5B0C0F2-A993-4707-9B12-DE30B8752D6D}
-		{14D0502C-7E28-46FA-93EB-CEBA00613436} = {D5B0C0F2-A993-4707-9B12-DE30B8752D6D}
 		{FCB2C97F-35C8-4D2D-B6FD-56FB61E0721C} = {DCC2C4D8-FAD8-43B0-AC2A-A9925C2B102C}
+		{40F307C3-24AE-41AB-8BF3-97141BACA723} = {D5B0C0F2-A993-4707-9B12-DE30B8752D6D}
+		{87815527-7243-4735-8AAE-D3B79B993335} = {D5B0C0F2-A993-4707-9B12-DE30B8752D6D}
+		{378E8B07-6E26-41C6-ABFA-36A805D53934} = {DCC2C4D8-FAD8-43B0-AC2A-A9925C2B102C}
+		{08CAD194-5F9E-458B-8567-EACB3E3C86F0} = {DCC2C4D8-FAD8-43B0-AC2A-A9925C2B102C}
 	EndGlobalSection
 EndGlobal

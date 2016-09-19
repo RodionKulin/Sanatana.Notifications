@@ -1,5 +1,4 @@
-﻿using Common.TestUtility.Config;
-using Common.TestUtility.Model.Resources;
+﻿using Common.TestUtility;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

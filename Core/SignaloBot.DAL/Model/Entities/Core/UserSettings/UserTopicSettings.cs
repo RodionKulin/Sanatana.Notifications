@@ -4,15 +4,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
-namespace SignaloBot.DAL.Entities.Core
+namespace SignaloBot.DAL
 {
-    public class UserTopicSettings
+    public class UserTopicSettings<TKey>
+        where TKey : struct
     {
         //свойства
-        public Guid UserID { get; set; }
-        public int DeliveryType { get; set; }
+        public TKey UserID { get; set; }
         public int CategoryID { get; set; }
-        public int TopicID { get; set; }
+        public string TopicID { get; set; }
 
         public DateTime AddDateUtc { get; set; }
         public DateTime? LastSendDateUtc { get; set; }

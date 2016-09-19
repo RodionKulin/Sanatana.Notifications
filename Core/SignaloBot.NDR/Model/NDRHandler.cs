@@ -5,22 +5,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SignaloBot.DAL.Entities;
-using SignaloBot.DAL.QueriesNDR;
 using SignaloBot.DAL;
-using SignaloBot.DAL.Enums;
-using SignaloBot.DAL.Queries.NDR;
-using SignaloBot.DAL.Entities.Core;
 
 namespace SignaloBot.NDR.Model
 {
-    public class NDRHandler
+    public class NDRHandler<TKey>
+        where TKey : struct
     {
         //поля
         protected int _ndrCountToBlock = 3;
         protected ICommonLogger _logger;
-        protected INDRQueries _ndrQueries;
-        protected INDRParser _ndrParser;
+        protected ISignalBounceQueries<TKey> _bouncedQueries;
+        protected IUserDeliveryTypeSettingsQueries<TKey> _userQueries;
+        protected INDRParser<TKey> _ndrParser;
         protected int _deliveryType;
 
 
@@ -39,13 +36,25 @@ namespace SignaloBot.NDR.Model
             get { return _logger; }
         }
 
+        public int DeliveryType
+        {
+            get { return _deliveryType; }
+            set { _deliveryType = value; }
+        }
+
+
 
         //инициализация
-        public NDRHandler(int deliveryType, INDRParser ndrParser, INDRQueries ndrQueries, ICommonLogger logger)
+        public NDRHandler()
+        {
+        }
+        public NDRHandler(int deliveryType, ICommonLogger logger, INDRParser<TKey> ndrParser
+            , ISignalBounceQueries<TKey> bouncedQueries, IUserDeliveryTypeSettingsQueries<TKey> userQueries)
         {
             _deliveryType = deliveryType;
             _ndrParser = ndrParser;
-            _ndrQueries = ndrQueries;
+            _bouncedQueries = bouncedQueries;
+            _userQueries = userQueries;
             _logger = logger;
         }
 
@@ -55,31 +64,52 @@ namespace SignaloBot.NDR.Model
         /// Обработать входящий поток amazon SNS сообщения с оповещением о недоставленном письме.
         /// </summary>
         /// <param name="messageStream"></param>
-        public void Handle(Stream requestStream)
+        public Task<bool> Handle(Stream requestStream)
         {
             string requestMessage = ReadRequestStream(requestStream);
 
-            Handle(requestMessage);
+            return Handle(requestMessage);
         }
 
         /// <summary>
         /// Обработать строку amazon SNS сообщения с оповещением о недоставленном письме.
         /// </summary>
         /// <param name="messageString"></param>
-        public void Handle(string requestMessage)
+        public async Task<bool> Handle(string requestMessage)
         {
-            List<BouncedMessage> bouncedMessages = _ndrParser.ParseBounceInfo(requestMessage);
+            List<SignalBounce<TKey>> bouncedMessages = _ndrParser.ParseBounceInfo(requestMessage);
+            List<string> addressesBounced = bouncedMessages.Select(p => p.ReceiverAddress)
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Distinct().ToList();
 
             //обновить UserSettings
-            List<string> addressesBounced = bouncedMessages.Select(p => p.ReceiverAddress)
-                .Distinct().ToList();
-            List<UserDeliveryTypeSettings> userSettings =
-                _ndrQueries.NDRSettings_Select(_deliveryType, addressesBounced);
-            UpdateUserSettings(bouncedMessages, userSettings);
+            if (addressesBounced.Count > 0)
+            {
+                QueryResult<List<UserDeliveryTypeSettings<TKey>>> userSettings =
+                    await _userQueries.Select(_deliveryType, addressesBounced);
+                if (userSettings.HasExceptions)
+                {
+                    return false;
+                }
+
+                bool updated = await UpdateUserSettings(bouncedMessages, userSettings.Result);
+                if (!updated)
+                {
+                    return false;
+                }
+
+                SetReceiverUserIds(bouncedMessages, userSettings.Result);
+            }
 
             //добавить BouncedMessages
-            SetReceiverUserIds(bouncedMessages, userSettings);
-            _ndrQueries.BouncedMessage_Insert(bouncedMessages);
+            if (bouncedMessages.Count > 0)
+            {
+                return await _bouncedQueries.Insert(bouncedMessages);
+            }
+            else
+            {
+                return true;
+            }
         }
         
         /// <summary>
@@ -110,18 +140,18 @@ namespace SignaloBot.NDR.Model
         }
 
         
-        private void UpdateUserSettings(List<BouncedMessage> bouncedMessages, List<UserDeliveryTypeSettings> userSettings)
+        private Task<bool> UpdateUserSettings(List<SignalBounce<TKey>> bouncedMessages, List<UserDeliveryTypeSettings<TKey>> userSettings)
         {
-            var updatedUserSettings = new List<UserDeliveryTypeSettings>();
+            var updatedUserSettings = new List<UserDeliveryTypeSettings<TKey>>();
 
 
             //проверить счётчик недоставленных сообщений по каждому адресу
-            foreach (BouncedMessage bounce in bouncedMessages)
+            foreach (SignalBounce<TKey> bounce in bouncedMessages)
             {
                 if (string.IsNullOrEmpty(bounce.ReceiverAddress))
                     continue;
 
-                UserDeliveryTypeSettings userDeliveryTypeSettings = userSettings
+                UserDeliveryTypeSettings<TKey> userDeliveryTypeSettings = userSettings
                     .FirstOrDefault(p => p.Address == bounce.ReceiverAddress);
 
                 //адрес, который не привязан ни к одному пользователю
@@ -143,19 +173,23 @@ namespace SignaloBot.NDR.Model
             //обновить настройки UserSettings
             if (updatedUserSettings.Count > 0)
             {
-                _ndrQueries.NDRSettings_Update(updatedUserSettings);
+                return _userQueries.UpdateNDRSettings(updatedUserSettings);
+            }
+            else
+            {
+                return Task.FromResult(true);
             }
         }
 
-        private void SetReceiverUserIds(List<BouncedMessage> bouncedMessages, List<UserDeliveryTypeSettings> userSettings)
+        private void SetReceiverUserIds(List<SignalBounce<TKey>> bouncedMessages, List<UserDeliveryTypeSettings<TKey>> userSettings)
         {
             //проверить счётчик недоставленных сообщений по каждому адресу
-            foreach (BouncedMessage bounce in bouncedMessages)
+            foreach (SignalBounce<TKey> bounce in bouncedMessages)
             {
                 if (string.IsNullOrEmpty(bounce.ReceiverAddress))
                     continue;
 
-                UserDeliveryTypeSettings userDeliveryTypeSettings = userSettings
+                UserDeliveryTypeSettings<TKey> userDeliveryTypeSettings = userSettings
                     .FirstOrDefault(p => p.Address == bounce.ReceiverAddress);
 
                 //адрес, который не привязаные ни к одному пользователю

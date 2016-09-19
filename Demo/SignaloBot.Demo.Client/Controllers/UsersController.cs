@@ -1,10 +1,12 @@
-﻿using SignaloBot.DAL.Entities.Core;
+﻿using Common.Utility;
+using MongoDB.Bson;
+using SignaloBot.DAL;
 using SignaloBot.Demo.Client.App_Resources;
 using SignaloBot.Demo.Client.Model;
-using SignaloBot.Demo.Client.Model.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -13,36 +15,34 @@ namespace SignaloBot.Demo.Client.Controllers
     public class UsersController : Controller
     {
         //поля
-        protected SignaloBotManager _signaloBot;
+        protected SignaloBotManager _signalManager;
 
 
 
         //инициализация
         public UsersController()
         {
-            _signaloBot = new SignaloBotManager();
+            _signalManager = new SignaloBotManager();
         }            
 
 
 
         //методы
-        public ActionResult List(int page = 1)
+        public async Task<ActionResult> List(int page = 1)
         {
-            Exception exception;
-            int total;
-
-            List<UserDeliveryTypeSettings> subscriberSettings =
-                _signaloBot.GetAllSubscribers(page, out total, out exception);
+            TotalResult<List<UserDeliveryTypeSettings<ObjectId>>> subscriberSettings =
+                await _signalManager.GetAllSubscribers(page);
 
             return View(subscriberSettings);
         }
 
-        public ActionResult CheckEmail(string email)
+        public async Task<ActionResult> CheckEmail(string email)
         {
-            bool exists = _signaloBot.CheckEmailExists(email);
+            QueryResult<bool> exists = await _signalManager.CheckEmailExists(email);
             return Json(new
             {
-                exists = exists
+                exists = exists.Result,
+                error = exists.HasExceptions
             }, JsonRequestBehavior.AllowGet);
         }
 
@@ -57,27 +57,36 @@ namespace SignaloBot.Demo.Client.Controllers
         }
 
         [HttpPost]
-        public ActionResult Add(NewUserVM user)
+        public async Task<ActionResult> Add(NewUserVM user)
         {
             if (!ModelState.IsValid)
             {
                 return View(user);
             }
 
-            bool exists = _signaloBot.CheckEmailExists(user.Email);
-            if (exists)
+            QueryResult<bool> exists = await _signalManager.CheckEmailExists(user.Email);
+            if (exists.HasExceptions)
+            {
+                string message = string.Format(ViewContent.Common_DatabaseError, user.Email);
+                ModelState.AddModelError("", message);
+                return View(user);
+            }
+            if (exists.Result)
             {
                 string message = string.Format(ViewContent.Users_Add_EmailExists, user.Email);
                 ModelState.AddModelError("", message);
                 return View(user);
             }
 
-            bool result = _signaloBot.AddUser(user);
-            if (result)
+            bool addResult = await _signalManager.AddUser(user);
+            if (!addResult)
             {
-                ViewBag.ResultMessage = ViewContent.Users_Add_AddSuccessful;
+                string message = string.Format(ViewContent.Common_DatabaseError, user.Email);
+                ModelState.AddModelError("", message);
+                return View(user);
             }
 
+            ViewBag.ResultMessage = ViewContent.Users_Add_AddSuccessful;
             return View(user);
         }
 

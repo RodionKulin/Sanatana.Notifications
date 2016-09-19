@@ -4,29 +4,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SignaloBot.DAL.Entities.Core
+namespace SignaloBot.DAL
 {
-    public class UserCategorySettings
+    public class UserCategorySettings<TKey>
+        where TKey : struct
     {
         //свойства
-        public Guid UserID { get; set; }
+        public TKey UserID { get; set; }
+        public TKey? GroupID { get; set; }
         public int DeliveryType { get; set; }
         public int CategoryID { get; set; }
 
-        public bool IsEnabled { get; set; }
         public DateTime? LastSendDateUtc { get; set; }
         public int SendCount { get; set; }
-
-
+        public bool IsEnabled { get; set; }
         
 
 
-        //defaults
-        public static UserCategorySettings Default(Guid userID, int deliveryType, int categoryID)
+        //инициализация
+        public static UserCategorySettings<TKey> Default(
+            TKey userID, int deliveryType, int categoryID, TKey? groupID = null)
         {
-            return new UserCategorySettings()
+            return new UserCategorySettings<TKey>()
             {
                 UserID = userID,
+                GroupID = groupID,
                 DeliveryType = deliveryType,
                 CategoryID = categoryID,
                 IsEnabled = true,

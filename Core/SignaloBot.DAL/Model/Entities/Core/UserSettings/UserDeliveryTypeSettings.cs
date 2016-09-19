@@ -4,21 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SignaloBot.DAL.Entities.Core
+namespace SignaloBot.DAL
 {
-    public class UserDeliveryTypeSettings
+    public class UserDeliveryTypeSettings<TKey>
+        where TKey : struct
     {
         //свойства
-        public Guid UserID { get; set; }
+        public TKey UserID { get; set; }
+        public TKey? GroupID { get; set; }
         public int DeliveryType { get; set; }
         public string Address { get; set; }
+        public string Language { get; set; }
 
 
         //последнее время посещения и отправки
         public string TimeZoneID { get; set; }
         public DateTime? LastUserVisitUtc { get; set; }
         public DateTime? LastSendDateUtc { get; set; }
-        
+
         //включение
         public bool IsEnabled { get; set; }
         public bool IsEnabledOnNewTopic { get; set; }
@@ -32,17 +35,19 @@ namespace SignaloBot.DAL.Entities.Core
         public DateTime? BlockOfNDRResetCodeSendDateUtc { get; set; }
         public string BlockOfNDRResetCode { get; set; }
 
-
-
+        
 
         //инициализация
-        public static UserDeliveryTypeSettings Default(Guid userID, int deliveryType, string address)
+        public static UserDeliveryTypeSettings<TKey> Default(
+            TKey userID, int deliveryType, string address, string language, TKey? groupID = null)
         {
-            return new UserDeliveryTypeSettings()
+            return new UserDeliveryTypeSettings<TKey>()
             {
                 UserID = userID,
-                DeliveryType= deliveryType,
+                GroupID = groupID,
+                DeliveryType = deliveryType,
                 Address = address,
+                Language = language,
                 
                 TimeZoneID = null,
                 LastUserVisitUtc = null,

@@ -10,12 +10,13 @@ using SignaloBot.Amazon.NDR.SES;
 using System.Xml.Linq;
 using SignaloBot.Amazon.Enums;
 using SignaloBot.Amazon;
-using SignaloBot.DAL.Entities;
 using SignaloBot.NDR.Model;
+using SignaloBot.DAL;
 
 namespace SignaloBot.Amazon.NDR
 {
-    public class AmazonNDRParser : INDRParser
+    public class AmazonNDRParser<TKey> : INDRParser<TKey>
+        where TKey : struct
     {
         //поля
         AmazonSnsManager _amazonSnsManager;
@@ -45,20 +46,20 @@ namespace SignaloBot.Amazon.NDR
         /// Обработать строку amazon SNS сообщения с оповещением о недоставленном письме.
         /// </summary>
         /// <param name="messageString"></param>
-        public List<BouncedMessage> ParseBounceInfo(string requestMessage)
+        public List<SignalBounce<TKey>> ParseBounceInfo(string requestMessage)
         {
             //string => sns message
             AmazonSnsMessage message;
             bool isValid = _amazonSnsManager.ParseRequest(requestMessage, out message);
             if (isValid == false)
-                return new List<BouncedMessage>();
+                return new List<SignalBounce<TKey>>();
            
             //sns message => ses message
             AmazonSesNotification sesNotification = ExtractSesNotification(message);
             if (sesNotification == null)
-                return new List<BouncedMessage>();
+                return new List<SignalBounce<TKey>>();
 
-            //ses message => List<BouncedMessage>
+            //ses message => List<SignalBounce<TKey>>
             return CreateBounceList(sesNotification);
         }
 
@@ -86,9 +87,9 @@ namespace SignaloBot.Amazon.NDR
             return sesNotification;
         }               
 
-        private List<BouncedMessage> CreateBounceList(AmazonSesNotification sesNotification)
+        private List<SignalBounce<TKey>> CreateBounceList(AmazonSesNotification sesNotification)
         {
-            List<BouncedMessage> bouncedMessages = new List<BouncedMessage>();
+            List<SignalBounce<TKey>> bouncedMessages = new List<SignalBounce<TKey>>();
            
             if (sesNotification.AmazonSesMessageType == AmazonSesMessageType.Unknown)
             {
@@ -102,14 +103,14 @@ namespace SignaloBot.Amazon.NDR
             {
                 foreach (AmazonSesBouncedRecipient recipient in sesNotification.Bounce.BouncedRecipients)
                 {
-                    DAL.Enums.BounceType bounceType = sesNotification.Bounce.AmazonBounceType == AmazonBounceType.Permanent
-                            ? DAL.Enums.BounceType.HardBounce
-                            : DAL.Enums.BounceType.SoftBounce;
+                    BounceType bounceType = sesNotification.Bounce.AmazonBounceType == AmazonBounceType.Permanent
+                            ? BounceType.HardBounce
+                            : BounceType.SoftBounce;
 
                     string detailsXml = XmlBounceDetails.DetailsToXml(sesNotification.AmazonSesMessageType
                         , sesNotification.Bounce.AmazonBounceType, sesNotification.Bounce.AmazonBounceSubType);
                                           
-                    BouncedMessage bouncedMessage = CreateBouncedMessage(bounceType
+                    SignalBounce<TKey> bouncedMessage = CreateBouncedMessage(bounceType
                           , sesNotification.Mail, recipient.EmailAddress, detailsXml);
 
                     bouncedMessages.Add(bouncedMessage);
@@ -124,7 +125,7 @@ namespace SignaloBot.Amazon.NDR
                     string detailsXml = XmlBounceDetails.DetailsToXml(sesNotification.AmazonSesMessageType
                         , complaintFeedbackType: sesNotification.Complaint.AmazonComplaintFeedbackType);
 
-                    BouncedMessage bouncedMessage = CreateBouncedMessage(DAL.Enums.BounceType.HardBounce
+                    SignalBounce<TKey> bouncedMessage = CreateBouncedMessage(BounceType.HardBounce
                         , sesNotification.Mail, recipient.EmailAddress, detailsXml);
 
                     bouncedMessages.Add(bouncedMessage);
@@ -134,10 +135,10 @@ namespace SignaloBot.Amazon.NDR
             return bouncedMessages;
         }
 
-        private BouncedMessage CreateBouncedMessage(DAL.Enums.BounceType type, AmazonSesMail mail
+        private SignalBounce<TKey> CreateBouncedMessage(BounceType type, AmazonSesMail mail
             , string recipientEmail, string detailsXml)
         {
-            BouncedMessage bouncedMessage = new BouncedMessage()
+            SignalBounce<TKey> bouncedMessage = new SignalBounce<TKey>()
             {
                 ReceiverAddress = recipientEmail,
 

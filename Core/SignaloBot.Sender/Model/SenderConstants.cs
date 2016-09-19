@@ -8,18 +8,23 @@ namespace SignaloBot.Sender
 {
     internal static class SenderConstants
     {
-        //Dispatcher
-        public static readonly TimeSpan DISPATCHER_TIMER_INTERVAL = TimeSpan.FromMilliseconds(100);
+        //hub
+        public static readonly TimeSpan QUEUES_TICK_INTERVAL = TimeSpan.FromMilliseconds(100);
+        public static readonly TimeSpan PROCESSORS_TICK_INTERVAL = TimeSpan.FromMilliseconds(20);
+        public static readonly TimeSpan STOPPING_MONITOR_TICK_INTERVAL = TimeSpan.FromMilliseconds(100);
+
+        //Queue
+        public const int QUEUE_ITEMS_QUERY_COUNT = 500;
+        public static readonly TimeSpan QUEUE_QUERY_PERIOD = TimeSpan.FromSeconds(60);
+        public const int QUEUE_MAX_FAILED_ATTEMPTS = 2;
+        public static readonly TimeSpan QUEUE_FAILED_ATTEMPT_RETRY_PERIOD = TimeSpan.FromMinutes(10);
+        public static readonly TimeSpan QUEUE_FLUSH_PERIOD = TimeSpan.FromSeconds(20);
+        public const int QUEUE_RETURN_TO_STORAGE_AFTER_ITEMS_COUNT = 1000;
 
 
-        //MessageProvider
-        public const int STORAGE_MESSAGE_QUERY_COUNT_DEFAULT = 100;
-        public static readonly TimeSpan STORAGE_QUERY_PERIOD_DEFAULT = TimeSpan.FromSeconds(60);
+        //Composer
+        public const int COMPOSER_SUBSCRIBERS_QUERY_COUNT = 2000;
 
-
-        //MessageQueue
-        public const int MAX_DELIVERY_FAILED_ATTEMPTS_DEFAULT = 2;
-        public static readonly TimeSpan FAILED_ATTEMPT_RETRY_PERIOD_DEFAULT = TimeSpan.FromMinutes(10);
 
 
         //ProgressiveFailPenalty

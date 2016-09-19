@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace SignaloBot.Demo.Client.Model.ViewModels
+namespace SignaloBot.Demo.Client.Model
 {
     public class NewUserVM
     {

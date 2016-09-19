@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Web;
 
 namespace SignaloBot.Demo.Sender
@@ -24,7 +25,7 @@ namespace SignaloBot.Demo.Sender
 
 
 
-        //методы
+        //Debug
         public void Debug(string message)
         {
             _logger.Debug(message);
@@ -35,6 +36,8 @@ namespace SignaloBot.Demo.Sender
             _logger.Debug(message, parameters);
         }
 
+
+        //Info
         public void Info(string message)
         {
             _logger.Info(message);
@@ -45,24 +48,30 @@ namespace SignaloBot.Demo.Sender
             _logger.Info(message, parameters);
         }
 
+
+        //Error
         public void Error(string message)
         {
-            Exception(new Exception(message));
+            _logger.Error(message);
         }
 
         public void Error(string message, params object[] parameters)
         {
             message = string.Format(message, parameters);
-            Error(message);
+            _logger.Error(message);
         }
 
+
+        //Exception
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public void Exception(Exception exception)
         {
             StackFrame callingMethodFrame = new StackFrame(1);
             MethodBase callingMethod = callingMethodFrame.GetMethod();
-            string message = string.Format("Ошибка в методе {0} класса {1}.", callingMethod.Name, callingMethod.DeclaringType.FullName);
+            string message = string.Format("Exception in method: {0} of class: {1}."
+                , callingMethod.Name, callingMethod.DeclaringType.FullName);
 
-            Exception(exception, message);
+            _logger.Error(message, exception);
         }
 
         public void Exception(Exception exception, string message)
@@ -73,8 +82,10 @@ namespace SignaloBot.Demo.Sender
         public void Exception(Exception exception, string message, params object[] parameters)
         {
             message = string.Format(message, parameters);
-            Exception(exception, message);
+            _logger.Error(message, exception);
         }
+        
+
 
         //IDisposable
         public void Dispose()

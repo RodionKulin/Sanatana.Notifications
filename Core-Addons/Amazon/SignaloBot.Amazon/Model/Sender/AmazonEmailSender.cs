@@ -1,6 +1,4 @@
-﻿using SignaloBot.DAL.Entities;
-using SignaloBot.DAL.Entities.Core;
-using SignaloBot.Sender;
+﻿using SignaloBot.Sender;
 using SignaloBot.Sender.Senders;
 using Amazon.Runtime;
 using Amazon.SimpleEmail;
@@ -13,10 +11,14 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using SignaloBot.Sender.Processors;
+using SignaloBot.Amazon.Resources;
+using SignaloBot.DAL;
 
 namespace SignaloBot.Amazon.Sender
 {
-    public class AmazonEmailSender : ISender<Signal>
+    public class AmazonEmailSender<TKey> : IDispatcher<TKey>
+        where TKey : struct
     {
         //свойства
         /// <summary>
@@ -38,14 +40,26 @@ namespace SignaloBot.Amazon.Sender
 
 
         //методы
-        public virtual SendResult Send(Signal message)
+        public virtual ProcessingResult Send(SignalDispatchBase<TKey> item)
         {
+            if (!(item is SubjectDispatch<TKey>))
+            {
+                if (Logger != null)
+                {
+                    Logger.Error(SignaloBot.Sender.Resources.InternalMessages.SmtpEmailSender_WrongType
+                        , item.GetType(), typeof(SubjectDispatch<TKey>));
+                }
+
+                return ProcessingResult.Fail;
+            }
+
+            SubjectDispatch<TKey> signal = item as SubjectDispatch<TKey>;
             bool send = false;
 
             using (var client = new AmazonSimpleEmailServiceClient(Credentials.AwsAccessKey,
                 Credentials.AwsSecretKey, Credentials.RegionEndpoint))
             {
-                SendEmailRequest request = CreateAmazonRequest(message);
+                SendEmailRequest request = CreateAmazonRequest(signal);
                 SendEmailResponse response = null;
                 
                 try
@@ -57,18 +71,18 @@ namespace SignaloBot.Amazon.Sender
                 {
                     if (Logger != null)
                     {
-                        Logger.Exception(exception, "Ошибка доставки почты через Amazon по адресу {0}"
-                            , message.ReceiverAddress);
+                        Logger.Exception(exception, InternalMessages.SendException
+                            , signal.ReceiverAddress);
                     }
                 }
             }
 
             return send
-                ? SendResult.Success
-                : SendResult.Fail;
+                ? ProcessingResult.Success
+                : ProcessingResult.Fail;
         }
 
-        protected virtual SendEmailRequest CreateAmazonRequest(Signal message)
+        protected virtual SendEmailRequest CreateAmazonRequest(SubjectDispatch<TKey> message)
         {
             // Construct an object to contain the recipient address.
             Destination destination = new Destination();
@@ -97,14 +111,14 @@ namespace SignaloBot.Amazon.Sender
             return request;
         }
 
-        public virtual SenderAvailability CheckAvailability()
+        public virtual DispatcherAvailability CheckAvailability()
         {
             if (AvailabilityCheckEmailAddress == null)
             {
-                return SenderAvailability.NotChecked;
+                return DispatcherAvailability.NotChecked;
             }
 
-            SendResult result = Send(new Signal()
+            ProcessingResult result = Send(new SubjectDispatch<TKey>()
             {
                 ReceiverAddress = AvailabilityCheckEmailAddress,
                 SenderAddress = AvailabilityCheckEmailAddress,
@@ -113,9 +127,9 @@ namespace SignaloBot.Amazon.Sender
                 IsBodyHtml = false
             });
 
-            return result == SendResult.Success
-                ? SenderAvailability.Available
-                : SenderAvailability.NotAvailable;
+            return result == ProcessingResult.Success
+                ? DispatcherAvailability.Available
+                : DispatcherAvailability.NotAvailable;
         }
 
 

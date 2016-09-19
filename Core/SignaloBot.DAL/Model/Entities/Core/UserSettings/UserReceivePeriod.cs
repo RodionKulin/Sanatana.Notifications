@@ -1,16 +1,15 @@
-﻿using SignaloBot.DAL.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SignaloBot.DAL.Entities.Core
+namespace SignaloBot.DAL
 {
-    public class UserReceivePeriod
+    public class UserReceivePeriod<TKey>
+        where TKey : struct
     {
-        public Guid UserID { get; set; }
-        public int DeliveryType { get; set; }
-        public int CategoryID { get; set; }
+        public TKey UserID { get; set; }
+        public int ReceivePeriodsGroupID { get; set; }
         public int PeriodOrder { get; set; }
 
         public TimeSpan PeriodBegin { get; set; }

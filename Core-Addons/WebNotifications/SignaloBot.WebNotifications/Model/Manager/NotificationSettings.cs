@@ -1,5 +1,4 @@
 ﻿using SignaloBot.Client.Templates;
-using SignaloBot.DAL.Entities;
 using SignaloBot.WebNotifications.Entities;
 using System;
 using System.Collections.Generic;

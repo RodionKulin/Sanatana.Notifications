@@ -1,4 +1,4 @@
-﻿using SignaloBot.DAL.Entities;
+﻿
 using Common.Utility;
 using System;
 using System.Collections.Generic;
@@ -110,7 +110,7 @@ namespace SignaloBot.WebNotifications.Manager
         
         
         //удаление
-        public void DeleteTopic(Guid userID, int categoryID, int topicID, out Exception exception)
+        public void DeleteTopic(Guid userID, int categoryID, string topicID, out Exception exception)
         {
             NotificationSettings settings = _settings.FindNotificationSettings(categoryID);
             

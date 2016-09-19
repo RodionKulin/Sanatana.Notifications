@@ -67,7 +67,7 @@ namespace SignaloBot.Demo.Client.Model
 
         public void Exception(Exception exception, string message)
         {
-            _logger.Error(message, exception);
+            _logger.Error(exception, message);
         }
 
         public void Exception(Exception exception, string message, params object[] parameters)

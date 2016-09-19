@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 
 namespace SignaloBot.NDR.Model.Service
 {
-    public abstract class NDRHandlerService
+    public abstract class NDRHandlerService<TKey>
+        where TKey : struct
     {
         //поля
-        protected NDRHandler _ndrHandler;
+        protected NDRHandler<TKey> _ndrHandler;
         protected bool _logIncomingMessages;
 
 
@@ -20,10 +21,12 @@ namespace SignaloBot.NDR.Model.Service
         {
             _ndrHandler = InitializeNDRHandler();
         }
+        protected abstract NDRHandler<TKey> InitializeNDRHandler();
+
 
 
         //методы
-        public void HandleNDR(Stream stream)
+        public Task<bool> HandleNDR(Stream stream)
         {
             if (_logIncomingMessages)
             {
@@ -35,14 +38,13 @@ namespace SignaloBot.NDR.Model.Service
 {0}", requestMessage);
                 }
 
-                _ndrHandler.Handle(requestMessage);
+                return _ndrHandler.Handle(requestMessage);
             }
             else
             {
-                _ndrHandler.Handle(stream);
+                return _ndrHandler.Handle(stream);
             }
         }
 
-        protected abstract NDRHandler InitializeNDRHandler();
     }
 }

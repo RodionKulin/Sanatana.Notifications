@@ -1,5 +1,4 @@
-﻿using Common.TestUtility.Config;
-using Common.TestUtility.Model.Resources;
+﻿using Common.TestUtility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,7 +33,7 @@ namespace SignaloBot.TestParameters.Model
         public static ConfigParametersLoader GetConfigLoader()
         {
             Assembly configResourceAssembly = Assembly.GetCallingAssembly();
-            string exampleConfig = ResourceHelper.ReadResource(configResourceAssembly, Constants.EXAMPLE_CONFIG_RESOURCE);
+            string exampleConfig = ResourceUtility.ReadResource(configResourceAssembly, Constants.EXAMPLE_CONFIG_RESOURCE);
             string configPath = GetConfigPath();
             ConfigParametersLoader loader = new ConfigParametersLoader(configPath, exampleConfig);
 

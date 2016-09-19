@@ -12,14 +12,12 @@ namespace SignaloBot.Demo.Client.Controllers
     {
         //поля
         private SignaloBotManager _signaloBot;
-        private SignaloBotQueries _queries;
 
 
         //инициализация
         public HomeController()
         {
             _signaloBot = new SignaloBotManager();
-            _queries = new SignaloBotQueries();
         }            
 
 
@@ -33,24 +31,18 @@ namespace SignaloBot.Demo.Client.Controllers
         [HttpGet]
         public ActionResult Send()
         {
-            ViewBag.SendQueue = _queries.SelectSignals();
-
             return View();
         }
 
         [HttpPost]
         public ActionResult Send(string param = null)
         {
-            Exception exception;
-            int subscribersCount;
-            _signaloBot.SendGamesSignal(out exception, out subscribersCount);
+            bool result = _signaloBot.EnqueueSignal();
 
-            ViewBag.ResultMessage = exception == null
-                ? string.Format(ViewContent.Home_Send_ResultSuccessful, subscribersCount)
-                : exception.Message;
-
-            ViewBag.SendQueue = _queries.SelectSignals();
-
+            ViewBag.ResultMessage = result
+                ? string.Format(ViewContent.Home_Send_ResultSuccessful, DateTime.Now.ToLongTimeString())
+                : string.Format(ViewContent.Common_ServiceError, DateTime.Now.ToLongTimeString());
+            
             return View();
         }
 

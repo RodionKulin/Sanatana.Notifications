@@ -1,5 +1,4 @@
 ﻿using SignaloBot.Amazon;
-using SignaloBot.Amazon;
 using Amazon.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SignaloBot.TestParameters.Model;
 using SignaloBot.Amazon;
 using SignaloBot.Amazon.Sender;
-using SignaloBot.Amazon;
 using Common.Utility;
 using SignaloBot.TestParameters.Model.Stubs;
 using SignaloBot.Sender;

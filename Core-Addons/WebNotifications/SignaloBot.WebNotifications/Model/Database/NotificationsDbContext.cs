@@ -1,5 +1,4 @@
-﻿using SignaloBot.DAL.Entities;
-using SignaloBot.WebNotifications.Database.Mapping;
+﻿using SignaloBot.WebNotifications.Database.Mapping;
 using SignaloBot.WebNotifications.Entities;
 using System;
 using System.Collections.Generic;

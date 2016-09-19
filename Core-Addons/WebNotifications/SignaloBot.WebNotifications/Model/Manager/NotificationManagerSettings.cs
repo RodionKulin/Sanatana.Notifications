@@ -1,6 +1,4 @@
 ﻿using SignaloBot.Client;
-using SignaloBot.DAL.Queries;
-using SignaloBot.DAL.Queries.Client;
 using Common.Utility;
 using System;
 using System.Collections.Generic;

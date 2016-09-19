@@ -56,6 +56,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Build\SignaloBot.DAL.dll</HintPath>
     </Reference>
+    <Reference Include="SignaloBot.DAL.SQL">
+      <HintPath>..\..\..\Build\SignaloBot.DAL.SQL.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -83,10 +86,10 @@
     <Compile Include="Model\Manager\NotificationManagerSettings.cs" />
     <Compile Include="Model\Manager\NotificationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\NotificationScripts.Designer.cs">
+    <Compile Include="Resources\WebNotificationScripts.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>NotificationScripts.resx</DependentUpon>
+      <DependentUpon>WebNotificationScripts.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -94,9 +97,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\NotificationScripts.resx">
+    <EmbeddedResource Include="Resources\WebNotificationScripts.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>NotificationScripts.Designer.cs</LastGenOutput>
+      <LastGenOutput>WebNotificationScripts.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

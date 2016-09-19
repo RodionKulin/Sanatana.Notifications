@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="64775410-5355-471a-a803-d1b19b1d1442" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="net.pipe://localhost/SignaloBot.Service/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="54bc96c4-56bd-4088-8f45-6846d9c59766" SourceId="1" SourceUrl="net.pipe://localhost/SignaloBot.Service/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="e05887a1-e5f6-451b-af8e-277f36117d7d" SourceId="1" SourceUrl="net.pipe://localhost/SignaloBot.Service/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="5c519828-f986-40fc-8ed6-33e0a86e6815" SourceId="1" SourceUrl="net.pipe://localhost/SignaloBot.Service/mex" />
+    <MetadataFile FileName="MongoDB.Bson.xsd" MetadataType="Schema" ID="e97ae5bc-a2cd-4ea9-b901-2f37e350ac0d" SourceId="1" SourceUrl="net.pipe://localhost/SignaloBot.Service/mex" />
+    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="5aae8913-1986-4e77-bcef-bcfc6f1742eb" SourceId="1" SourceUrl="net.pipe://localhost/SignaloBot.Service/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

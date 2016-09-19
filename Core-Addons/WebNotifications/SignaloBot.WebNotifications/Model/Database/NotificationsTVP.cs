@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Common.Utility;
 using System.Data.SqlClient;
-using SignaloBot.DAL.Entities;
 using Common.EntityFramework;
 using SignaloBot.WebNotifications.Entities;
 

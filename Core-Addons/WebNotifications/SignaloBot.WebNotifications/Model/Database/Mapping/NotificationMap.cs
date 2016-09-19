@@ -1,4 +1,3 @@
-using SignaloBot.DAL.Entities;
 using SignaloBot.WebNotifications.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Infrastructure.Annotations;
@@ -15,6 +14,7 @@ namespace SignaloBot.WebNotifications.Database.Mapping
 
 
             // Properties
+            this.Property(t => t.TopicID).IsRequired().HasMaxLength(4000);
             this.Property(t => t.NotifyText).IsRequired();
             this.Property(t => t.SendDateUtc).HasColumnType("datetime2");
             this.Property(t => t.Culture).IsRequired();

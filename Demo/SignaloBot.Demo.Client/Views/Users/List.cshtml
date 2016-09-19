@@ -1,5 +1,4 @@
-﻿@using SignaloBot.DAL.Entities.Core
-@model List<UserDeliveryTypeSettings>
+﻿@model TotalResult<List<UserDeliveryTypeSettings<ObjectId>>>
 
 @{
     ViewBag.Title = ViewContent.Users_List_Title;
@@ -30,7 +29,7 @@
             @ViewContent.Users_List_EmailEnabledCol
         </td>
     </tr>
-@foreach (UserDeliveryTypeSettings user in Model)
+@foreach (UserDeliveryTypeSettings<ObjectId> user in Model.Result)
 {
     <tr>
         <td>

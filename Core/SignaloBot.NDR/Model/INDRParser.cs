@@ -1,4 +1,4 @@
-﻿using SignaloBot.DAL.Entities;
+﻿using SignaloBot.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace SignaloBot.NDR.Model
 {
-    public interface INDRParser
+    public interface INDRParser<TKey>
+        where TKey : struct
     {
-        List<BouncedMessage> ParseBounceInfo(string requestMessage);
+        List<SignalBounce<TKey>> ParseBounceInfo(string requestMessage);
     }
 }

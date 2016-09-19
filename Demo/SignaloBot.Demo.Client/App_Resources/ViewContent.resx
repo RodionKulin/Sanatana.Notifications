@@ -142,19 +142,19 @@
     <value>Visit</value>
   </data>
   <data name="Home_Send_AddTitle" xml:space="preserve">
-    <value>Add message</value>
+    <value>Raise event</value>
   </data>
   <data name="Home_Send_IsDelayedCol" xml:space="preserve">
     <value>Is delayed</value>
   </data>
   <data name="Home_Send_QueueTitle" xml:space="preserve">
-    <value>Send queue</value>
+    <value>SignalDispatch queue</value>
   </data>
   <data name="Home_Send_ReceiverCol" xml:space="preserve">
     <value>Receiver</value>
   </data>
   <data name="Home_Send_ResultSuccessful" xml:space="preserve">
-    <value>Message enqueued for {0} subscribers</value>
+    <value>New event send to server at {0}</value>
   </data>
   <data name="Home_Send_Send" xml:space="preserve">
     <value>Send</value>
@@ -163,7 +163,7 @@
     <value>Sender</value>
   </data>
   <data name="Home_Send_SendMessage" xml:space="preserve">
-    <value>Send demo message to a database queue.</value>
+    <value>Demo server must be turned on to receive new SignalEvent.</value>
   </data>
   <data name="Home_Send_SendTimeCol" xml:space="preserve">
     <value>Send time</value>
@@ -230,5 +230,14 @@
   </data>
   <data name="Home_Send_FailedAttemptsCol" xml:space="preserve">
     <value>Failed send attempts</value>
+  </data>
+  <data name="Common_DatabaseError" xml:space="preserve">
+    <value>Error connecting to database</value>
+  </data>
+  <data name="Home_Index_HeadTitle" xml:space="preserve">
+    <value>SignaloBot DEMO</value>
+  </data>
+  <data name="Common_ServiceError" xml:space="preserve">
+    <value>Error connecting to service at {0}</value>
   </data>
 </root>

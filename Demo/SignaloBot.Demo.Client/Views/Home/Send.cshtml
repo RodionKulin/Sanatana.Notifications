@@ -1,6 +1,4 @@
-﻿@using SignaloBot.DAL.Entities.Core
-
-@{
+﻿@{
     ViewBag.Title = ViewContent.Home_Send_Title;
 }
 
@@ -10,7 +8,7 @@
 
 @if(ViewBag.ResultMessage != null)
 {
-    <div class="alert alert-success" role="alert">
+    <div class="alert alert-info" role="alert">
         @ViewBag.ResultMessage
     </div>
 }
@@ -22,38 +20,39 @@
     <input type="submit" value="@ViewContent.Home_Send_Send"class="btn btn-default"/>
 }
 
-<h2 class="margint-middle">@ViewContent.Home_Send_QueueTitle</h2>
+@*
+    <h2 class="margint-middle">@ViewContent.Home_Send_QueueTitle</h2>
 
-<table>
-    <tr class="bold">
-        <td class="column">@ViewContent.Home_Send_ReceiverCol</td>
-        <td class="column">@ViewContent.Home_Send_SenderCol</td>
-        <td class="column">@ViewContent.Home_Send_SubjectCol</td>
-        <td class="column">@ViewContent.Home_Send_SendTimeCol</td>
-        <td class="column">@ViewContent.Home_Send_IsDelayedCol</td>
-        <td class="column">@ViewContent.Home_Send_FailedAttemptsCol</td>
-    </tr>
-    @foreach (Signal message in ViewBag.SendQueue)
-    {
-        <tr>
-            <td class="column">
-                @message.ReceiverAddress
-            </td>
-            <td class="column">
-                @message.SenderAddress
-            </td>
-            <td class="column">
-                @message.MessageSubject
-            </td>
-            <td class="column">
-                @message.SendDateUtc UTC
-            </td>
-            <td class="column">
-                @message.IsDelayed
-            </td>
-            <td class="column">
-                @message.FailedAttempts
-            </td>
+    <table>
+        <tr class="bold">
+            <td class="column">@ViewContent.Home_Send_ReceiverCol</td>
+            <td class="column">@ViewContent.Home_Send_SenderCol</td>
+            <td class="column">@ViewContent.Home_Send_SubjectCol</td>
+            <td class="column">@ViewContent.Home_Send_SendTimeCol</td>
+            <td class="column">@ViewContent.Home_Send_IsDelayedCol</td>
+            <td class="column">@ViewContent.Home_Send_FailedAttemptsCol</td>
         </tr>
-    }
-</table>
+        @foreach (Signal message in ViewBag.SendQueue)
+        {
+            <tr>
+                <td class="column">
+                    @message.ReceiverAddress
+                </td>
+                <td class="column">
+                    @message.SenderAddress
+                </td>
+                <td class="column">
+                    @message.MessageSubject
+                </td>
+                <td class="column">
+                    @message.SendDateUtc UTC
+                </td>
+                <td class="column">
+                    @message.IsDelayed
+                </td>
+                <td class="column">
+                    @message.FailedAttempts
+                </td>
+            </tr>
+        }
+    </table>*@

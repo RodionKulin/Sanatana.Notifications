@@ -8,10 +8,11 @@ using System.Web.Http;
 
 namespace SignaloBot.NDR.Host
 {
-    public abstract class NDRController: ApiController
+    public abstract class NDRController<TKey> : ApiController
+        where TKey : struct
     {
         //поля
-        protected NDRHandler _handler;
+        protected NDRHandler<TKey> _handler;
 
 
         //инициализация
@@ -19,15 +20,15 @@ namespace SignaloBot.NDR.Host
         {
             _handler = InitializeHandler();
         }
-        protected abstract NDRHandler InitializeHandler();
+        protected abstract NDRHandler<TKey> InitializeHandler();
 
 
 
         // GET NDR
         [HttpPost]
-        public void Handle([FromBody]string value)
+        public async Task Handle([FromBody]string value)
         {
-            _handler.Handle(value);
+            await _handler.Handle(value);
         }
     }
 }

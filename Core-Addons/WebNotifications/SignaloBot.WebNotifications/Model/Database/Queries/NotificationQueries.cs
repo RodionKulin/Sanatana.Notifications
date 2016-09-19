@@ -8,15 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Data.Entity.Infrastructure;
-using SignaloBot.DAL.Entities;
 using Common.Utility;
-using SignaloBot.DAL.Queries.Client;
 using Common.EntityFramework.SafeCall;
 using Common.EntityFramework.Merge;
 using Common.EntityFramework;
 using SignaloBot.WebNotifications.Entities.Results;
 using SignaloBot.WebNotifications.Entities;
 using SignaloBot.DAL;
+using SignaloBot.DAL.SQL;
 
 namespace SignaloBot.WebNotifications.Database.Queries
 {
@@ -198,7 +197,7 @@ AND CategoryID = @CategoryID", _prefix);
             return rowsEffected;
         }
 
-        public virtual int DeleteTopic(Guid userID, int categoryID, int topicID, out Exception exception)
+        public virtual int DeleteTopic(Guid userID, int categoryID, string topicID, out Exception exception)
         {
             int rowsEffected = 0;
 

@@ -11,7 +11,7 @@ namespace SignaloBot.WebNotifications.Entities
         public Guid NotificationID { get; set; }
         public Guid UserID { get; set; }
         public int CategoryID { get; set; }
-        public int TopicID { get; set; }        
+        public string TopicID { get; set; }        
         public string MetaType { get; set; }        
         public string MetaKey { get; set; }
         public string MetaValue { get; set; }
@@ -23,12 +23,11 @@ namespace SignaloBot.WebNotifications.Entities
 
 
         //инициализация
-        public static NotificationMeta Create(Guid userID, int categoryID, int topicID,
+        public static NotificationMeta Create(Guid userID, int categoryID, string topicID,
             string type, string key, string value)
         {
             return new NotificationMeta()
             {
-                //NotificationID = notify.NotificationID,
                 UserID = userID,
                 CategoryID = categoryID,
                 TopicID = topicID,

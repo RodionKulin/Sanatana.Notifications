@@ -4,45 +4,46 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SignaloBot.DAL.Entities.Parameters
+namespace SignaloBot.DAL
 {
     public class UpdateParameters
     {
         //свойства
-        public bool UpdateDeliveryTypeLastSendDateUtc { get; set; }
-        public bool UpdateCategoryLastSendDateUtc { get; set; }
-        public bool UpdateTopicLastSendDateUtc { get; set; }
+        public virtual bool UpdateDeliveryTypeLastSendDateUtc { get; set; }
+        public virtual bool UpdateCategoryLastSendDateUtc { get; set; }
+        public virtual bool UpdateTopicLastSendDateUtc { get; set; }
         
-        public bool UpdateDeliveryTypeSendCount { get; set; }
-        public bool UpdateCategorySendCount { get; set; }
-        public bool UpdateTopicSendCount { get; set; }
+        public virtual bool UpdateDeliveryTypeSendCount { get; set; }
+        public virtual bool UpdateCategorySendCount { get; set; }
+        public virtual bool UpdateTopicSendCount { get; set; }
 
-        public bool CreateCategoryIfNotExist { get; set; }
-        public bool CreateTopicIfNotExist { get; set; }
+        public virtual bool CreateCategoryIfNotExist { get; set; }
+        public virtual bool CreateTopicIfNotExist { get; set; }
+
 
         //зависимые свойства
-        internal bool UpdateDeliveryType
+        public virtual bool UpdateDeliveryType
         {
             get
             {
                 return UpdateDeliveryTypeLastSendDateUtc || UpdateDeliveryTypeSendCount;
             }
         }
-        internal bool UpdateCategory
+        public virtual bool UpdateCategory
         {
             get
             {
                 return UpdateCategoryLastSendDateUtc || UpdateCategorySendCount;
             }
         }
-        internal bool UpdateTopic
+        public virtual bool UpdateTopic
         {
             get
             {
                 return UpdateTopicLastSendDateUtc || UpdateTopicSendCount;
             }
         }
-        internal bool UpdateAnything
+        public virtual bool UpdateAnything
         {
             get
             {

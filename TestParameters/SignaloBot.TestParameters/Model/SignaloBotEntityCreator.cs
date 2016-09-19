@@ -1,7 +1,4 @@
 ﻿using SignaloBot.DAL;
-using SignaloBot.DAL.Entities;
-using SignaloBot.DAL.Entities.Core;
-using SignaloBot.DAL.Enums;
 using SignaloBot.TestParameters.Model;
 using Common.Utility;
 using System;
@@ -10,16 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SignaloBot.Client.Manager;
+using MongoDB.Bson;
 
 namespace SignaloBot.TestParameters.Model
 {
-    public class SignaloBotEntityCreator
+    public class SignaloBotEntityCreator<TKey>
+        where TKey : struct
     {
         //методы
-        public static UserDeliveryTypeSettings CreateUserDeliveryTypeSettings(Guid userId)
+        public static UserDeliveryTypeSettings<TKey> CreateUserDeliveryTypeSettings(TKey userId)
         {
-            return new UserDeliveryTypeSettings()
+            return new UserDeliveryTypeSettings<TKey>()
             {
                 UserID = userId,
                 DeliveryType = SignaloBotTestParameters.ExistingDeliveryType,
@@ -41,13 +39,13 @@ namespace SignaloBot.TestParameters.Model
             };
         }
 
-        public static UserCategorySettings CreateUserCategorySettings(int? categoryID = null)
+        public static UserCategorySettings<TKey> CreateUserCategorySettings(TKey userId, int? categoryID = null)
         {
             categoryID = categoryID ?? SignaloBotTestParameters.ExistingCategoryID;
 
-            return new UserCategorySettings()
+            return new UserCategorySettings<TKey>()
             {
-                UserID = SignaloBotTestParameters.ExistingUserID,
+                UserID = userId,
                 DeliveryType = SignaloBotTestParameters.ExistingDeliveryType,
                 CategoryID = categoryID.Value,
                 LastSendDateUtc = DateTime.UtcNow,
@@ -56,38 +54,38 @@ namespace SignaloBot.TestParameters.Model
             };
         }
 
-        public static UserTopicSettings CreateUserTopicSettings(int? categoryID = null, int? topicID = null)
+        public static UserTopicSettings<TKey> CreateUserTopicSettings(TKey userID
+            , int? categoryID = null, string topicID = null)
         {
             categoryID = categoryID ?? SignaloBotTestParameters.ExistingCategoryID;
             topicID = topicID ?? SignaloBotTestParameters.ExistingSubscriptionTopicID;
 
-            return new UserTopicSettings()
+            return new UserTopicSettings<TKey>()
             {
-                UserID = SignaloBotTestParameters.ExistingUserID,
+                UserID = userID,
                 CategoryID = categoryID.Value,
-                TopicID = topicID.Value,
+                TopicID = topicID,
                 IsDeleted = false,
                 IsEnabled = true,
                 AddDateUtc = DateTime.UtcNow
             };
         }
 
-        public static UserReceivePeriod CreateUserReceivePeriod(int deliveryType, int order)
+        public static UserReceivePeriod<TKey> CreateUserReceivePeriod(int deliveryType, int order)
         {
-            return new UserReceivePeriod()
+            return new UserReceivePeriod<TKey>()
             {
-                UserID = SignaloBotTestParameters.ExistingUserID,
-                CategoryID = SignaloBotTestParameters.ExistingCategoryID,
-                DeliveryType = deliveryType,
+                UserID = SignaloBotTestParameters.GetExistingUserID<TKey>(),
+                ReceivePeriodsGroupID = SignaloBotTestParameters.ExistingReceivePeriodsGroupID,
                 PeriodOrder = order,
                 PeriodBegin = TimeSpan.FromHours(0),
                 PeriodEnd = TimeSpan.FromHours(24)
             };
         }
 
-        public static Signal CreateSignal()
+        public static SubjectDispatch<TKey> CreateSignal()
         {
-            return new Signal()
+            return new SubjectDispatch<TKey>()
             {
                 //SignalID = устанавливается в базе
 
@@ -95,7 +93,7 @@ namespace SignaloBot.TestParameters.Model
                 CategoryID = SignaloBotTestParameters.ExistingCategoryID,
                 TopicID = SignaloBotTestParameters.ExistingSubscriptionTopicID,
 
-                ReceiverUserID = SignaloBotTestParameters.ExistingUserID,
+                ReceiverUserID = SignaloBotTestParameters.GetExistingUserID<TKey>(),
                 ReceiverAddress = "fake@aa.aa",
                 ReceiverDisplayName = "receiver display name",
 
@@ -111,8 +109,6 @@ namespace SignaloBot.TestParameters.Model
                 FailedAttempts = 10
             };
         }
-
-
-       
+        
     }
 }

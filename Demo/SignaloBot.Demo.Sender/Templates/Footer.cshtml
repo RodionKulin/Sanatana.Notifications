@@ -1,0 +1,11 @@
+﻿@model System.String
+@using SignaloBot.Demo.Sender.Resources;
+
+@if(Model == null)
+{
+    @TemplateContent.Footer_NullDemoMessage
+}
+else
+{
+    @TemplateContent.Footer_Unsubscribe <a href="@Model">@Model</a>
+}

@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SignaloBot.TestParameters.Model.Stubs;
 using SignaloBot.TestParameters.Model;
 using SignaloBot.WebNotifications.Database.Queries;
+using Common.Utility;
 
 namespace SignaloBot.DAL.Queries.Client.Tests
 {

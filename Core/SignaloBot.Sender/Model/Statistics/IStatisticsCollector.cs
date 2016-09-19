@@ -1,4 +1,6 @@
-﻿using SignaloBot.DAL.Entities.Core;
+﻿using Common.Utility;
+using SignaloBot.DAL;
+using SignaloBot.Sender.Processors;
 using SignaloBot.Sender.Queue;
 using SignaloBot.Sender.Senders;
 using System;
@@ -9,13 +11,20 @@ using System.Threading.Tasks;
 
 namespace SignaloBot.Sender.Statistics
 {
-    public interface IStatisticsCollector<T> : IDisposable
-        where T : IMessage
+    public interface IStatisticsCollector<TKey> : IDisposable
+        where TKey : struct
     {
-        void DispatcherSwitched(bool switchedOn);
+        void HubSwitched(bool switchedOn);
 
-        void StorageQueried(MessageProvider<T> messageProvider, TimeSpan time);
+        void EventTransferred(SignalEventBase<TKey> item);
 
-        void MessageProcessed(SendChannel<T> sendChannel, T message, SendResult sendResult, TimeSpan time);
+        void EventStorageQueried(TimeSpan time, QueryResult<List<SignalEventBase<TKey>>> items);
+
+        void DispatchStorageQueried(TimeSpan time, QueryResult<List<SignalDispatchBase<TKey>>> items);
+
+        void DispatchesComposed(SignalEventBase<TKey> item, TimeSpan time, ProcessingResult composeResult);
+
+        void DispatchSended(SignalDispatchBase<TKey> item
+            , TimeSpan time, ProcessingResult sendResult, DispatcherAvailability senderAvailability);
     }
 }

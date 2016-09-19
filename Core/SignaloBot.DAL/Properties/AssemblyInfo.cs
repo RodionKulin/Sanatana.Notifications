@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: InternalsVisibleTo("SignaloBot.DAL.Tests")]
 [assembly: InternalsVisibleTo("SignaloBot.Client")]
 
 

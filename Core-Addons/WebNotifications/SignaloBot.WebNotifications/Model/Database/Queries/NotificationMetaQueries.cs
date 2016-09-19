@@ -1,5 +1,4 @@
-﻿using SignaloBot.DAL.Entities;
-using Common.EntityFramework.SafeCall;
+﻿using Common.EntityFramework.SafeCall;
 using Common.Utility;
 using System;
 using System.Collections.Generic;

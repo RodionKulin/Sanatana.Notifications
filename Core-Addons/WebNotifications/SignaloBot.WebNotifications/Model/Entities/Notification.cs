@@ -24,7 +24,7 @@ namespace SignaloBot.WebNotifications.Entities
         /// <summary>
         /// Идентификатор темы.
         /// </summary>
-        public int TopicID { get; set; }
+        public string TopicID { get; set; }
         /// <summary>
         /// Текст оповещения.
         /// </summary>

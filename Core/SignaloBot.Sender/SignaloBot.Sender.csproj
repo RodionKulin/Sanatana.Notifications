@@ -34,26 +34,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.EntityFramework, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ThirdParty\Common.EntityFramework.dll</HintPath>
-    </Reference>
     <Reference Include="Common.Utility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ThirdParty\Common.Utility.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="RazorEngine, Version=3.6.4.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
+      <HintPath>..\packages\RazorEngine.3.6.4\lib\net45\RazorEngine.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Activation" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.0.0\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -61,48 +60,71 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Queue\InsertNotifier\ManualInsertNotifier.cs" />
-    <Compile Include="Model\Dispatcher\ParallelDequeuer.cs" />
-    <Compile Include="Model\Dispatcher\MessageDispatcher.cs" />
-    <Compile Include="Model\Queue\IMessageQueue.cs" />
-    <Compile Include="Model\Dispatcher\DispatcherWorker.cs" />
-    <Compile Include="Model\Queue\MessageProvider.cs" />
-    <Compile Include="Model\Senders\FailCounter\IFailCounter.cs" />
-    <Compile Include="Model\Senders\FailCounter\ProgressiveFailCounter.cs" />
-    <Compile Include="Model\Senders\Results\SenderAvailability.cs" />
-    <Compile Include="Model\Senders\Results\SendResult.cs" />
-    <Compile Include="Model\Senders\SendChannel.cs" />
-    <Compile Include="Model\Senders\LimitManager\NoLimit\NoLimitManager.cs" />
-    <Compile Include="Model\Senders\LimitManager\PeriodLimit\JournalStorage\IJournalStorage.cs" />
-    <Compile Include="Model\Senders\LimitManager\PeriodLimit\JournalStorage\MemoryJournalStorage.cs" />
-    <Compile Include="Model\Senders\LimitManager\PeriodLimit\JournalStorage\FileJournalStorage.cs" />
-    <Compile Include="Model\Senders\Email\SmtpSettings.cs" />
-    <Compile Include="Model\Queue\MessageQueue.cs" />
-    <Compile Include="Model\Queue\InsertNotifier\IStorageInsertNotifier.cs" />
-    <Compile Include="Model\Queue\InsertNotifier\SqlInsertNotifier.cs" />
-    <Compile Include="Model\Senders\ISender.cs" />
-    <Compile Include="Model\Senders\SenderProvider.cs" />
+    <Compile Include="Model\Worker\Composers\ComposeResult.cs" />
+    <Compile Include="Model\Worker\Composers\DelayScheduler\IDelayScheduler.cs" />
+    <Compile Include="Model\Worker\Composers\DelayScheduler\ReceivePeriodScheduler.cs" />
+    <Compile Include="Model\EmailConstants.cs" />
+    <Compile Include="Model\Worker\Composers\KeyValueComposer.cs" />
+    <Compile Include="Model\Worker\Composers\ExpressionComposer.cs" />
+    <Compile Include="Model\Worker\Composers\KeyValueEvent.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\SubjectDispatchTemplate.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateCache.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateData.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateProvider\FileTemplate.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateProvider\ITemplateProvider.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateProvider\ResourceTemplate.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateProvider\StringTemplate.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateTransformer\ITemplateTransformer.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateTransformer\RazorTransformer.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateTransformer\Razor\RazorTemplateManager.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateTransformer\ReplaceTransformer.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateTransformer\SubjectReplaceTransformer.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\TemplateTransformer\XslTransformer.cs" />
+    <Compile Include="Model\Worker\Composers\Templates\StringUtility.cs" />
+    <Compile Include="Model\Service\Contracts\ISignalService.cs" />
+    <Compile Include="Model\Service\Contracts\SignalService.cs" />
+    <Compile Include="Model\Service\Host\SignalServiceInstanceProvider.cs" />
+    <Compile Include="Model\Service\Host\SignalServiceSelfHost.cs" />
+    <Compile Include="Model\Worker\Queues\Flushing\FlushAction.cs" />
+    <Compile Include="Model\Worker\Queues\Flushing\FlushQueue.cs" />
+    <Compile Include="Model\SignaloBotHub.cs" />
+    <Compile Include="Model\Worker\Queues\EventQueue.cs" />
+    <Compile Include="Model\Worker\Queues\IDispatchQueue.cs" />
+    <Compile Include="Model\Worker\SignaloBotWorker.cs" />
+    <Compile Include="Model\Worker\Queues\IEventQueue.cs" />
+    <Compile Include="Model\Worker\Queues\QueueBase.cs" />
+    <Compile Include="Model\Worker\Dispatchers\FailCounter\IFailCounter.cs" />
+    <Compile Include="Model\Worker\Dispatchers\FailCounter\ProgressiveFailCounter.cs" />
+    <Compile Include="Model\Worker\Dispatchers\DispatcherAvailability.cs" />
+    <Compile Include="Model\Worker\Processors\ProcessingResult.cs" />
+    <Compile Include="Model\Worker\Dispatchers\DispatchChannel.cs" />
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\NoLimitManager.cs" />
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\PeriodLimit\JournalStorage\IJournalStorage.cs" />
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\PeriodLimit\JournalStorage\MemoryJournalStorage.cs" />
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\PeriodLimit\JournalStorage\FileJournalStorage.cs" />
+    <Compile Include="Model\Worker\Dispatchers\Email\SmtpSettings.cs" />
+    <Compile Include="Model\Worker\Queues\DispatchQueue.cs" />
+    <Compile Include="Model\Worker\Dispatchers\IDispatcher.cs" />
+    <Compile Include="Model\Worker\Processors\EventProcessor.cs" />
+    <Compile Include="Model\Worker\Processors\DispatchProcessor.cs" />
+    <Compile Include="Model\Worker\Processors\ProcessorBase.cs" />
+    <Compile Include="Model\Worker\Composers\ComposerBase.cs" />
+    <Compile Include="Model\Worker\SignalWrapper.cs" />
     <Compile Include="Model\Statistics\IStatisticsCollector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\SenderConstants.cs" />
-    <Compile Include="Model\Senders\LimitManager\PeriodLimit\LimitedPeriod.cs" />
-    <Compile Include="Model\Senders\LimitManager\ILimitManager.cs" />
-    <Compile Include="Model\Senders\LimitManager\PeriodLimit\PeriodLimitManager.cs" />
-    <Compile Include="Model\Senders\Email\SmtpEmailSender.cs" />
-    <Compile Include="Resources\SenderScripts.Designer.cs">
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\PeriodLimit\LimitedPeriod.cs" />
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\ILimitManager.cs" />
+    <Compile Include="Model\Worker\Dispatchers\LimitManager\PeriodLimit\PeriodLimitManager.cs" />
+    <Compile Include="Model\Worker\Dispatchers\Email\SmtpEmailDispatcher.cs" />
+    <Compile Include="Resources\InternalMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SenderScripts.resx</DependentUpon>
+      <DependentUpon>InternalMessages.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\SenderScripts.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>SenderScripts.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SignaloBot.DAL\SignaloBot.DAL.csproj">
@@ -110,6 +132,13 @@
       <Name>SignaloBot.DAL</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\InternalMessages.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>InternalMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "..\..\..\..\Build\$(TargetFileName)"</PostBuildEvent>

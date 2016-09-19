@@ -1,4 +1,4 @@
-﻿using Common.TestUtility.Model;
+﻿using Common.TestUtility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SignaloBot.WebNotifications.Entities;
 using SignaloBot.WebNotifications.Entities.Results;
@@ -17,7 +17,7 @@ namespace SignaloBot.DAL.Tests
         [TestMethod()]
         public void NotificationTotalTest()
         {
-            ReflectionUtility.CompareProperties(typeof(Notification)
+            ReflectionTests.CompareProperties(typeof(Notification)
                 , typeof(NotificationTotal)
                 , new List<string>() { "TotalRows" });
         }
