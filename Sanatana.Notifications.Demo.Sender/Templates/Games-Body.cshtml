@@ -1,0 +1,16 @@
+﻿@using Sanatana.Notifications.Demo.Sender.Resources;
+
+@{   
+    Layout = "Layout.cshtml";
+}
+
+@section Top 
+{
+    <div>@TemplateContent.GamesBody_Greetings @ViewBag.SubscriberAddress</div>
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    @TemplateContent.GamesBody_VisitSite
+</p>

@@ -1,0 +1,100 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications", "Sanatana.Notifications\Sanatana.Notifications.csproj", "{24D35C44-8224-426B-B81C-462A7C38016E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications.DAL.EntityFrameworkCore", "Sanatana.Notifications.DAL.EntityFrameworkCore\Sanatana.Notifications.DAL.EntityFrameworkCore.csproj", "{E673507B-559A-4BE2-A4B3-AC9A89694710}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications.DAL.MongoDb", "Sanatana.Notifications.DAL.MongoDb\Sanatana.Notifications.DAL.MongoDb.csproj", "{475D09C7-E383-424A-8DF1-DBD020C657EF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{6760D37D-9703-408C-9599-CF9928B280C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{68E2A19C-FF69-467D-9E3B-D29F93B31088}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{D1C6E17D-C4BA-45B9-885F-20FEB4BC0280}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications.NDR", "Sanatana.Notifications.NDR\Sanatana.Notifications.NDR.csproj", "{3E5F1986-2C4B-44CB-A673-047A6B035C26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanatana.Notifications.Demo.Sender", "Sanatana.Notifications.Demo.Sender\Sanatana.Notifications.Demo.Sender.csproj", "{D8923104-7A07-4F88-A7E1-2C181281FE73}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications.Demo.Client", "Sanatana.Notifications.Demo.Client\Sanatana.Notifications.Demo.Client.csproj", "{99556E62-74CD-47D6-814E-56EB4DFB9F4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanatana.Notifications.SignalProviders.WCF", "Sanatana.Notifications.SignalProviders.WCF\Sanatana.Notifications.SignalProviders.WCF.csproj", "{35111991-17CC-4482-B443-85619F25119F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications.Dispatchers.AWS_SES", "Sanatana.Notifications.Dispatchers.AWS_SES\Sanatana.Notifications.Dispatchers.AWS_SES.csproj", "{E70EB9B0-AC45-4733-9F35-CA29327A563B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.Notifications.NDR.AWS", "Sanatana.Notifications.NDR.AWS\Sanatana.Notifications.NDR.AWS.csproj", "{4B87666D-4066-48B7-AD5A-30A6DF0801C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs", "Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs\Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.csproj", "{E4419A3F-4B81-4240-9E86-B2997445A167}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanatana.NotificationsTests", "Sanatana.NotificationsTests\Sanatana.NotificationsTests.csproj", "{AB4D321C-5E7D-46E6-BC14-C0EB385C7375}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24D35C44-8224-426B-B81C-462A7C38016E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24D35C44-8224-426B-B81C-462A7C38016E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24D35C44-8224-426B-B81C-462A7C38016E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24D35C44-8224-426B-B81C-462A7C38016E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E673507B-559A-4BE2-A4B3-AC9A89694710}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E673507B-559A-4BE2-A4B3-AC9A89694710}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E673507B-559A-4BE2-A4B3-AC9A89694710}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E673507B-559A-4BE2-A4B3-AC9A89694710}.Release|Any CPU.Build.0 = Release|Any CPU
+		{475D09C7-E383-424A-8DF1-DBD020C657EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{475D09C7-E383-424A-8DF1-DBD020C657EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{475D09C7-E383-424A-8DF1-DBD020C657EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{475D09C7-E383-424A-8DF1-DBD020C657EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E5F1986-2C4B-44CB-A673-047A6B035C26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E5F1986-2C4B-44CB-A673-047A6B035C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E5F1986-2C4B-44CB-A673-047A6B035C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E5F1986-2C4B-44CB-A673-047A6B035C26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8923104-7A07-4F88-A7E1-2C181281FE73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8923104-7A07-4F88-A7E1-2C181281FE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8923104-7A07-4F88-A7E1-2C181281FE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8923104-7A07-4F88-A7E1-2C181281FE73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99556E62-74CD-47D6-814E-56EB4DFB9F4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99556E62-74CD-47D6-814E-56EB4DFB9F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99556E62-74CD-47D6-814E-56EB4DFB9F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99556E62-74CD-47D6-814E-56EB4DFB9F4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35111991-17CC-4482-B443-85619F25119F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35111991-17CC-4482-B443-85619F25119F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35111991-17CC-4482-B443-85619F25119F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35111991-17CC-4482-B443-85619F25119F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E70EB9B0-AC45-4733-9F35-CA29327A563B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E70EB9B0-AC45-4733-9F35-CA29327A563B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E70EB9B0-AC45-4733-9F35-CA29327A563B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E70EB9B0-AC45-4733-9F35-CA29327A563B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B87666D-4066-48B7-AD5A-30A6DF0801C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B87666D-4066-48B7-AD5A-30A6DF0801C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B87666D-4066-48B7-AD5A-30A6DF0801C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B87666D-4066-48B7-AD5A-30A6DF0801C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4419A3F-4B81-4240-9E86-B2997445A167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4419A3F-4B81-4240-9E86-B2997445A167}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4419A3F-4B81-4240-9E86-B2997445A167}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4419A3F-4B81-4240-9E86-B2997445A167}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB4D321C-5E7D-46E6-BC14-C0EB385C7375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB4D321C-5E7D-46E6-BC14-C0EB385C7375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB4D321C-5E7D-46E6-BC14-C0EB385C7375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB4D321C-5E7D-46E6-BC14-C0EB385C7375}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D8923104-7A07-4F88-A7E1-2C181281FE73} = {6760D37D-9703-408C-9599-CF9928B280C1}
+		{99556E62-74CD-47D6-814E-56EB4DFB9F4F} = {6760D37D-9703-408C-9599-CF9928B280C1}
+		{35111991-17CC-4482-B443-85619F25119F} = {D1C6E17D-C4BA-45B9-885F-20FEB4BC0280}
+		{E70EB9B0-AC45-4733-9F35-CA29327A563B} = {D1C6E17D-C4BA-45B9-885F-20FEB4BC0280}
+		{4B87666D-4066-48B7-AD5A-30A6DF0801C8} = {D1C6E17D-C4BA-45B9-885F-20FEB4BC0280}
+		{E4419A3F-4B81-4240-9E86-B2997445A167} = {68E2A19C-FF69-467D-9E3B-D29F93B31088}
+		{AB4D321C-5E7D-46E6-BC14-C0EB385C7375} = {68E2A19C-FF69-467D-9E3B-D29F93B31088}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF2F6579-559B-41A7-B757-530905D53661}
+	EndGlobalSection
+EndGlobal
