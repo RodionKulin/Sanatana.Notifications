@@ -70,7 +70,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 response = await repository
                     .SelectPageAsync<DispatchTemplateLong, long>(page, pageSize, true,
-                        x => true, x => x.ComposerSettingsId, true)
+                        x => true, x => x.EventSettingsId, true)
                     .ConfigureAwait(false);                
             }
 
@@ -97,14 +97,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             return mappedItem;
         }
 
-        public virtual async Task<List<DispatchTemplate<long>>> SelectForComposerSettings(long composerSettingsId)
+        public virtual async Task<List<DispatchTemplate<long>>> SelectForEventSettings(long eventSettingsId)
         {
             List<DispatchTemplateLong> items = null;
             
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
                 items = await context.DispatchTemplates
-                    .Where(x => x.ComposerSettingsId == composerSettingsId)
+                    .Where(x => x.EventSettingsId == eventSettingsId)
                     .ToListAsync()
                     .ConfigureAwait(false);
             }
@@ -135,14 +135,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         //delete
         public virtual async Task Delete(List<DispatchTemplate<long>> items)
         {
-            List<long> ids = items.Select(p => p.ComposerSettingsId)
+            List<long> ids = items.Select(p => p.EventSettingsId)
                 .Distinct()
                 .ToList();
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 int changes = await repository.DeleteManyAsync<DispatchTemplateLong>(
-                    x => ids.Contains(x.ComposerSettingsId))
+                    x => ids.Contains(x.EventSettingsId))
                     .ConfigureAwait(false);                
             }
         }

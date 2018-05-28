@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
-    public class SqlComposerSettingsQueries : IComposerSettingsQueries<long>
+    public class SqlEventSettingsQueries : IEventSettingsQueries<long>
     {
         //fields        
         protected SqlConnectionSettings _connectionSettings;
@@ -33,7 +33,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //init
-        public SqlComposerSettingsQueries(SqlConnectionSettings connectionSettings
+        public SqlEventSettingsQueries(SqlConnectionSettings connectionSettings
             , ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory
             , IDispatchTemplateQueries<long> dispatchTemplateQueries)
         {            
@@ -45,10 +45,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //insert
-        public virtual async Task Insert(List<ComposerSettings<long>> items)
+        public virtual async Task Insert(List<EventSettings<long>> items)
         {
-            List<ComposerSettingsLong> mappedList = items
-                .Select(_mapper.Map<ComposerSettingsLong>)
+            List<EventSettingsLong> mappedList = items
+                .Select(_mapper.Map<EventSettingsLong>)
                 .ToList();
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
@@ -58,22 +58,22 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 {
                     SqlTransaction underlyingTransaction = (SqlTransaction)ts.GetDbTransaction();
 
-                    MergeCommand<ComposerSettingsLong> mergeCommand = repository.MergeParameters(mappedList, underlyingTransaction);
+                    MergeCommand<EventSettingsLong> mergeCommand = repository.MergeParameters(mappedList, underlyingTransaction);
                     mergeCommand.Insert
-                        .ExcludeProperty(x => x.ComposerSettingsId)
+                        .ExcludeProperty(x => x.EventSettingsId)
                         .ExcludeProperty(x => x.TemplatesNavigation);
                     mergeCommand.Output
-                        .IncludeProperty(x => x.ComposerSettingsId);
+                        .IncludeProperty(x => x.EventSettingsId);
                     int changes = await mergeCommand.ExecuteAsync(MergeType.Insert).ConfigureAwait(false);
 
                     for (int i = 0; i < mappedList.Count; i++)
                     {
-                        ComposerSettingsLong mappedItem = mappedList[i];
-                        items[i].ComposerSettingsId = mappedItem.ComposerSettingsId;
+                        EventSettingsLong mappedItem = mappedList[i];
+                        items[i].EventSettingsId = mappedItem.EventSettingsId;
                         if (mappedItem.Templates != null)
                         {
                             mappedItem.Templates.ForEach(
-                                x => x.ComposerSettingsId = mappedItem.ComposerSettingsId);
+                                x => x.EventSettingsId = mappedItem.EventSettingsId);
                         }
                     }
 
@@ -115,73 +115,73 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //select
-        public virtual async Task<TotalResult<List<ComposerSettings<long>>>> Select(int page, int pageSize)
+        public virtual async Task<TotalResult<List<EventSettings<long>>>> Select(int page, int pageSize)
         {
-            List<ComposerSettings<long>> list = null;
+            List<EventSettings<long>> list = null;
             int total = 0;
 
             using (var listDbContext = _dbContextFactory.GetDbContext())
             using (var countDbContext = _dbContextFactory.GetDbContext())
             using (var repository = new Repository(listDbContext))
             {
-                IQueryable<ComposerSettingsLong> listQuery = repository.SelectPageQuery<ComposerSettingsLong, long>(
-                        page, pageSize, true, x => true, x => x.ComposerSettingsId);
+                IQueryable<EventSettingsLong> listQuery = repository.SelectPageQuery<EventSettingsLong, long>(
+                        page, pageSize, true, x => true, x => x.EventSettingsId);
 
-                Task<List<ComposerSettingsLong>> listTask = listQuery
+                Task<List<EventSettingsLong>> listTask = listQuery
                     .Include(x => x.TemplatesNavigation)
                     .ToListAsync();
-                Task<int> countTask = countDbContext.Set<ComposerSettingsLong>()
+                Task<int> countTask = countDbContext.Set<EventSettingsLong>()
                     .CountAsync();
 
-                List<ComposerSettingsLong> listLong = await listTask.ConfigureAwait(false);
+                List<EventSettingsLong> listLong = await listTask.ConfigureAwait(false);
                 total = await countTask.ConfigureAwait(false);
 
-                list = listLong.Cast<ComposerSettings<long>>().ToList();
+                list = listLong.Cast<EventSettings<long>>().ToList();
             }
 
-            return new TotalResult<List<ComposerSettings<long>>>(list, total);
+            return new TotalResult<List<EventSettings<long>>>(list, total);
         }
 
-        public virtual async Task<ComposerSettings<long>> Select(long composerSettingsId)
+        public virtual async Task<EventSettings<long>> Select(long eventSettingsId)
         {
-            ComposerSettingsLong composerSettings = null;
+            EventSettingsLong eventSettings = null;
 
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
-                composerSettings = await context.ComposerSettings
+                eventSettings = await context.EventSettings
                     .Include(x => x.TemplatesNavigation)
-                    .FirstOrDefaultAsync(x => x.ComposerSettingsId == composerSettingsId)
+                    .FirstOrDefaultAsync(x => x.EventSettingsId == eventSettingsId)
                     .ConfigureAwait(false);
             }
 
-            return composerSettings;
+            return eventSettings;
         }
 
-        public virtual async Task<List<ComposerSettings<long>>> Select(int category)
+        public virtual async Task<List<EventSettings<long>>> Select(int category)
         {
-            List<ComposerSettingsLong> composerSettings = null;
+            List<EventSettingsLong> eventSettings = null;
             
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
-                composerSettings = await context.ComposerSettings
+                eventSettings = await context.EventSettings
                         .Where(x => x.CategoryId == category)
                         .Include(x => x.TemplatesNavigation)
                         .ToListAsync()
                         .ConfigureAwait(false);
             }
             
-            List<ComposerSettings<long>> result = composerSettings
-                .Cast<ComposerSettings<long>>()
+            List<EventSettings<long>> result = eventSettings
+                .Cast<EventSettings<long>>()
                 .ToList();
             return result;
         }
 
 
         //update
-        public virtual async Task Update(List<ComposerSettings<long>> items)
+        public virtual async Task Update(List<EventSettings<long>> items)
         {
-            List<ComposerSettingsLong> mappedList = items
-                .Select(_mapper.Map<ComposerSettingsLong>)
+            List<EventSettingsLong> mappedList = items
+                .Select(_mapper.Map<EventSettingsLong>)
                 .ToList();
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
@@ -189,9 +189,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 try
                 {
-                    string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema, TableValuedParameters.COMPOSER_SETTINGS_TYPE);
-                    MergeCommand<ComposerSettingsLong> merge = repository.MergeTVP(mappedList, tvpName);
-                    merge.Compare.IncludeProperty(p => p.ComposerSettingsId);
+                    MergeCommand<EventSettingsLong> merge = repository.MergeParameters(mappedList);
+                    merge.Compare
+                        .IncludeProperty(p => p.EventSettingsId);
+                    merge.Update
+                        .ExcludeProperty(x => x.EventSettingsId)
+                        .ExcludeProperty(x => x.TemplatesNavigation);
                     int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);
 
                     List<DispatchTemplate<long>> templates = items.SelectMany(x => x.Templates).ToList();
@@ -209,16 +212,16 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //delete
-        public virtual async Task Delete(List<ComposerSettings<long>> items)
+        public virtual async Task Delete(List<EventSettings<long>> items)
         {
-            List<long> ids = items.Select(p => p.ComposerSettingsId)
+            List<long> ids = items.Select(p => p.EventSettingsId)
                 .Distinct()
                 .ToList();
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                int changes = await repository.DeleteManyAsync<ComposerSettingsLong>(
-                    x => ids.Contains(x.ComposerSettingsId))
+                int changes = await repository.DeleteManyAsync<EventSettingsLong>(
+                    x => ids.Contains(x.EventSettingsId))
                     .ConfigureAwait(false);              
             }
         }

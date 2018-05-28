@@ -14,18 +14,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
-    public class StoredNotificationDispatcher<TKey> : IDispatcher<TKey>, IStoredNotificationDispatcher<TKey> 
+    public class StoredNotificationDispatcher<TKey> : IDispatcher<TKey>, IStoredNotificationDispatcher<TKey>
         where TKey : struct
     {
         //fields
-        protected ILogger _logger;
         protected IStoredNotificationFlushJob<TKey> _storedNotificationsFlushJob;
 
 
         //init
-        public StoredNotificationDispatcher(ILogger logger, IStoredNotificationFlushJob<TKey> storedNotificationsFlushJob)
+        public StoredNotificationDispatcher(IStoredNotificationFlushJob<TKey> storedNotificationsFlushJob)
         {
-            _logger = logger;
             _storedNotificationsFlushJob = storedNotificationsFlushJob;
         }
 
@@ -33,13 +31,7 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
         //methods
         public Task<ProcessingResult> Send(SignalDispatch<TKey> item)
         {
-            if ((item is StoredNotificationDispatch<TKey>) == false)
-            {
-                _logger.LogError(SenderInternalMessages.Dispatcher_WrongInputType
-                    , item.GetType(), GetType(), typeof(StoredNotificationDispatch<TKey>));
-                return Task.FromResult(ProcessingResult.Fail);
-            }
-            var signal = item as StoredNotificationDispatch<TKey>;
+            var signal = (StoredNotificationDispatch<TKey>)item;
 
             var storedNotification = new StoredNotification<TKey>
             {

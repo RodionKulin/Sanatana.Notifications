@@ -11,17 +11,17 @@ using System.Text;
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
 {
     /// <summary>
-    /// Register EntityFrameworkCore ComposerSettingsQueries implementation that fetches settings from database.
-    /// Single ComposerSettingsQueries implementation is required. Can be replaced by InMemoryComposerSettingsQueries.
+    /// Register EntityFrameworkCore EventSettingsQueries implementation that fetches settings from database.
+    /// Single EventSettingsQueries implementation is required. Can be replaced by InMemoryEventSettingsQueries.
     /// </summary>
-    public class EntityFrameworkComposerSettingsAutofacModule : Module
+    public class EntityFrameworkEventSettingsAutofacModule : Module
     {
         bool _useCaching;
 
         /// <summary>
         /// </summary>
-        /// <param name="useCaching">Enable caching of DispatchTemplate and ComposerSettings.</param>
-        public EntityFrameworkComposerSettingsAutofacModule(bool useCaching)
+        /// <param name="useCaching">Enable caching of DispatchTemplate and EventSettings.</param>
+        public EntityFrameworkEventSettingsAutofacModule(bool useCaching)
         {
             _useCaching = useCaching;
         }
@@ -30,11 +30,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
         {
             if (_useCaching)
             {
-                builder.RegisterType<SqlComposerSettingsQueries>()
-                    .Named<IComposerSettingsQueries<long>>("default")
+                builder.RegisterType<SqlEventSettingsQueries>()
+                    .Named<IEventSettingsQueries<long>>("default")
                     .SingleInstance();
                 builder.RegisterGenericDecorator(
-                   typeof(CachedComposerSettingsQueries<>), typeof(IComposerSettingsQueries<>), fromKey: "default")
+                   typeof(CachedEventSettingsQueries<>), typeof(IEventSettingsQueries<>), fromKey: "default")
                     .SingleInstance();
 
                 builder.RegisterType<SqlDispatchTemplateQueries>()
@@ -46,7 +46,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
             }
             else
             {
-                builder.RegisterType<SqlComposerSettingsQueries>().As<IComposerSettingsQueries<long>>().SingleInstance();
+                builder.RegisterType<SqlEventSettingsQueries>().As<IEventSettingsQueries<long>>().SingleInstance();
                 builder.RegisterType<SqlDispatchTemplateQueries>().As<IDispatchTemplateQueries<long>>().SingleInstance();
             }
         }

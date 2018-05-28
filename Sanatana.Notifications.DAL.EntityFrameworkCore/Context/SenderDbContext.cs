@@ -18,7 +18,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Context
 
 
         //tables
-        public DbSet<ComposerSettingsLong> ComposerSettings { get; set; }
+        public DbSet<EventSettingsLong> EventSettings { get; set; }
         public DbSet<DispatchTemplateLong> DispatchTemplates { get; set; }
         public DbSet<SignalBounceLong> SignalBounces { get; set; }
         public DbSet<SignalEventLong> SignalEvents { get; set; }
@@ -47,7 +47,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<ComposerSettings<long>>();
+            modelBuilder.Ignore<EventSettings<long>>();
             modelBuilder.Ignore<DispatchTemplate<long>>();
             modelBuilder.Ignore<SignalBounce<long>>();
             modelBuilder.Ignore<SignalEvent<long>>();
@@ -58,7 +58,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Context
             modelBuilder.Ignore<SubscriberTopicSettings<long>>();
             modelBuilder.Ignore<SubscriberScheduleSettings<long>>();
 
-            modelBuilder.ApplyConfiguration(new ComposerSettingsMap(_connectionSettings));
+            modelBuilder.ApplyConfiguration(new EventSettingsMap(_connectionSettings));
             modelBuilder.ApplyConfiguration(new DispatchTemplateMap(_connectionSettings));
             modelBuilder.ApplyConfiguration(new SignalBounceMap(_connectionSettings));
             modelBuilder.ApplyConfiguration(new SignalEventMap(_connectionSettings));

@@ -24,7 +24,7 @@ namespace Sanatana.Notifications.Demo.Sender.Model
         {
             base.OnModelCreating(modelBuilder);
             
-            //modelBuilder.Ignore<ComposerSettingsLong>();
+            //modelBuilder.Ignore<EventSettingsLong>();
             //modelBuilder.Ignore<DispatchTemplateLong>();
         }
     }

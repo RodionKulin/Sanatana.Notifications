@@ -19,11 +19,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //navigation properties
-        public virtual ComposerSettingsLong ComposerSettingsNavigation { get; set; }
+        public virtual EventSettingsLong EventSettingsNavigation { get; set; }
 
 
         //methods
-        public override List<SignalDispatch<long>> Build(ComposerSettings<long> settings, SignalEvent<long> signalEvent
+        public override List<SignalDispatch<long>> Build(EventSettings<long> settings, SignalEvent<long> signalEvent
             , List<Subscriber<long>> subscribers)
         {
             throw new NotImplementedException();

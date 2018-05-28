@@ -79,11 +79,11 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 return _database.GetCollection<SignalBounce<ObjectId>>(_settings.CollectionsPrefix + "SignalBounces");
             }
         }
-        public virtual IMongoCollection<ComposerSettings<ObjectId>> ComposerSettings
+        public virtual IMongoCollection<EventSettings<ObjectId>> EventSettings
         {
             get
             {
-                return _database.GetCollection<ComposerSettings<ObjectId>>(_settings.CollectionsPrefix + "ComposerSettings");
+                return _database.GetCollection<EventSettings<ObjectId>>(_settings.CollectionsPrefix + "EventSettings");
             }
         }
 
@@ -103,7 +103,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                     RegisterConventions();
                     MapSignals();
                     MapSubscriberSettings();
-                    MapComposerSettings();
+                    MapEventSettings();
                 }
             }
         }
@@ -209,12 +209,12 @@ namespace Sanatana.Notifications.DAL.MongoDb
             });
         }
 
-        protected virtual void MapComposerSettings()
+        protected virtual void MapEventSettings()
         {
-            BsonClassMap.RegisterClassMap<ComposerSettings<ObjectId>>(cm =>
+            BsonClassMap.RegisterClassMap<EventSettings<ObjectId>>(cm =>
             {
                 cm.AutoMap();
-                cm.SetIdMember(cm.GetMemberMap(m => m.ComposerSettingsId));
+                cm.SetIdMember(cm.GetMemberMap(m => m.EventSettingsId));
             });
 
             BsonClassMap.RegisterClassMap<SubscriptionParameters>(cm =>

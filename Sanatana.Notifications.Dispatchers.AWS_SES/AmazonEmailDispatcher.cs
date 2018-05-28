@@ -18,13 +18,12 @@ using Sanatana.Notifications.Resources;
 using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.Dispatchers.AWS_SES
-{ 
+{
     public class AmazonEmailDispatcher<TKey> : IDispatcher<TKey>
         where TKey : struct
     {
         //fields
         protected AmazonCredentials _credentials;
-        protected ILogger _logger;
 
 
         //properties
@@ -36,25 +35,17 @@ namespace Sanatana.Notifications.Dispatchers.AWS_SES
 
 
         //init
-        public AmazonEmailDispatcher(AmazonCredentials credentials, ILogger logger)
+        public AmazonEmailDispatcher(AmazonCredentials credentials)
         {
             _credentials = credentials;
-            _logger = logger;
         }
 
 
         //methods
         public virtual async Task<ProcessingResult> Send(SignalDispatch<TKey> item)
         {
-            if ((item is EmailDispatch<TKey>) == false)
-            {
-                _logger.LogError(SenderInternalMessages.Dispatcher_WrongInputType
-                    , item.GetType(), GetType(), typeof(EmailDispatch<TKey>));
-                return ProcessingResult.Fail;
-            }
+            EmailDispatch<TKey> signal = (EmailDispatch<TKey>)item;
 
-            EmailDispatch<TKey> signal = item as EmailDispatch<TKey>;
-            
             using (var client = new AmazonSimpleEmailServiceClient(_credentials.AwsAccessKey,
                 _credentials.AwsSecretKey, _credentials.RegionEndpoint))
             {
@@ -81,7 +72,7 @@ namespace Sanatana.Notifications.Dispatchers.AWS_SES
                 body.Html = contentBody;
             else
                 body.Text = contentBody;
-            
+
             // Create a message with the specified subject and body.
             Message mailMessage = new Message(contentSubject, body);
 
@@ -119,6 +110,6 @@ namespace Sanatana.Notifications.Dispatchers.AWS_SES
         //IDisposable
         public virtual void Dispose()
         {
-        }        
+        }
     }
 }

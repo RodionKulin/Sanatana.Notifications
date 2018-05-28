@@ -142,7 +142,7 @@
     <Compile Include="Queries\SqlStoredNotificationQueriesSpecs.cs" />
     <Compile Include="Queries\SqlSubscriberCategorySettingsQueriesSpecs.cs" />
     <Compile Include="Queries\SqlSubscriberQueriesSpecs.cs" />
-    <Compile Include="Queries\SqlComposerSettingsQueriesSpecs.cs" />
+    <Compile Include="Queries\SqlEventSettingsQueriesSpecs.cs" />
     <Compile Include="Queries\SqlSignalEventQueriesSpecs.cs" />
     <Compile Include="Queries\SqlSubscriberTopicSettingsQueriesSpecs.cs" />
     <Compile Include="Queries\SqlSubscriberScheduleSettingsQueriesSpecs.cs" />

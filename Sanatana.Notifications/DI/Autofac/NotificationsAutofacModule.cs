@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Sanatana.Notifications;
 using Sanatana.Notifications.Composing;
 using Sanatana.Notifications.DAL.Entities;
@@ -36,6 +38,9 @@ namespace Sanatana.Notifications.DI.Autofac
         {
             builder.RegisterInstance(_senderSettings).AsSelf().SingleInstance();
             builder.RegisterType<ConsoleMonitor<TKey>>().As<IMonitor<TKey>>().SingleInstance();
+
+            ILogger logger = NullLogger.Instance;
+            builder.RegisterInstance(logger).As<ILogger>().SingleInstance();
 
             builder.RegisterType<SenderState<TKey>>().SingleInstance();
             builder.RegisterType<Sender<TKey>>().As<ISender>().SingleInstance();

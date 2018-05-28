@@ -18,7 +18,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         public const string SignalBounces = "SignalBounces";
         public const string StoredNotifications = "StoredNotifications";
 
-        public const string ComposerSettings = "ComposerSettings";
+        public const string EventSettings = "EventSettings";
         public const string DispatchTemplates = "DispatchTemplates";
     }
 }

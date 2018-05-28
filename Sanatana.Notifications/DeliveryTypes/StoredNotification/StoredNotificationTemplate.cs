@@ -23,7 +23,7 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 
 
         //methods
-        public override List<SignalDispatch<TKey>> Build(ComposerSettings<TKey> settings
+        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
             TemplateData templateData = new TemplateData(signalEvent.DataKeyValues);
@@ -53,7 +53,7 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
             return list;
         }
 
-        protected virtual StoredNotificationDispatch<TKey> Build(ComposerSettings<TKey> settings
+        protected virtual StoredNotificationDispatch<TKey> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string subject, string body)
         {
             var dispatch = new StoredNotificationDispatch<TKey>()

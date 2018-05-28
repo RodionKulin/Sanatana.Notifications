@@ -17,7 +17,7 @@ namespace Sanatana.Notifications.DAL.Entities
         public int CategoryId { get; set; }
         public string TopicId { get; set; }
         public int FailedAttempts { get; set; }
-        public TKey? ComposerSettingsId { get; set; }
+        public TKey? EventSettingsId { get; set; }
         public AddresseeType AddresseeType { get; set; }
 
 

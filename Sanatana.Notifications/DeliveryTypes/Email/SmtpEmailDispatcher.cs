@@ -21,7 +21,6 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
         where TKey : struct
     {
         //fields
-        protected ILogger _logger;
         protected SmtpSettings _smtpSettings;
 
 
@@ -33,9 +32,8 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
 
 
         //init
-        public SmtpEmailDispatcher(ILogger logger, SmtpSettings smtpSettings)
+        public SmtpEmailDispatcher(SmtpSettings smtpSettings)
         {
-            _logger = logger;
             _smtpSettings = smtpSettings;
         }
 
@@ -44,13 +42,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
         //methods
         public virtual async Task<ProcessingResult> Send(SignalDispatch<TKey> item)
         {
-            if((item is EmailDispatch<TKey>) == false)
-            {
-                _logger.LogError(SenderInternalMessages.Dispatcher_WrongInputType
-                    , item.GetType(), GetType(), typeof(EmailDispatch<TKey>));
-                return ProcessingResult.Fail;
-            }
-            EmailDispatch<TKey> emailDispatch = item as EmailDispatch<TKey>;
+            EmailDispatch<TKey> emailDispatch = (EmailDispatch<TKey>)item;
 
             MailMessage mailMessage = BuildMessage(emailDispatch);
             using (SmtpClient client = BuildSmtpClient())

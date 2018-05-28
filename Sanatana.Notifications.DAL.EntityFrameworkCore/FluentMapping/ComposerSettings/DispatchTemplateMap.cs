@@ -25,9 +25,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             builder.HasKey(t => t.DispatchTemplateId);
 
             // Properties
-            builder.HasOne(x => x.ComposerSettingsNavigation)
+            builder.HasOne(x => x.EventSettingsNavigation)
                 .WithMany(x => x.TemplatesNavigation)
-                .HasForeignKey(x => x.ComposerSettingsId)
+                .HasForeignKey(x => x.EventSettingsId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Table

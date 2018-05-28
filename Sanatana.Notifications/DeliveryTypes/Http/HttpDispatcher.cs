@@ -17,14 +17,9 @@ namespace Sanatana.Notifications.DeliveryTypes.Http
     public class HttpDispatcher<TKey> : IDispatcher<TKey>
         where TKey : struct
     {
-        //fields
-        protected ILogger _logger;
-
-
         //init
-        public HttpDispatcher(ILogger logger)
+        public HttpDispatcher()
         {
-            _logger = logger;
         }
 
 
@@ -32,13 +27,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Http
         //methods
         public virtual async Task<ProcessingResult> Send(SignalDispatch<TKey> item)
         {
-            if ((item is HttpDispatch<TKey>) == false)
-            {
-                _logger.LogError(SenderInternalMessages.Dispatcher_WrongInputType
-                    , item.GetType(), GetType(), typeof(EmailDispatch<TKey>));
-                return ProcessingResult.Fail;
-            }
-            HttpDispatch<TKey> httpDispatch = item as HttpDispatch<TKey>;
+            HttpDispatch<TKey> httpDispatch = (HttpDispatch<TKey>)item;
 
             HttpRequestMessage request = BuildRequest(httpDispatch);
             using (HttpClient httpClient = new HttpClient())

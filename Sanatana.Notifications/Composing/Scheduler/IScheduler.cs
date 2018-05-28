@@ -14,7 +14,7 @@ namespace Sanatana.Notifications.Composing
     public interface IScheduler<TKey>
         where TKey : struct
     {
-        ProcessingResult SetSendingTime(ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent
+        ProcessingResult SetSendingTime(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
             , List<Subscriber<TKey>> subscribers, List<SignalDispatch<TKey>> dispatches);
     }
 }

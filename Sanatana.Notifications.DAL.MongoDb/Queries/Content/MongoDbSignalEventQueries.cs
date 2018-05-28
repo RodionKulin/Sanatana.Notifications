@@ -76,7 +76,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
 
                 var update = Builders<SignalEvent<ObjectId>>.Update
                     .Set(p => p.FailedAttempts, item.FailedAttempts)
-                    .Set(p => p.ComposerSettingsId, item.ComposerSettingsId)
+                    .Set(p => p.EventSettingsId, item.EventSettingsId)
                     .Set(p => p.SubscriberIdRangeFrom, item.SubscriberIdRangeFrom)
                     .Set(p => p.SubscriberIdRangeTo, item.SubscriberIdRangeTo)
                     .Set(p => p.SubscriberIdFromDeliveryTypesHandled, item.SubscriberIdFromDeliveryTypesHandled);

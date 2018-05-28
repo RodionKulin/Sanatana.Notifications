@@ -27,14 +27,14 @@ namespace Sanatana.Notifications.Processing
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected ICompositionHandlerRegistry<TKey> _handlerRegistry;
-        protected IComposerSettingsQueries<TKey> _composerSettingsQueries;
+        protected IEventSettingsQueries<TKey> _eventSettingsQueries;
 
 
         //init
         public CompositionProcessor(SenderState<TKey> hubState, IMonitor<TKey> eventSink
             , ILogger<CompositionProcessor<TKey>> logger, SenderSettings senderSettings
             , IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue
-            , ICompositionHandlerRegistry<TKey> handlerRegistry, IComposerSettingsQueries<TKey> composerSettingsQueries)
+            , ICompositionHandlerRegistry<TKey> handlerRegistry, IEventSettingsQueries<TKey> eventSettingsQueries)
             : base(logger)
         {
             _hubState = hubState;
@@ -42,7 +42,7 @@ namespace Sanatana.Notifications.Processing
             _eventQueue = eventQueue;
             _dispatchQueue = dispatchQueue;
             _handlerRegistry = handlerRegistry;
-            _composerSettingsQueries = composerSettingsQueries;
+            _eventSettingsQueries = eventSettingsQueries;
 
             MaxParallelItems = senderSettings.MaxParallelEventsProcessed;
         }
@@ -97,7 +97,7 @@ namespace Sanatana.Notifications.Processing
         {
             try
             {
-                if (item.Signal.ComposerSettingsId == null)
+                if (item.Signal.EventSettingsId == null)
                 {
                     SplitEvent(item, eventQueue);
                 }
@@ -116,28 +116,28 @@ namespace Sanatana.Notifications.Processing
 
         protected virtual void SplitEvent(SignalWrapper<SignalEvent<TKey>> item, IEventQueue<TKey> eventQueue)
         {
-            List<ComposerSettings<TKey>> composerSettings = _composerSettingsQueries
+            List<EventSettings<TKey>> eventSettings = _eventSettingsQueries
                 .Select(item.Signal.CategoryId).Result;
 
-            if (composerSettings.Count == 0)
+            if (eventSettings.Count == 0)
             {
                 eventQueue.ApplyResult(item, ProcessingResult.NoHandlerFound);
             }
-            else if (composerSettings.Count == 1)
+            else if (eventSettings.Count == 1)
             {
-                item.Signal.ComposerSettingsId = composerSettings.First().ComposerSettingsId;
+                item.Signal.EventSettingsId = eventSettings.First().EventSettingsId;
                 item.IsUpdated = true;
 
                 ComposeAndApplyResult(item, eventQueue);
             }
-            else if (composerSettings.Count > 1)
+            else if (eventSettings.Count > 1)
             {
                 var splitedEvents = new List<SignalEvent<TKey>>();
-                foreach (ComposerSettings<TKey> settings in composerSettings)
+                foreach (EventSettings<TKey> settings in eventSettings)
                 {
                     SignalEvent<TKey> clone = item.Signal.CreateClone();
                     clone.SignalEventId = default(TKey);
-                    clone.ComposerSettingsId = settings.ComposerSettingsId;
+                    clone.EventSettingsId = settings.EventSettingsId;
                     splitedEvents.Add(clone);
                 }
 
@@ -160,22 +160,22 @@ namespace Sanatana.Notifications.Processing
 
         protected virtual ComposeResult<SignalDispatch<TKey>> ComposeDispatches(SignalWrapper<SignalEvent<TKey>> item)
         {
-            ComposerSettings<TKey> composerSettings = _composerSettingsQueries
-                .Select(item.Signal.ComposerSettingsId.Value).Result;
-            if (composerSettings == null)
+            EventSettings<TKey> eventSettings = _eventSettingsQueries
+                .Select(item.Signal.EventSettingsId.Value).Result;
+            if (eventSettings == null)
             {
                 return ComposeResult<SignalDispatch<TKey>>.FromResult(ProcessingResult.NoHandlerFound);
             }
 
             ICompositionHandler<TKey> compositionHandler =
-                _handlerRegistry.MatchHandler(composerSettings.CompositionHandlerId);
+                _handlerRegistry.MatchHandler(eventSettings.CompositionHandlerId);
             if(compositionHandler == null)
             {
                 return ComposeResult<SignalDispatch<TKey>>.FromResult(ProcessingResult.NoHandlerFound);
             }
 
             ComposeResult<SignalDispatch<TKey>> composeResult = 
-                compositionHandler.ProcessEvent(composerSettings, item.Signal);
+                compositionHandler.ProcessEvent(eventSettings, item.Signal);
             if (composeResult.Result == ProcessingResult.Success)
             {
                 item.IsUpdated = true;

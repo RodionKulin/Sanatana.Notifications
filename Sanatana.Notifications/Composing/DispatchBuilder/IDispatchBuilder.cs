@@ -10,6 +10,6 @@ namespace Sanatana.Notifications.Composing
         where TKey : struct
     {
         ComposeResult<SignalDispatch<TKey>> Build(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers);
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers);
     }
 }

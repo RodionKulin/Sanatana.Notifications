@@ -28,7 +28,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
 
 
         //methods
-        public override List<SignalDispatch<TKey>> Build(ComposerSettings<TKey> settings
+        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
             TemplateData templateData = new TemplateData(signalEvent.DataKeyValues);
@@ -58,7 +58,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
             return list;
         }
 
-        protected virtual EmailDispatch<TKey> Build(ComposerSettings<TKey> settings
+        protected virtual EmailDispatch<TKey> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string subject, string body)
         {
             var dispatch = new EmailDispatch<TKey>()

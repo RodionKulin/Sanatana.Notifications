@@ -15,7 +15,7 @@ namespace Sanatana.Notifications.DAL.Interfaces
     {
         Task Insert(List<DispatchTemplate<TKey>> items);
         Task<TotalResult<List<DispatchTemplate<TKey>>>> Select(int page, int pageSize);
-        Task<List<DispatchTemplate<TKey>>> SelectForComposerSettings(TKey composerSettingsId);
+        Task<List<DispatchTemplate<TKey>>> SelectForEventSettings(TKey eventSettingsId);
         Task<DispatchTemplate<TKey>> Select(TKey dispatchTemplatesId);
         Task Update(List<DispatchTemplate<TKey>> items);
         Task Delete(List<DispatchTemplate<TKey>> items);

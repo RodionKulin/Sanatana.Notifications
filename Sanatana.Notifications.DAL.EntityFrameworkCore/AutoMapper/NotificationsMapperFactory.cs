@@ -52,7 +52,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper
             configuration.CreateMap<SubscriberCategorySettings<long>, SubscriberCategorySettingsLong>();
             configuration.CreateMap<SubscriberTopicSettings<long>, SubscriberTopicSettingsLong>();
             configuration.CreateMap<SubscriberScheduleSettings<long>, SubscriberScheduleSettingsLong>();
-            configuration.CreateMap<ComposerSettings<long>, ComposerSettingsLong>();
+            configuration.CreateMap<EventSettings<long>, EventSettingsLong>();
 
             configuration.CreateMap<SignalBounceLong, SignalBounce<long>>();
             configuration.CreateMap<SignalEventLong, SignalEvent<long>>();
@@ -61,7 +61,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper
             configuration.CreateMap<SubscriberCategorySettingsLong, SubscriberCategorySettings<long>>();
             configuration.CreateMap<SubscriberTopicSettingsLong, SubscriberTopicSettings<long>>();
             configuration.CreateMap<SubscriberScheduleSettingsLong, SubscriberScheduleSettings<long>>();
-            configuration.CreateMap<ComposerSettingsLong, ComposerSettings<long>>();
+            configuration.CreateMap<EventSettingsLong, EventSettings<long>>();
 
             //Dispatch template
             configuration.CreateMap<DispatchTemplate<long>, DispatchTemplateLong>()

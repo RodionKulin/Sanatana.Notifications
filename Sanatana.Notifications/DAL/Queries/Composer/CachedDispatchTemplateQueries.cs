@@ -63,12 +63,12 @@ namespace Sanatana.Notifications.DAL.Queries
             return new TotalResult<List<DispatchTemplate<TKey>>>(selectedPage, allItems.Total);
         }
 
-        public virtual async Task<List<DispatchTemplate<TKey>>> SelectForComposerSettings(TKey composerSettingsId)
+        public virtual async Task<List<DispatchTemplate<TKey>>> SelectForEventSettings(TKey eventSettingsId)
         {
             TotalResult<List<DispatchTemplate<TKey>>> allItems = await GetFromCacheOrFetch().ConfigureAwait(false);
 
             List<DispatchTemplate<TKey>> items = allItems.Data.Where(
-                x => EqualityComparer<TKey>.Default.Equals(x.ComposerSettingsId, composerSettingsId))
+                x => EqualityComparer<TKey>.Default.Equals(x.EventSettingsId, eventSettingsId))
                 .ToList();
 
             return items;

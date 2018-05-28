@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
-    public class ComposerSettingsMap : IEntityTypeConfiguration<ComposerSettingsLong>
+    public class EventSettingsMap : IEntityTypeConfiguration<EventSettingsLong>
     {
         protected SqlConnectionSettings _connectionSettings;
 
-        public ComposerSettingsMap(SqlConnectionSettings connectionSettings)
+        public EventSettingsMap(SqlConnectionSettings connectionSettings)
         {
             _connectionSettings = connectionSettings;
         }
 
-        public void Configure(EntityTypeBuilder<ComposerSettingsLong> builder)
+        public void Configure(EntityTypeBuilder<EventSettingsLong> builder)
         {
             // Keys
-            builder.HasKey(t => t.ComposerSettingsId);
+            builder.HasKey(t => t.EventSettingsId);
 
 
             // Properties
@@ -37,7 +37,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
             // Table
-            builder.ToTable(DefaultTableNameConstants.ComposerSettings, _connectionSettings.Schema);
+            builder.ToTable(DefaultTableNameConstants.EventSettings, _connectionSettings.Schema);
         }
     }
 }

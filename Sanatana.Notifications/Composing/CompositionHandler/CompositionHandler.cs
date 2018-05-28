@@ -42,7 +42,7 @@ namespace Sanatana.Notifications.Composing
 
         //methods
         public virtual ComposeResult<SignalDispatch<TKey>> ProcessEvent(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent)
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent)
         {
             //check is any active templates exist
             bool hasActiveTemplates = settings.Templates.Any(x => x.IsActive);
@@ -98,14 +98,14 @@ namespace Sanatana.Notifications.Composing
         }
 
         protected virtual ComposeResult<Subscriber<TKey>> FetchSubscribers(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent)
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent)
         {
             ComposeResult<Subscriber<TKey>> subscribers = _subscribersFetcher.Select(settings, signalEvent);
             return subscribers;
         }
 
         protected virtual ComposeResult<SignalDispatch<TKey>> BuildDispatches(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
             ComposeResult<SignalDispatch<TKey>> dispatches = _dispatchBuilder.Build(
                  settings, signalEvent, subscribers);
@@ -113,7 +113,7 @@ namespace Sanatana.Notifications.Composing
         }
 
         protected virtual ProcessingResult ScheduleDispatches(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
             , List<Subscriber<TKey>> subscribers, List<SignalDispatch<TKey>> dispatches)
         {
             ProcessingResult scheduleResult = _scheduler.SetSendingTime(settings, signalEvent, subscribers, dispatches);
@@ -121,7 +121,7 @@ namespace Sanatana.Notifications.Composing
         }
 
         protected virtual ProcessingResult UpdateSubscribers(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
             , List<Subscriber<TKey>> subscribers, List<SignalDispatch<TKey>> dispatches)
         {
             if (settings.Updates == null

@@ -8,6 +8,6 @@ namespace Sanatana.Notifications.Composing
     public interface ISubscribersFetcher<TKey>
         where TKey : struct
     {
-        ComposeResult<Subscriber<TKey>> Select(ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent);
+        ComposeResult<Subscriber<TKey>> Select(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent);
     }
 }

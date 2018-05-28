@@ -37,7 +37,7 @@ namespace Sanatana.Notifications.Composing
 
 
         //method
-        public virtual ComposeResult<Subscriber<TKey>> Select(ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent)
+        public virtual ComposeResult<Subscriber<TKey>> Select(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent)
         {
             if (signalEvent.AddresseeType == AddresseeType.DirectAddresses)
             {
@@ -71,7 +71,7 @@ namespace Sanatana.Notifications.Composing
             }
         }
 
-        protected virtual ComposeResult<Subscriber<TKey>> ConvertAddressesToSubscribers(ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent)
+        protected virtual ComposeResult<Subscriber<TKey>> ConvertAddressesToSubscribers(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent)
         {
             List<Subscriber<TKey>> subscribers = signalEvent.PredefinedAddresses.Select(x => new Subscriber<TKey>
             {
@@ -90,7 +90,7 @@ namespace Sanatana.Notifications.Composing
         }
 
         protected virtual ComposeResult<Subscriber<TKey>> QuerySubscribers(
-            ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent, SubscribersRangeParameters<TKey> rangeParameters)
+            EventSettings<TKey> settings, SignalEvent<TKey> signalEvent, SubscribersRangeParameters<TKey> rangeParameters)
         {
             if (settings.Subscription == null)
             {

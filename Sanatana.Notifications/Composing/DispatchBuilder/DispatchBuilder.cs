@@ -23,7 +23,7 @@ namespace Sanatana.Notifications.Composing
 
 
         //methods
-        public virtual ComposeResult<SignalDispatch<TKey>> Build(ComposerSettings<TKey> settings
+        public virtual ComposeResult<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
             var dispatches = new List<SignalDispatch<TKey>>();
@@ -53,7 +53,7 @@ namespace Sanatana.Notifications.Composing
             };
         }
 
-        protected virtual List<SignalDispatch<TKey>> Build(ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent
+        protected virtual List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
             , DispatchTemplate<TKey> template , List<Subscriber<TKey>> templateSubscribers)
         {
             return template.Build(settings, signalEvent, templateSubscribers);

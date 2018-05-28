@@ -26,7 +26,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Http
 
 
         //methods
-        public override List<SignalDispatch<TKey>> Build(ComposerSettings<TKey> settings
+        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
             TemplateData templateData = new TemplateData(signalEvent.DataKeyValues);
@@ -49,7 +49,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Http
             return list;
         }
 
-        protected virtual HttpDispatch<TKey> Build(ComposerSettings<TKey> settings
+        protected virtual HttpDispatch<TKey> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string content)
         {
             var dispatch = new HttpDispatch<TKey>()

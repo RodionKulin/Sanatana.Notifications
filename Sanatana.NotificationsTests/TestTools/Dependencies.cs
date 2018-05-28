@@ -41,7 +41,7 @@ namespace Sanatana.NotificationsTests.TestTools
         {
             ContainerBuilder builder = new ContainerBuilder();
             builder.RegisterModule(new NotificationsAutofacModule<long>());
-            builder.RegisterModule(new InMemoryComposerSettingsAutofacModule<long>(new List<ComposerSettings<long>>()));               
+            builder.RegisterModule(new InMemoryEventSettingsAutofacModule<long>(new List<EventSettings<long>>()));               
             builder.RegisterModule(new EntityFrameworkCoreAutofacModule(new EntityFrameworkCore.SqlConnectionSettings("", "")));
             builder.RegisterInstance(new DispatchChannel<long>()
             {

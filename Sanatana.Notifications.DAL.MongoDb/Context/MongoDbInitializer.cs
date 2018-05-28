@@ -39,7 +39,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
             CreateSignalEventIndex();
             CreateSignalDispatchIndex();
             CreateSignalBounceIndex();
-            CreateComposerSettingsIndex();
+            CreateEventSettingsIndex();
         }
 
         public void CreateSubscriberDeliveryTypeSettingsIndex()
@@ -236,9 +236,9 @@ namespace Sanatana.Notifications.DAL.MongoDb
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
 
         }
-        public void CreateComposerSettingsIndex()
+        public void CreateEventSettingsIndex()
         {
-            IndexKeysDefinition<ComposerSettings<ObjectId>> subscriberIndex = Builders<ComposerSettings<ObjectId>>.IndexKeys
+            IndexKeysDefinition<EventSettings<ObjectId>> subscriberIndex = Builders<EventSettings<ObjectId>>.IndexKeys
                .Ascending(p => p.CategoryId);
 
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
@@ -248,7 +248,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
             };
 
 
-            IMongoCollection<ComposerSettings<ObjectId>> collection = Context.ComposerSettings;
+            IMongoCollection<EventSettings<ObjectId>> collection = Context.EventSettings;
             collection.Indexes.DropAllAsync().Wait();
 
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;

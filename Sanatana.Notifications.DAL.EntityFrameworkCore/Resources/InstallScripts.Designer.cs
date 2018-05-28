@@ -61,26 +61,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CREATE TYPE [pref].[ComposerSettingsType] AS TABLE(
-        ///	[ComposerSettingsId] [bigint] NOT NULL,
-        ///	[Name] varchar(max) NOT NULL,
-        ///	[CategoryId] [int] NOT NULL,
-        ///	[Subscription] varchar(max) NOT NULL,
-        ///	[Updates] varchar(max) NOT NULL,
-        ///	[CustomDispatchComposer] varchar(max) NOT NULL
-        ///).
-        /// </summary>
-        internal static string type_ComposerSettings {
-            get {
-                return ResourceManager.GetString("type_ComposerSettings", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to CREATE TYPE [pref].[DispatchTemplateType] AS TABLE(
         ///	[DispatchTemplateId] [bigint] NOT NULL,
-        ///	[ComposerSettingsId] [bigint] NOT NULL,
-        ///	[Name] varchar(max) NULL,
+        ///	[EventSettingsId] [bigint] NOT NULL,
+        ///	[DisplayName] varchar(max) NULL,
         ///	[DeliveryType] [int] NOT NULL,
         ///	[SchedulesSet] [int] NULL,
         ///	[IsActive] [bit] NOT NULL,
@@ -90,6 +74,22 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
         internal static string type_DispatchTemplate {
             get {
                 return ResourceManager.GetString("type_DispatchTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE TYPE [pref].[EventSettingsType] AS TABLE(
+        ///	[EventSettingsId] [bigint] NOT NULL,
+        ///	[DisplayName] varchar(max) NOT NULL,
+        ///	[CategoryId] [int] NOT NULL,
+        ///	[Subscription] varchar(max) NOT NULL,
+        ///	[Updates] varchar(max) NOT NULL,
+        ///	[CompositionHandlerId] varchar(max) NOT NULL
+        ///).
+        /// </summary>
+        internal static string type_EventSettings {
+            get {
+                return ResourceManager.GetString("type_EventSettings", resourceCulture);
             }
         }
         
@@ -111,7 +111,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
         ///   Looks up a localized string similar to CREATE TYPE [pref].[SignalEventType] AS TABLE(
         ///	[SignalEventId] [bigint] NOT NULL,
         ///	[FailedAttempts] [int] NOT NULL,
-        ///	[ComposerSettingsId] [int] NULL,
+        ///	[EventSettingsId] [int] NULL,
         ///	[SubscriberIdRangeFrom] [bigint] NULL,
         ///	[SubscriberIdRangeTo] [bigint] NULL,
         ///	[SubscriberIdFromDeliveryTypesHandled] [xml] NULL

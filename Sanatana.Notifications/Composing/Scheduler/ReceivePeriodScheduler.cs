@@ -28,7 +28,7 @@ namespace Sanatana.Notifications.Composing
 
 
         //methods
-        public virtual ProcessingResult SetSendingTime(ComposerSettings<TKey> settings, SignalEvent<TKey> signalEvent
+        public virtual ProcessingResult SetSendingTime(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
             , List<Subscriber<TKey>> subscribers, List<SignalDispatch<TKey>> dispatches)
         {
             if (signalEvent.AddresseeType == AddresseeType.DirectAddresses)
@@ -75,7 +75,7 @@ namespace Sanatana.Notifications.Composing
         }
 
         protected virtual List<SubscriberScheduleSettings<TKey>> SelectReceivePeriods(
-            ComposerSettings<TKey> settings, List<Subscriber<TKey>> subscribers)
+            EventSettings<TKey> settings, List<Subscriber<TKey>> subscribers)
         {
             List<TKey> subscriberIds = subscribers.Select(x => x.SubscriberId)
                 .Distinct()

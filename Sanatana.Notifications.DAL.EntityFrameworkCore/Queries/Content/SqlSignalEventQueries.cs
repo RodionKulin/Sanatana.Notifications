@@ -80,7 +80,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
                 update.Source.IncludeProperty(p => p.SignalEventId)
                     .IncludeProperty(p => p.FailedAttempts)
-                    .IncludeProperty(p => p.ComposerSettingsId)
+                    .IncludeProperty(p => p.EventSettingsId)
                     .IncludeProperty(p => p.SubscriberIdRangeFrom)
                     .IncludeProperty(p => p.SubscriberIdRangeTo)
                     .IncludeProperty(p => p.SubscriberIdFromDeliveryTypesHandledSerialized);
@@ -88,7 +88,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 update.Compare.IncludeProperty(p => p.SignalEventId);
 
                 update.Update.IncludeProperty(p => p.FailedAttempts)
-                    .IncludeProperty(p => p.ComposerSettingsId)
+                    .IncludeProperty(p => p.EventSettingsId)
                     .IncludeProperty(p => p.SubscriberIdRangeFrom)
                     .IncludeProperty(p => p.SubscriberIdRangeTo)
                     .IncludeProperty(p => p.SubscriberIdFromDeliveryTypesHandledSerialized);

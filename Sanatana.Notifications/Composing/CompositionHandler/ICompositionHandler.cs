@@ -9,7 +9,7 @@ namespace Sanatana.Notifications.Composing
         where TKey : struct
     {
         int? CompositionHandlerId { get; set; }
-        ComposeResult<SignalDispatch<TKey>> ProcessEvent(ComposerSettings<TKey> settings
+        ComposeResult<SignalDispatch<TKey>> ProcessEvent(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent);
     }
 }

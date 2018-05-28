@@ -11,7 +11,7 @@ using Sanatana.Notifications.DAL.Entities;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
-    public class ComposerSettingsLong : ComposerSettings<long>
+    public class EventSettingsLong : EventSettings<long>
     {
 
         //navigation properties

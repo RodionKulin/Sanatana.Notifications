@@ -11,8 +11,8 @@ namespace Sanatana.Notifications.DAL.Entities
     {
         //properties
         public TKey DispatchTemplateId { get; set; }
-        public TKey ComposerSettingsId { get; set; }
-        public string Name { get; set; }
+        public TKey EventSettingsId { get; set; }
+        public string DisplayName { get; set; }
         public int Version { get; set; }
         public int DeliveryType { get; set; }
         public int? ScheduleSet { get; set; }
@@ -21,10 +21,10 @@ namespace Sanatana.Notifications.DAL.Entities
 
 
         //methods
-        public abstract List<SignalDispatch<TKey>> Build(ComposerSettings<TKey> settings
+        public abstract List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers);
 
-        protected virtual void SetBaseProperties(SignalDispatch<TKey> dispatch, ComposerSettings<TKey> settings
+        protected virtual void SetBaseProperties(SignalDispatch<TKey> dispatch, EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber)
         {
             dispatch.DeliveryType = DeliveryType;

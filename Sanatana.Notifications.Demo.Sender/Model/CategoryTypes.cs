@@ -8,8 +8,8 @@ namespace Sanatana.Notifications.Demo.Sender.Model
 {
     public enum CategoryTypes
     {
-        Videos,
-        Music,
-        Games
+        CustomerGreetings,
+        BasketReminder,
+        PurchaseApprovement
     }
 }

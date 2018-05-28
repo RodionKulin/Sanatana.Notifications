@@ -25,7 +25,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         public const string SUBSCRIBER_TOPIC_SETTINGS_TYPE = "SubscriberTopicSettingsType";
         public const string SUBSCRIBER_TOPIC_SETTINGS_TYPE_IS_ENABLED = "SubscriberTopicSettingsTypeIsEnabled";
         public const string SUBSCRIBER_NDR_SETTINGS_TYPE = "SubscriberNDRSettingsType";
-        public const string COMPOSER_SETTINGS_TYPE = "ComposerSettingsType";
+        public const string EVENT_SETTINGS_TYPE = "EventSettingsType";
         public const string DISPATCH_TEMPLATE_TYPE = "DispatchTemplateType";
 
 

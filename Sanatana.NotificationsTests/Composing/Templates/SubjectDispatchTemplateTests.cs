@@ -41,7 +41,7 @@ namespace Sanatana.Notifications.Composing.Tests
             };
             var subscriber = new Subscriber<long>(){ SubscriberId = 2 };
             var subscriberList = new List<Subscriber<long>>() { subscriber };
-            var settings = new ComposerSettings<long>();
+            var settings = new EventSettings<long>();
             var signalEvent = new SignalEvent<long>()
             {
                 DataKeyValues = replaceModel

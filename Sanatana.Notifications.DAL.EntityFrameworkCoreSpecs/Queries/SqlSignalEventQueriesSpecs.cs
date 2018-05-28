@@ -32,7 +32,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        ComposerSettingsId = 1,
+                        EventSettingsId = 1,
                         AddresseeType = AddresseeType.AllSubscsribers,
                         DataKeyValues = new Dictionary<string, string>
                         {
@@ -49,7 +49,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        ComposerSettingsId = 1,
+                        EventSettingsId = 1,
                         AddresseeType = AddresseeType.AllSubscsribers,
                         DataKeyValues = new Dictionary<string, string>
                         {
@@ -106,7 +106,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        ComposerSettingsId = 1,
+                        EventSettingsId = 1,
                         AddresseeType = AddresseeType.AllSubscsribers,
                         DataKeyValues = new Dictionary<string, string>
                         {
@@ -123,7 +123,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        ComposerSettingsId = 1,
+                        EventSettingsId = 1,
                         AddresseeType = AddresseeType.AllSubscsribers,
                         DataKeyValues = new Dictionary<string, string>
                         {
@@ -147,7 +147,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 foreach(SignalEventLong item in _insertedData)
                 {
                     item.FailedAttempts = 1;
-                    item.ComposerSettingsId = 2;
+                    item.EventSettingsId = 2;
                     item.SubscriberIdRangeFrom = 3;
                     item.SubscriberIdRangeTo = 4;
                     item.SubscriberIdFromDeliveryTypesHandled = new List<int> { 6, 7 };
@@ -195,7 +195,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        ComposerSettingsId = 1,
+                        EventSettingsId = 1,
                         AddresseeType = AddresseeType.AllSubscsribers,
                         DataKeyValues = new Dictionary<string, string>
                         {
@@ -212,7 +212,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        ComposerSettingsId = 1,
+                        EventSettingsId = 1,
                         AddresseeType = AddresseeType.AllSubscsribers,
                         DataKeyValues = new Dictionary<string, string>
                         {

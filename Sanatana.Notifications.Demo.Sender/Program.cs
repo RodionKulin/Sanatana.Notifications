@@ -31,23 +31,17 @@ namespace Sanatana.Notifications.Demo.Sender
 {
     class Program
     {
-        //fields
-        private static long _nextComposerSettingsKey = 0;
-
-
         //methods
         static void Main(string[] args)
         {
-            ISender sender = CreateSenderWithSQL();
+            ISender sender = CreateSenderWithMsSql();
             sender.Start();
-
             Console.WriteLine("Press enter to stop.");
             Console.ReadLine();
-
             sender.Stop(true);
         }
 
-        private static ISender CreateSenderWithSQL()
+        private static ISender CreateSenderWithMsSql()
         {
             bool initDatabase = true;
             SqlConnectionSettings connection = new SqlConnectionSettings
@@ -58,89 +52,53 @@ namespace Sanatana.Notifications.Demo.Sender
 
             var builder = new ContainerBuilder();
             builder.RegisterModule(new NotificationsAutofacModule<long>());
-            //builder.RegisterModule(new InMemoryComposerSettingsAutofacModule<long>(GetComposerSettings<long>()));
-            builder.RegisterModule(new EntityFrameworkComposerSettingsAutofacModule(useCaching: true));
+            builder.RegisterModule(new InMemoryEventSettingsAutofacModule<long>(GetEventSettings()));
+            //builder.RegisterModule(new EntityFrameworkEventSettingsAutofacModule(useCaching: true));
             builder.RegisterModule(new EntityFrameworkCoreAutofacModule(connection));
-            builder.RegisterModule(new WcfSignalEndpointAutofacModule<long>());
             builder.RegisterInstance(new DispatchChannel<long>()
             {
                 Dispatcher = new ConsoleDispatcher<long>(),
                 DeliveryType = (int)Model.DeliveryTypes.Console
             }).AsSelf().SingleInstance();
             builder.RegisterType<StoredNotificationsDispatchChannel<long>>().As<DispatchChannel<long>>().SingleInstance();
-            builder.RegisterType<CustomDbContextFactory>().As<ISenderDbContextFactory>().SingleInstance();
-            builder.RegisterType<TraceMonitor<long>>().As<IMonitor<long>>().SingleInstance();
-
+            builder.RegisterModule(new WcfSignalEndpointAutofacModule<long>());
             ILogger logger = new ConsoleLogger("DemoLogger", (input, level) => true, true);
             builder.RegisterInstance(logger).As<ILogger>().SingleInstance();
 
             IContainer container = builder.Build();
-            ISenderDbContextFactory contextFactory = container.Resolve<ISenderDbContextFactory>();
             if (initDatabase)
             {
+                ISenderDbContextFactory contextFactory = container.Resolve<ISenderDbContextFactory>();
                 contextFactory.InitializeDatabase();
             }
 
             ISender sender = container.Resolve<ISender>();
             return sender;
+
         }
-        
 
-
-        private static List<ComposerSettings<TKey>> GetComposerSettings<TKey>()
-            where TKey : struct
+        private static List<EventSettings<long>> GetEventSettings()
         {
-            return new List<ComposerSettings<TKey>>()
+            return new List<EventSettings<long>>()
             {
-                new ComposerSettings<TKey>()
+                new EventSettings<long>()
                 {
-                    CategoryId = (int)CategoryTypes.Music,
-                    ComposerSettingsId = GenerateKey<TKey>(),
+                    CategoryId = (int)CategoryTypes.CustomerGreetings,
+                    EventSettingsId = 1,
                     Subscription = new SubscriptionParameters()
                     {
-                        CategoryId = (int)CategoryTypes.Music
+                        CategoryId = (int)CategoryTypes.CustomerGreetings
                     },
                     CompositionHandlerId = null,
-                    Templates = new List<DispatchTemplate<TKey>>()
+                    Templates = new List<DispatchTemplate<long>>()
                     {
-                        new EmailDispatchTemplate<TKey>()
-                        {
-                            DeliveryType = (int)Model.DeliveryTypes.Console,
-                            IsBodyHtml = false,
-                            SubjectProvider = (StringTemplate)"subject {key}",
-                            SubjectTransformer = new ReplaceTransformer(),
-                            BodyProvider = (StringTemplate)"body text {key}",
-                            BodyTransformer = new ReplaceTransformer(),
-                        },
-                        new EmailDispatchTemplate<TKey>()
+                        new EmailDispatchTemplate<long>()
                         {
                             DeliveryType = (int)Model.DeliveryTypes.Email,
                             IsBodyHtml = false,
-                            SubjectProvider = (StringTemplate)"subject {key}",
+                            SubjectProvider = (StringTemplate)"Test subject to {customer}",
                             SubjectTransformer = new ReplaceTransformer(),
-                            BodyProvider = (StringTemplate)"body text {key}",
-                            BodyTransformer = new ReplaceTransformer(),
-                        }
-                    },
-                    Updates = new UpdateParameters()
-                },
-                new ComposerSettings<TKey>()
-                {
-                    CategoryId = (int)CategoryTypes.Games,
-                    ComposerSettingsId = GenerateKey<TKey>(),
-                    Subscription = new SubscriptionParameters()
-                    {
-                        CategoryId = (int)CategoryTypes.Games
-                    },
-                    Templates = new List<DispatchTemplate<TKey>>()
-                    {
-                        new EmailDispatchTemplate<TKey>()
-                        {
-                            DeliveryType = (int)Model.DeliveryTypes.Console,
-                            IsBodyHtml = true,
-                            SubjectProvider = new StringTemplate("Demo event in games category"),
-                            SubjectTransformer = null,
-                            BodyProvider = new StringTemplate("Games-Body.cshtml"),
+                            BodyProvider = (StringTemplate)"Hello {customer}",
                             BodyTransformer = new ReplaceTransformer(),
                         }
                     },
@@ -149,48 +107,6 @@ namespace Sanatana.Notifications.Demo.Sender
             };
         }
         
-        private static TKey GenerateKey<TKey>()
-            where TKey : struct
-        {
-            if (typeof(TKey) == typeof(long))
-            {
-                _nextComposerSettingsKey++;
-                return (TKey)Convert.ChangeType(_nextComposerSettingsKey, typeof(TKey));
-            }
-
-            if (typeof(TKey) == typeof(ObjectId))
-            {
-                return (TKey)Convert.ChangeType(ObjectId.GenerateNewId(), typeof(TKey));
-            }
-
-            throw new NotImplementedException($"Type of {typeof(TKey)} is not supported");
-        }
-
-        private static void TestBuildAllTemplates<TKey>()
-            where TKey : struct
-        {
-            List<ComposerSettings<TKey>> settings = GetComposerSettings<TKey>();
-
-            foreach (ComposerSettings<TKey> composerSettings in settings)
-            {
-                foreach (DispatchTemplate<TKey> template in composerSettings.Templates)
-                {
-                    var subscribers = new List<Subscriber<TKey>>()
-                {
-                    new Subscriber<TKey>() { }
-                };
-
-                    var signalEvent = new SignalEvent<TKey>()
-                    {
-                        DataKeyValues = new Dictionary<string, string>()
-                    {
-                        { "key", "Custom value" }
-                    }
-                    };
-                    List<SignalDispatch<TKey>> signals = template.Build(composerSettings, signalEvent, subscribers);
-                }
-            }
-        }
     }
 
 }
