@@ -57,13 +57,13 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             IQueryable<SubscriberDeliveryTypeSettingsLong> query =
                 CreateDeliveryTypeSelectQuery(parameters, subscribersRange, context);
 
-            if (parameters.SelectFromCategories)
+            if (subscribersRange.SelectFromCategories)
             {
                 IQueryable<SubscriberCategorySettingsLong> categoryQueryPart = CreateCategorySelectQuery(parameters, subscribersRange, context);
                 query = JoinWithCategoriesSelect(parameters, query, categoryQueryPart);
             }
 
-            if (parameters.SelectFromTopics)
+            if (subscribersRange.SelectFromTopics)
             {
                 IQueryable<SubscriberTopicSettingsLong> topicQueryPart = CreateTopicSelectQuery(parameters, subscribersRange, context);
                 query = JoinWithTopicsSelect(parameters, subscribersRange, query, topicQueryPart);
@@ -268,7 +268,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             SubscriptionParameters parameters, SubscribersRangeParameters<long> subscribersRange, SenderDbContext context)
         {
             IQueryable<SubscriberTopicSettingsLong> query = context.SubscriberTopicSettings
-                .Where(p => p.IsDeleted == false);
+                .Where(p => p.TopicId == subscribersRange.TopicId
+                && p.CategoryId == parameters.CategoryId.Value
+                && p.IsDeleted == false);
 
             if (subscribersRange.FromSubscriberIds != null)
             {
@@ -279,18 +281,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 query = query.Where(p => p.DeliveryType == parameters.DeliveryType.Value);
             }
-
-            if (parameters.CategoryId != null)
-            {
-                query = query.Where(p => p.CategoryId == parameters.CategoryId.Value);
-            }
-
-            string topicId = subscribersRange.TopicId ?? parameters.TopicId;
-            if (topicId != null)
-            {
-                query = query.Where(p => p.TopicId == topicId);
-            }
-
+            
             if (subscribersRange.SubscriberIdRangeFromIncludingSelf != null)
             {
                 query = query.Where(p => subscribersRange.SubscriberIdRangeFromIncludingSelf.Value <= p.SubscriberId);

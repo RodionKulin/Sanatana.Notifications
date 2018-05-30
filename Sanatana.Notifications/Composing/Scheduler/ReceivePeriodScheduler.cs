@@ -77,22 +77,27 @@ namespace Sanatana.Notifications.Composing
         protected virtual List<SubscriberScheduleSettings<TKey>> SelectReceivePeriods(
             EventSettings<TKey> settings, List<Subscriber<TKey>> subscribers)
         {
-            List<TKey> subscriberIds = subscribers.Select(x => x.SubscriberId)
-                .Distinct()
-                .ToList();
-
-            List<int> receivePeriodsGroupIds = settings.Templates
+            List<int> receivePeriodsSetIds = settings.Templates
                 .Where(x => x.ScheduleSet.HasValue)
                 .Select(x => x.ScheduleSet.Value)
                 .Distinct()
                 .ToList();
-
-            if (subscriberIds.Count == 0 || receivePeriodsGroupIds.Count == 0)
+            
+            if (receivePeriodsSetIds.Count == 0)
             {
                 return new List<SubscriberScheduleSettings<TKey>>();
             }
 
-            return _receivePeriodQueries.Select(subscriberIds, receivePeriodsGroupIds).Result;
+            List<TKey> subscriberIds = subscribers.Select(x => x.SubscriberId)
+                .Distinct()
+                .ToList();
+
+            if (subscriberIds.Count == 0)
+            {
+                return new List<SubscriberScheduleSettings<TKey>>();
+            }
+
+            return _receivePeriodQueries.Select(subscriberIds, receivePeriodsSetIds).Result;
         }
 
         protected virtual DateTime GetSendTimeUtc(string timezoneId, List<SubscriberScheduleSettings<TKey>> periods, out bool isScheduled)

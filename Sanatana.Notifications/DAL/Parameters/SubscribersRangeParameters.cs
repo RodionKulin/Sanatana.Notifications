@@ -16,5 +16,7 @@ namespace Sanatana.Notifications.DAL.Parameters
         public int? Limit { get; set; }
         public TKey? GroupId { get; set; }
         public string TopicId { get; set; }
+        public virtual bool SelectFromCategories { get; set; }
+        public virtual bool SelectFromTopics { get; set; }
     }
 }

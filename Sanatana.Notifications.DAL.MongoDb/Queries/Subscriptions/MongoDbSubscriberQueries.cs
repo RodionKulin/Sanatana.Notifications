@@ -39,7 +39,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
         {
             var intermediateResult = new SubscribersIntermIdiateResult<ObjectId>();
 
-            if (parameters.SelectFromTopics)
+            if (subscribersRange.SelectFromTopics)
             {
                 List<SubscriberTopicSettings<ObjectId>> topicSubscribers =
                     await SelectTopics(parameters, subscribersRange);
@@ -48,7 +48,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 intermediateResult.TopicSubscribers = topicSubscribers;
             }
 
-            if (parameters.SelectFromCategories)
+            if (subscribersRange.SelectFromCategories)
             {
                 List<SubscriberCategorySettings<ObjectId>> categorySubscribers =
                     await SelectCategories(parameters, subscribersRange);
@@ -64,9 +64,9 @@ namespace Sanatana.Notifications.DAL.MongoDb
             SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
             var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
-                    p => p.CategoryId == parameters.CategoryId
-                    && p.TopicId == parameters.TopicId
-                    && p.IsDeleted == false);
+                p => p.CategoryId == parameters.CategoryId
+                && p.TopicId == subscribersRange.TopicId
+                && p.IsDeleted == false);
 
             if (subscribersRange.FromSubscriberIds != null)
             {

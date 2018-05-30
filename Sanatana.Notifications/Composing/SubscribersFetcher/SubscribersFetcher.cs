@@ -99,8 +99,21 @@ namespace Sanatana.Notifications.Composing
                 return ComposeResult<Subscriber<TKey>>.FromResult(ProcessingResult.Fail);
             }
 
-            rangeParameters.TopicId = signalEvent.TopicId;
+            rangeParameters.TopicId = signalEvent.TopicId ?? settings.Subscription.TopicId;
 
+            bool categoryParameterChecked = settings.Subscription.CheckCategoryLastSendDate 
+                || settings.Subscription.CheckCategoryEnabled 
+                || settings.Subscription.CheckCategorySendCountNotGreater != null;
+            rangeParameters.SelectFromCategories = settings.Subscription.CategoryId != null 
+                && categoryParameterChecked;
+
+            bool topicParameterChecked = settings.Subscription.CheckTopicLastSendDate 
+                || settings.Subscription.CheckTopicEnabled 
+                || settings.Subscription.CheckTopicSendCountNotGreater != null;
+            rangeParameters.SelectFromTopics = settings.Subscription.CategoryId != null
+                && rangeParameters.TopicId != null
+                && topicParameterChecked;
+            
             List<Subscriber<TKey>> subscribers = _subscriberQueries
                 .Select(settings.Subscription, rangeParameters).Result;
             

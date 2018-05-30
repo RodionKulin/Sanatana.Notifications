@@ -220,8 +220,6 @@ namespace Sanatana.Notifications.DAL.MongoDb
             BsonClassMap.RegisterClassMap<SubscriptionParameters>(cm =>
             {
                 cm.AutoMap();
-                cm.UnmapProperty(p => p.SelectFromCategories);
-                cm.UnmapProperty(p => p.SelectFromTopics);
             });
 
             BsonClassMap.RegisterClassMap<UpdateParameters>(cm =>

@@ -30,29 +30,5 @@ namespace Sanatana.Notifications.DAL.Parameters
 
         //is blocked
         public bool CheckIsNDRBlocked { get; set; }
-
-
-
-
-        //dependent properties
-        public virtual bool SelectFromCategories
-        {
-            get
-            {
-                bool categoryParameterChecked = CheckCategoryLastSendDate || CheckCategoryEnabled || CheckCategorySendCountNotGreater != null;
-                return CategoryId != null && categoryParameterChecked;
-            }
-        }
-        public virtual bool SelectFromTopics
-        {
-            get
-            {
-                bool topicParameterChecked = CheckTopicLastSendDate || CheckTopicEnabled || CheckTopicSendCountNotGreater != null;
-                return CategoryId != null
-                    && TopicId != null
-                    && topicParameterChecked;
-            }
-        }
-
     }
 }

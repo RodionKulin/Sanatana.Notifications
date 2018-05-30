@@ -10,12 +10,29 @@ namespace Sanatana.Notifications.DAL.Entities
         where TKey : struct
     {
         //properties
+        /// <summary>
+        /// Identifier. Only required if stored in database. Is set by database itself.
+        /// </summary>
         public TKey DispatchTemplateId { get; set; }
+        /// <summary>
+        /// Foreign key to join with EventSettings. Only required if stored in database. Is set in database queries layer.
+        /// </summary>
         public TKey EventSettingsId { get; set; }
+        /// <summary>
+        /// Optional field for display in UI.
+        /// </summary>
         public string DisplayName { get; set; }
-        public int Version { get; set; }
+        /// <summary>
+        /// Delivery type identifier to assign to SignalDispatch. Will be used to match constructed SignalDispatch with DispatchChannel.
+        /// </summary>
         public int DeliveryType { get; set; }
+        /// <summary>
+        /// Optional identifier. If not null enables scheduling of dispatches for later sending. ScheduleSet is used to match SubscriberScheduleSettings set of daytime intervals that user chosen to receive notifications.
+        /// </summary>
         public int? ScheduleSet { get; set; }
+        /// <summary>
+        /// Toggle to enable or disable building SignalDispatches from this Template. Often used in conjunction with storing EventSettings and DispatchTemplates in database.
+        /// </summary>
         public bool IsActive { get; set; } = true;
 
 
