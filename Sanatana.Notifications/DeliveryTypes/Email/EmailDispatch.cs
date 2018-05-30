@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DeliveryTypes.Email
 {
+    [Serializable]
     public class EmailDispatch<TKey> : SignalDispatch<TKey>
         where TKey :struct
     {

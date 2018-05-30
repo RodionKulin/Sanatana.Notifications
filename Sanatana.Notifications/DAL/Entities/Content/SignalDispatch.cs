@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DAL.Entities
 {
+    [Serializable]
     public class SignalDispatch<TKey>
         where TKey : struct
     {

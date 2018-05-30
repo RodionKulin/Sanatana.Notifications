@@ -117,17 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="type_DispatchTemplate" xml:space="preserve">
-    <value>CREATE TYPE [pref].[DispatchTemplateType] AS TABLE(
-	[DispatchTemplateId] [bigint] NOT NULL,
-	[EventSettingsId] [bigint] NOT NULL,
-	[DisplayName] varchar(max) NULL,
-	[DeliveryType] [int] NOT NULL,
-	[SchedulesSet] [int] NULL,
-	[IsActive] [bit] NOT NULL,
-	[DerivedEntityData] varchar(max) NOT NULL
-)</value>
-  </data>
   <data name="type_EventSettings" xml:space="preserve">
     <value>CREATE TYPE [pref].[EventSettingsType] AS TABLE(
 	[EventSettingsId] [bigint] NOT NULL,

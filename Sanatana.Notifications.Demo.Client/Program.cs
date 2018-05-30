@@ -3,37 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sanatana.Notifications.Service;
 
 namespace Sanatana.Notifications.Demo.Client
 {
     class Program
     {
-        private enum Category { Videos, Music, Games }
+        public enum CategoryTypes
+        {
+            CustomerGreetings,
+            BasketReminder,
+            PurchaseApprovement
+        }
 
         static void Main(string[] args)
         {
-            //Console.WriteLine("Press any key to send or enter to exit.");
-            
-            //ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-            //while(keyInfo.Key != ConsoleKey.Enter)
-            //{
-            //    Console.WriteLine("{0:HH:mm:ss} Event sending started", DateTime.Now);
-            //    Send();
-            //    keyInfo = Console.ReadKey(true);
-            //}
+            Console.WriteLine("Press any key to send or enter to exit.");
+
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+            while (keyInfo.Key != ConsoleKey.Enter)
+            {
+                Console.WriteLine("{0:HH:mm:ss} Transfer event data", DateTime.Now);
+                Send();
+                keyInfo = Console.ReadKey(true);
+            }
         }
 
-        //private static void Send()
-        //{
-        //    string endpointConfigurationName = "NetNamedPipeBinding_ISignalServiceOf_Int64";
-        //    var endpointService = new SignalEndpointService(endpointConfigurationName);
+        private static void Send()
+        {
+            var endpointService = new SignalServiceOf_Int64Client(
+                SignalServiceOf_Int64Client.EndpointConfiguration.MainTcpEndpoint);
 
-        //    int category = (int)Category.Music;
-        //    Exception exception;
-        //    var data = new Dictionary<string, string>(){
-        //        {  "key", "value" }
-        //    };
-        //    bool transferred = endpointService.RaiseEventFromSubscriptions(data, category);
-        //}
+            int category = (int)CategoryTypes.CustomerGreetings;
+            var data = new Dictionary<string, string>(){
+                {  "customer", "Crabs" }
+            };
+            endpointService.RaiseEventAndMatchSubscribersAsync(data, category, null, null).Wait();
+        }
     }
 }

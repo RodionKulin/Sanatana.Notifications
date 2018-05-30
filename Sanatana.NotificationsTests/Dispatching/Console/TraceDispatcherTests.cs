@@ -15,7 +15,7 @@ namespace Sanatana.Notifications.Dispatching.Console.Tests
     public class TraceDispatcherTests
     {
         [TestMethod()]
-        public void SendTest()
+        public void TraceDispatcher_SendTest()
         {
             var target = new TraceDispatcher<long>();
             var item = new SignalDispatch<long>

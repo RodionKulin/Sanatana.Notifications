@@ -13,7 +13,7 @@ namespace Sanatana.Notifications.Dispatching.Interrupters.Tests
     public class ProgressiveTimeoutInterrupterTests
     {
         [TestMethod()]
-        public void FailSingleTest()
+        public void ProgressiveTimeoutInterrupter_FailSingleTest()
         {
             var target = new ProgressiveTimeoutInterrupter<long>();
             target.Fail(null, DispatcherAvailability.NotChecked);
@@ -23,7 +23,7 @@ namespace Sanatana.Notifications.Dispatching.Interrupters.Tests
         }
 
         [TestMethod()]
-        public void FailManyMinTest()
+        public void ProgressiveTimeoutInterrupter_FailManyMinTest()
         {
             var target = new ProgressiveTimeoutInterrupter<long>();
             for (int i = 0; i < target.FailedAttemptsCountTimeoutStart; i++)
@@ -38,7 +38,7 @@ namespace Sanatana.Notifications.Dispatching.Interrupters.Tests
         }
 
         [TestMethod()]
-        public void FailManyMaxTest()
+        public void ProgressiveTimeoutInterrupter_FailManyMaxTest()
         {
             var target = new ProgressiveTimeoutInterrupter<long>();
             for (int i = 0; i < 100; i++)

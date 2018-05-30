@@ -26,6 +26,9 @@ using System.Configuration;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.WCF.DI.Autofac;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac;
+using Sanatana.Notifications.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Sanatana.Notifications.Demo.Sender
 {
@@ -53,12 +56,11 @@ namespace Sanatana.Notifications.Demo.Sender
             var builder = new ContainerBuilder();
             builder.RegisterModule(new NotificationsAutofacModule<long>());
             builder.RegisterModule(new InMemoryEventSettingsAutofacModule<long>(GetEventSettings()));
-            //builder.RegisterModule(new EntityFrameworkEventSettingsAutofacModule(useCaching: true));
             builder.RegisterModule(new EntityFrameworkCoreAutofacModule(connection));
             builder.RegisterInstance(new DispatchChannel<long>()
             {
                 Dispatcher = new ConsoleDispatcher<long>(),
-                DeliveryType = (int)Model.DeliveryTypes.Console
+                DeliveryType = (int)Model.DeliveryTypes.Email
             }).AsSelf().SingleInstance();
             builder.RegisterType<StoredNotificationsDispatchChannel<long>>().As<DispatchChannel<long>>().SingleInstance();
             builder.RegisterModule(new WcfSignalEndpointAutofacModule<long>());
@@ -68,13 +70,55 @@ namespace Sanatana.Notifications.Demo.Sender
             IContainer container = builder.Build();
             if (initDatabase)
             {
-                ISenderDbContextFactory contextFactory = container.Resolve<ISenderDbContextFactory>();
-                contextFactory.InitializeDatabase();
+                InitDatabase(container);
             }
 
             ISender sender = container.Resolve<ISender>();
             return sender;
 
+        }
+
+        private static void InitDatabase(IContainer container)
+        {
+            bool dbExists = false;
+
+            ISenderDbContextFactory contextFactory = container.Resolve<ISenderDbContextFactory>();
+            using (SenderDbContext context = contextFactory.GetDbContext())
+            {
+                var creator = (RelationalDatabaseCreator)context.Database.GetService<IDatabaseCreator>();
+                dbExists = creator.Exists();
+            }
+
+            if (dbExists)
+            {
+                return;
+            }
+
+            contextFactory.InitializeDatabase();
+            
+            var deliveryTypeQueries = container.Resolve<ISubscriberDeliveryTypeSettingsQueries<long>>();
+            deliveryTypeQueries.Insert(new List<SubscriberDeliveryTypeSettings<long>>
+            {
+                new SubscriberDeliveryTypeSettings<long>
+                {
+                    SubscriberId = 1,
+                    DeliveryType = (int)Model.DeliveryTypes.Email,
+                    Address = "test@test.mail",
+                    IsEnabled = true
+                }
+            }).Wait();
+            
+            var categoryQueries = container.Resolve<ISubscriberCategorySettingsQueries<long>>();
+            categoryQueries.Insert(new List<SubscriberCategorySettings<long>>
+            {
+                new SubscriberCategorySettings<long>
+                {
+                    SubscriberId = 1,
+                    DeliveryType = (int)Model.DeliveryTypes.Email,
+                    CategoryId = (int)CategoryTypes.CustomerGreetings,
+                    IsEnabled = true
+                }
+            }).Wait();
         }
 
         private static List<EventSettings<long>> GetEventSettings()
@@ -87,6 +131,7 @@ namespace Sanatana.Notifications.Demo.Sender
                     EventSettingsId = 1,
                     Subscription = new SubscriptionParameters()
                     {
+                        DeliveryType = (int)Model.DeliveryTypes.Email,
                         CategoryId = (int)CategoryTypes.CustomerGreetings
                     },
                     CompositionHandlerId = null,

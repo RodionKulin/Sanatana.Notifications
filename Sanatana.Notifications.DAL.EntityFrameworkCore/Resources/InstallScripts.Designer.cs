@@ -61,23 +61,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CREATE TYPE [pref].[DispatchTemplateType] AS TABLE(
-        ///	[DispatchTemplateId] [bigint] NOT NULL,
-        ///	[EventSettingsId] [bigint] NOT NULL,
-        ///	[DisplayName] varchar(max) NULL,
-        ///	[DeliveryType] [int] NOT NULL,
-        ///	[SchedulesSet] [int] NULL,
-        ///	[IsActive] [bit] NOT NULL,
-        ///	[DerivedEntityData] varchar(max) NOT NULL
-        ///).
-        /// </summary>
-        internal static string type_DispatchTemplate {
-            get {
-                return ResourceManager.GetString("type_DispatchTemplate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to CREATE TYPE [pref].[EventSettingsType] AS TABLE(
         ///	[EventSettingsId] [bigint] NOT NULL,
         ///	[DisplayName] varchar(max) NOT NULL,

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
+    [Serializable]
     public class StoredNotificationDispatch<TKey> : SignalDispatch<TKey>
         where TKey : struct
     {

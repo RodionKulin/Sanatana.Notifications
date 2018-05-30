@@ -30,7 +30,7 @@ namespace Sanatana.Notifications.Processing
         //init
         public DispatchingProcessor(SenderState<TKey> hubState, IDispatchQueue<TKey> dispatchQueue
             , IDispatchChannelRegistry<TKey> channelRegistry, IMonitor<TKey> eventSink
-            , ILogger<DispatchingProcessor<TKey>> logger, SenderSettings senderSettings)
+            , ILogger logger, SenderSettings senderSettings)
             : base(logger)
         {
             _hubState = hubState;

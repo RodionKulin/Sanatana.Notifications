@@ -13,7 +13,6 @@ namespace Sanatana.Notifications.DAL.Queries
 {
     public class FileRepository
     {
-
         //init
         public FileRepository()
         {

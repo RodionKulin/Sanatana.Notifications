@@ -13,6 +13,7 @@ using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
+using Sanatana.Notifications.DAL.Interfaces;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Providers
 {
@@ -33,14 +34,19 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Provider
                 cfg.For<SqlConnectionSettings>().Use(connection);
                 cfg.For<ISenderDbContextFactory>().Use<SenderDbContextFactory>();
                 cfg.For<INotificationsMapperFactory>().Use<NotificationsMapperFactory>();
+                
+                cfg.For<IDispatchTemplateQueries<long>>().Use<SqlDispatchTemplateQueries>();
+                cfg.For<SqlDispatchTemplateQueries>().Use<SqlDispatchTemplateQueries>();
+                cfg.For<SqlEventSettingsQueries>().Use<SqlEventSettingsQueries>();
 
                 cfg.For<SqlSignalBounceQueries>().Use<SqlSignalBounceQueries>();
                 cfg.For<SqlSignalDispatchQueries>().Use<SqlSignalDispatchQueries>();
                 cfg.For<SqlSignalEventQueries>().Use<SqlSignalEventQueries>();
                 cfg.For<SqlStoredNotificationQueries>().Use<SqlStoredNotificationQueries>();
-                cfg.For<SqlSubscriberQueries>().Use<SqlSubscriberQueries>();
+
                 cfg.For<SqlSubscriberCategorySettingsQueries>().Use<SqlSubscriberCategorySettingsQueries>();
                 cfg.For<SqlSubscriberDeliveryTypeSettingsQueries>().Use<SqlSubscriberDeliveryTypeSettingsQueries>();
+                cfg.For<SqlSubscriberQueries>().Use<SqlSubscriberQueries>();
                 cfg.For<SqlSubscriberScheduleSettingsQueries>().Use<SqlSubscriberScheduleSettingsQueries>();
                 cfg.For<SqlSubscriberTopicSettingsQueries>().Use<SqlSubscriberTopicSettingsQueries>();
             });

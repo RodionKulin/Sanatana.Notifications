@@ -32,7 +32,7 @@ namespace Sanatana.Notifications.Processing
 
         //init
         public CompositionProcessor(SenderState<TKey> hubState, IMonitor<TKey> eventSink
-            , ILogger<CompositionProcessor<TKey>> logger, SenderSettings senderSettings
+            , ILogger logger, SenderSettings senderSettings
             , IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue
             , ICompositionHandlerRegistry<TKey> handlerRegistry, IEventSettingsQueries<TKey> eventSettingsQueries)
             : base(logger)

@@ -100,7 +100,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 .Select(_mapper.Map<DispatchTemplateLong>)
                 .ToList();
             
-            MergeCommand<DispatchTemplateLong> mergeCommand = new MergeCommand<DispatchTemplateLong>(context, mappedList, underlyingTransaction);
+            var mergeCommand = new MergeCommand<DispatchTemplateLong>(context, mappedList, underlyingTransaction);
             mergeCommand.Insert
                 .ExcludeProperty(x => x.DispatchTemplateId);
             mergeCommand.Output
@@ -189,16 +189,17 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 try
                 {
+                    SqlTransaction underlyingTransaction = (SqlTransaction)ts.GetDbTransaction();
+                    
                     MergeCommand<EventSettingsLong> merge = repository.MergeParameters(mappedList);
                     merge.Compare
                         .IncludeProperty(p => p.EventSettingsId);
-                    merge.Update
-                        .ExcludeProperty(x => x.EventSettingsId)
-                        .ExcludeProperty(x => x.TemplatesNavigation);
+                    merge.Update                     
+                        .ExcludeProperty(x => x.EventSettingsId);
                     int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);
 
                     List<DispatchTemplate<long>> templates = items.SelectMany(x => x.Templates).ToList();
-                    await _dispatchTemplateQueries.Update(templates).ConfigureAwait(false);
+                    await UpdateTemplates(templates, repository.Context, underlyingTransaction).ConfigureAwait(false);
 
                     ts.Commit();
                 }
@@ -208,6 +209,20 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     throw;
                 }
             }
+        }
+        
+        public virtual async Task UpdateTemplates(List<DispatchTemplate<long>> items, DbContext context, SqlTransaction transaction)
+        {
+            List<DispatchTemplateLong> mappedItems = items
+                .Select(_mapper.Map<DispatchTemplateLong>)
+                .ToList();
+
+            MergeCommand<DispatchTemplateLong> merge = new MergeCommand<DispatchTemplateLong>(context, mappedItems, transaction);
+            merge.Compare
+                .IncludeProperty(p => p.DispatchTemplateId);
+            merge.Update
+                .ExcludeProperty(x => x.DispatchTemplateId);
+            int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);
         }
 
 

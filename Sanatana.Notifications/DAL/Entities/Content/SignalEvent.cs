@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DAL.Entities
 {
+    [Serializable]
     public class SignalEvent<TKey>
         where TKey : struct
     {

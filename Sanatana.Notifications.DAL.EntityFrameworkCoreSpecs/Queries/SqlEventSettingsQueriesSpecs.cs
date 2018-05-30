@@ -92,7 +92,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     }
                 };
             }
-            
+
             protected override void When()
             {
                 _insertedData = GetEventSettings();
@@ -162,10 +162,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
         public class when_event_settings_update_using_ef
            : SpecsFor<SqlEventSettingsQueries>, INeedDbContext
         {
-            private List<EventSettingsLong> _insertedData;
+            private List<EventSettingsLong> _insertedSettings;
+            private List<EmailDispatchTemplate<long>> _insertedTemplates;
             private int _categoryId = 2;
             public SenderDbContext DbContext { get; set; }
-            
+
 
             private List<EventSettingsLong> GetEventSettings()
             {
@@ -228,15 +229,19 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 
             protected override void Given()
             {
-                _insertedData = GetEventSettings();
+                _insertedSettings = GetEventSettings();
+                _insertedTemplates = _insertedSettings
+                    .SelectMany(x => x.Templates)
+                    .Cast<EmailDispatchTemplate<long>>()
+                    .ToList();
 
-                var insertedItems = _insertedData.Cast<EventSettings<long>>().ToList();
+                var insertedItems = _insertedSettings.Cast<EventSettings<long>>().ToList();
                 SUT.Insert(insertedItems).Wait();
             }
-            
+
             protected override void When()
             {
-                foreach (EventSettingsLong item in _insertedData)
+                foreach (EventSettingsLong item in _insertedSettings)
                 {
                     item.DisplayName = "Updated name";
                     item.Subscription.CategoryId = 101;
@@ -247,10 +252,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     });
                 }
 
-                var updatedItems = _insertedData.Cast<EventSettings<long>>().ToList();
+                var updatedItems = _insertedSettings.Cast<EventSettings<long>>().ToList();
                 SUT.Update(updatedItems).Wait();
             }
-            
+
             [Test]
             public void then_event_settings_updated_are_found_using_ef()
             {
@@ -260,15 +265,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .ToList();
 
                 actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Count.ShouldEqual(_insertedSettings.Count);
 
-                for (int i = 0; i < _insertedData.Count; i++)
+                for (int i = 0; i < _insertedSettings.Count; i++)
                 {
+                    EventSettings<long> expectedItem = _insertedSettings[i];
                     EventSettingsLong actualItem = actual[i];
-                    EventSettings<long> expectedItem = _insertedData[i];
 
                     expectedItem.EventSettingsId = actualItem.EventSettingsId;
-                    actualItem.Templates = expectedItem.Templates;
+                    expectedItem.Templates = null;
 
                     actualItem.ShouldLookLike(expectedItem);
                 }
@@ -277,36 +282,139 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             [Test]
             public void then_dispatch_templates_updated_are_found_using_ef()
             {
-                INotificationsMapperFactory mapperFactory = MockContainer.GetInstance<INotificationsMapperFactory>();
-                IMapper mapper = mapperFactory.GetMapper();
-
-                List<DispatchTemplateLong> actual = DbContext.DispatchTemplates
+                List<long> templateIds = _insertedTemplates.Select(x => x.DispatchTemplateId).ToList();
+                List<DispatchTemplateLong> actualList = DbContext.DispatchTemplates
+                   .Where(x => templateIds.Contains(x.DispatchTemplateId))
                    .OrderBy(x => x.EventSettingsId)
                    .ThenBy(x => x.DispatchTemplateId)
                    .ToList();
 
-                List<DispatchTemplate<long>> expected = _insertedData
-                    .SelectMany(x => x.Templates)
-                    .ToList();
+                actualList.ShouldNotBeEmpty();
+                actualList.Count.ShouldEqual(_insertedTemplates.Count);
 
-                actual.ShouldNotBeEmpty();
-                int expectedCount = _insertedData.Sum(x => x.Templates.Count);
-                actual.Count.ShouldEqual(expectedCount);
+                INotificationsMapperFactory mapperFactory = MockContainer.GetInstance<INotificationsMapperFactory>();
+                IMapper mapper = mapperFactory.GetMapper();
 
-                for (int i = 0; i < _insertedData.Count; i++)
+                for (int i = 0; i < _insertedSettings.Count; i++)
                 {
-                    DispatchTemplateLong actualItem = actual[i];
+                    DispatchTemplateLong actualItem = actualList[i];
                     DispatchTemplate<long> mappedActualItem = mapper.Map<DispatchTemplate<long>>(actualItem);
-                    DispatchTemplate<long> expectedItem = expected[i];
-
-                    expectedItem.EventSettingsId = mappedActualItem.EventSettingsId;
-                    expectedItem.DispatchTemplateId = mappedActualItem.DispatchTemplateId;
-
+                    DispatchTemplate<long> expectedItem = _insertedTemplates[i];
+                    
                     mappedActualItem.ShouldLookLike(expectedItem);
                 }
             }
         }
 
+
+        [TestFixture]
+        public class when_event_settings_delete_using_ef
+           : SpecsFor<SqlEventSettingsQueries>, INeedDbContext
+        {
+            private List<EventSettingsLong> _insertedSettings;
+            private List<EmailDispatchTemplate<long>> _insertedTemplates;
+            private int _categoryId = 3;
+            public SenderDbContext DbContext { get; set; }
+
+
+            private List<EventSettingsLong> GetEventSettings()
+            {
+                return new List<EventSettingsLong>()
+                {
+                    new EventSettingsLong()
+                    {
+                        CategoryId = _categoryId,
+                        Subscription = new SubscriptionParameters()
+                        {
+                            CategoryId = _categoryId
+                        },
+                        CompositionHandlerId = null,
+                        Templates = new List<DispatchTemplate<long>>()
+                        {
+                            new EmailDispatchTemplate<long>()
+                            {
+                                DeliveryType = 2,
+                                IsBodyHtml = false,
+                                SubjectProvider = (StringTemplate)"subject {key}",
+                                SubjectTransformer = new ReplaceTransformer(),
+                                BodyProvider = (StringTemplate)"body text {key}",
+                                BodyTransformer = new ReplaceTransformer(),
+                            },
+                            new EmailDispatchTemplate<long>()
+                            {
+                                DeliveryType = 2,
+                                IsBodyHtml = false,
+                                SubjectProvider = (StringTemplate)"subject {key}",
+                                SubjectTransformer = new ReplaceTransformer(),
+                                BodyProvider = (StringTemplate)"body text {key}",
+                                BodyTransformer = new ReplaceTransformer(),
+                            }
+                        },
+                        Updates = new UpdateParameters()
+                    },
+                    new EventSettingsLong()
+                    {
+                        CategoryId = _categoryId,
+                        Subscription = new SubscriptionParameters()
+                        {
+                            CategoryId = _categoryId
+                        },
+                        Templates = new List<DispatchTemplate<long>>()
+                        {
+                            new EmailDispatchTemplate<long>()
+                            {
+                                DeliveryType = 3,
+                                IsBodyHtml = true,
+                                SubjectProvider = new StringTemplate("Demo event in games category"),
+                                SubjectTransformer = null,
+                                BodyProvider = new StringTemplate("Games-Body.cshtml"),
+                                BodyTransformer = new ReplaceTransformer(),
+                            }
+                        },
+                        Updates = new UpdateParameters()
+                    }
+                };
+            }
+
+            protected override void Given()
+            {
+                _insertedSettings = GetEventSettings();
+                _insertedTemplates = _insertedSettings
+                    .SelectMany(x => x.Templates)
+                    .Cast<EmailDispatchTemplate<long>>()
+                    .ToList();
+
+                var insertedItems = _insertedSettings.Cast<EventSettings<long>>().ToList();
+                SUT.Insert(insertedItems).Wait();
+            }
+
+            protected override void When()
+            {
+                var deletedItems = _insertedSettings.Cast<EventSettings<long>>().ToList();
+                SUT.Delete(deletedItems).Wait();
+            }
+
+            [Test]
+            public void then_event_settings_deleted_are_not_found_using_ef()
+            {
+                List<EventSettingsLong> actual = DbContext.EventSettings
+                    .Where(x => x.CategoryId == _categoryId)
+                    .ToList();
+
+                actual.Count.ShouldEqual(0);
+            }
+
+            [Test]
+            public void then_dispatch_templates_updated_are_not_found_using_ef()
+            {
+                List<long> templateIds = _insertedTemplates.Select(x => x.DispatchTemplateId).ToList();
+                List<DispatchTemplateLong> actualList = DbContext.DispatchTemplates
+                   .Where(x => templateIds.Contains(x.DispatchTemplateId))
+                   .ToList();
+
+                actualList.Count.ShouldEqual(0);
+            }
+        }
 
     }
 }

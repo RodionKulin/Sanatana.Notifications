@@ -16,6 +16,7 @@ using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
+using System.Data.SqlClient;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -124,9 +125,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema, TableValuedParameters.DISPATCH_TEMPLATE_TYPE);
-                MergeCommand<DispatchTemplateLong> merge = repository.MergeTVP(mappedItems, tvpName);
-                merge.Compare.IncludeProperty(p => p.DispatchTemplateId);
+                MergeCommand<DispatchTemplateLong> merge = repository.MergeParameters(mappedItems);
+                merge.Compare
+                    .IncludeProperty(p => p.DispatchTemplateId);
+                merge.Update
+                    .ExcludeProperty(x => x.DispatchTemplateId);
                 int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);                
             }
         }

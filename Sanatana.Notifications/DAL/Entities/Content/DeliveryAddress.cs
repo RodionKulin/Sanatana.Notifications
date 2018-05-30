@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DAL.Entities
-{ 
+{
+    [Serializable]
     public class DeliveryAddress
     {
         public int DeliveryType { get; set; }

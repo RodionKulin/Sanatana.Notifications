@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DeliveryTypes.Http
 {
+    [Serializable]
     public class HttpDispatch<TKey> : SignalDispatch<TKey>
         where TKey : struct
     {

@@ -41,7 +41,7 @@ namespace Sanatana.Notifications.Queue.Tests
         }
 
         [TestMethod()]
-        public void CountTest()
+        public void QueueBase_CountTest()
         {
             var target = (DispatchQueue<long>)Dependencies.Resolve<IDispatchQueue<long>>();
             target.Flush();
@@ -65,7 +65,7 @@ namespace Sanatana.Notifications.Queue.Tests
 
 
         [TestMethod()]
-        public void IsEmptyTest()
+        public void QueueBase_IsEmptyTest()
         {
             var target = (DispatchQueue<long>)Dependencies.Resolve<IDispatchQueue<long>>();
             target.PersistBeginOnItemsCount = 4;

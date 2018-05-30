@@ -18,14 +18,8 @@ namespace Sanatana.Notifications.DAL.Queries
         //fields
         protected FileRepository _repository;
         protected string _tempFileFolder;
-        protected string _deadFileFolder;
         protected Regex _fileIdRegex;
-
-
-        //Properties
-        public string TemporaryStorageFolder { get; set; }
-        public string DeadFileStorageFolder { get; set; }
-
+        
 
         //init
         public TemporaryStorage()
@@ -38,11 +32,10 @@ namespace Sanatana.Notifications.DAL.Queries
             FileInfo assemblyFileInfo = new FileInfo(codeBase.LocalPath);
 
             _tempFileFolder = Path.Combine(assemblyFileInfo.DirectoryName, DALConstants.TEMP_SIGNAL_FOLDER);
-            _deadFileFolder = Path.Combine(assemblyFileInfo.DirectoryName, DALConstants.DEAD_SIGNAL_FOLDER);
         }
 
 
-        //File actions
+        //file actions
         public virtual void Insert(TemporaryStorageParameters queueParams, Guid Id, TS item)
         {
             string filePath = GetFilePath(queueParams, Id);
@@ -79,7 +72,7 @@ namespace Sanatana.Notifications.DAL.Queries
             return items;
         }
 
-        public void Update(TemporaryStorageParameters queueParams, Guid Id, TS item)
+        public virtual void Update(TemporaryStorageParameters queueParams, Guid Id, TS item)
         {
             Insert(queueParams, Id, item);
         }
@@ -100,7 +93,7 @@ namespace Sanatana.Notifications.DAL.Queries
         
 
 
-        //File names 
+        //file names 
         protected virtual string GetSearchPattern(TemporaryStorageParameters queueParams)
         {
             string version = queueParams.EntityVersion.ToString();
@@ -139,5 +132,9 @@ namespace Sanatana.Notifications.DAL.Queries
             return Path.Combine(_tempFileFolder, fileName);
         }
 
+        public virtual string GetStorageFolder()
+        {
+            return _tempFileFolder;
+        }
     }
 }
