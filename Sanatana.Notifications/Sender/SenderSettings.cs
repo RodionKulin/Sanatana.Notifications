@@ -51,7 +51,13 @@ namespace Sanatana.Notifications.Sender
 
 
         //FlushJobs
+        /// <summary>
+        /// Max time until next flush of SignalEvent and SignalDispatch batch of Insert, Update, Delete operations.
+        /// </summary>
         public TimeSpan FlushJobFlushPeriod { get; set; } = NotificationsConstants.FLUSH_JOB_FLUSH_PERIOD;
+        /// <summary>
+        /// Number of items in flush queue when reached will trigger flush of SignalEvent and SignalDispatch batch of Insert, Update, Delete operations.
+        /// </summary>
         public int FlushJobQueueLimit { get; set; } = NotificationsConstants.FLUSH_JOB_QUEUE_LIMIT;
 
 

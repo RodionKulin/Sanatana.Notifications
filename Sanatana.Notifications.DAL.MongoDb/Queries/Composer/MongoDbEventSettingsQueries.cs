@@ -18,7 +18,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
     {
         //fields
         protected MongoDbConnectionSettings _settings;
-        
+
         protected SenderMongoDbContext _context;
 
 

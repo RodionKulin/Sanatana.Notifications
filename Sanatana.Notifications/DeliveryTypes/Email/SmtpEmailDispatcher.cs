@@ -96,7 +96,9 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
             client.EnableSsl = _smtpSettings.EnableSsl;
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.Timeout = 15000;
-            client.UseDefaultCredentials = _smtpSettings.Credentials == null;
+
+            //UseDefaultCredentials = false must go before Credentials = ..., cause it will set Credentials to null.
+            client.UseDefaultCredentials = _smtpSettings.Credentials == null;   
             client.Credentials = _smtpSettings.Credentials;
 
             return client;

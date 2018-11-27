@@ -16,15 +16,15 @@ namespace Sanatana.Notifications.DAL.Queries
     public class TemporaryStorage<TS> : ITemporaryStorage<TS>
     {
         //fields
-        protected FileRepository _repository;
+        protected IFileRepository _repository;
         protected string _tempFileFolder;
         protected Regex _fileIdRegex;
         
 
         //init
-        public TemporaryStorage()
+        public TemporaryStorage(IFileRepository fileRepository)
         {
-            _repository = new FileRepository();
+            _repository = fileRepository;
             _fileIdRegex = new Regex(DALConstants.TEMP_FILE_Id_REGEX_PATTERN);
 
             Assembly currentAssmebly = typeof(TemporaryStorage<TS>).Assembly;

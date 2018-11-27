@@ -13,6 +13,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Sanatana.Notifications.DeliveryTypes.Email;
+using Sanatana.Notifications.DeliveryTypes.Http;
+using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 
 namespace Sanatana.Notifications.DAL.MongoDb
 {
@@ -72,6 +75,13 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 return _database.GetCollection<SignalDispatch<ObjectId>>(_settings.CollectionsPrefix + "SignalDispatches");
             }
         }
+        public virtual IMongoCollection<StoredNotification<ObjectId>> StoredNotifications
+        {
+            get
+            {
+                return _database.GetCollection<StoredNotification<ObjectId>>(_settings.CollectionsPrefix + "StoredNotifications");
+            }
+        }
         public virtual IMongoCollection<SignalBounce<ObjectId>> SignalBounces
         {
             get
@@ -86,7 +96,13 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 return _database.GetCollection<EventSettings<ObjectId>>(_settings.CollectionsPrefix + "EventSettings");
             }
         }
-
+        public virtual IMongoCollection<DispatchTemplate<ObjectId>> DispatchTemplates
+        {
+            get
+            {
+                return _database.GetCollection<DispatchTemplate<ObjectId>>(_settings.CollectionsPrefix + "DispatchTemplates");
+            }
+        }
 
 
         //init
@@ -163,19 +179,34 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 cm.SetIgnoreExtraElements(true);
             });
 
-            BsonClassMap.RegisterClassMap<SignalDispatch<ObjectId>>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIdMember(cm.GetMemberMap(m => m.SignalDispatchId));
-                cm.SetIgnoreExtraElements(true);
-            });
-
             BsonClassMap.RegisterClassMap<SignalBounce<ObjectId>>(cm =>
             {
                 cm.AutoMap();
                 cm.SetIdMember(cm.GetMemberMap(m => m.SignalBounceId));
                 cm.SetIgnoreExtraElements(true);
             });
+
+            BsonClassMap.RegisterClassMap<EmailDispatch<ObjectId>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap(m => m.SignalDispatchId));
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<HttpDispatch<ObjectId>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap(m => m.SignalDispatchId));
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<StoredNotificationDispatch<ObjectId>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap(m => m.SignalDispatchId));
+                cm.SetIgnoreExtraElements(true);
+            });
+
         }
 
         protected virtual void MapSubscriberSettings()

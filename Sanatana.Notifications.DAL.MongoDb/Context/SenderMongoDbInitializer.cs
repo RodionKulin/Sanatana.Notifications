@@ -11,21 +11,21 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DAL.MongoDb
 {
-    public class MongoDbInitializer
+    public class SenderMongoDbInitializer
     {
         //properties
         public SenderMongoDbContext Context { get; set; }
 
 
         //init
-        public MongoDbInitializer(MongoDbConnectionSettings settings)
+        public SenderMongoDbInitializer(MongoDbConnectionSettings settings)
         {
             Context = new SenderMongoDbContext(settings);
         }
 
 
         //methods
-        public void CreateAllIndexes(bool useGroupId)
+        public virtual void CreateAllIndexes(bool useGroupId)
         {
             CreateSubscriberDeliveryTypeSettingsIndex();
             if(useGroupId)
@@ -38,11 +38,27 @@ namespace Sanatana.Notifications.DAL.MongoDb
             CreateSubscriberReceivePeriodsIndex();
             CreateSignalEventIndex();
             CreateSignalDispatchIndex();
+            CreateStoredNotificationIndex();
             CreateSignalBounceIndex();
             CreateEventSettingsIndex();
+            CreateDispatchTemplateIndex();
+        }
+        public virtual void DropAllIndexes()
+        {
+            Context.SubscriberDeliveryTypeSettings.Indexes.DropAllAsync().Wait();
+            Context.SubscriberCategorySettings.Indexes.DropAllAsync().Wait();
+            Context.SubscriberTopicSettings.Indexes.DropAllAsync().Wait();
+            Context.SubscriberReceivePeriods.Indexes.DropAllAsync().Wait();
+            Context.SignalEvents.Indexes.DropAllAsync().Wait();
+            Context.SignalDispatches.Indexes.DropAllAsync().Wait();
+            Context.StoredNotifications.Indexes.DropAllAsync().Wait();
+            Context.SignalBounces.Indexes.DropAllAsync().Wait();
+            Context.EventSettings.Indexes.DropAllAsync().Wait();
+            Context.DispatchTemplates.Indexes.DropAllAsync().Wait();
         }
 
-        public void CreateSubscriberDeliveryTypeSettingsIndex()
+
+        public virtual void CreateSubscriberDeliveryTypeSettingsIndex()
         {
             IndexKeysDefinition<SubscriberDeliveryTypeSettings<ObjectId>> subscriberIndex = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.IndexKeys
                 .Ascending(p => p.SubscriberId);
@@ -65,12 +81,10 @@ namespace Sanatana.Notifications.DAL.MongoDb
 
 
             IMongoCollection<SubscriberDeliveryTypeSettings<ObjectId>> collection = Context.SubscriberDeliveryTypeSettings;
-            collection.Indexes.DropAllAsync().Wait();
-
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
             string addressName = collection.Indexes.CreateOneAsync(addressIndex, addressOptions).Result;
         }
-        public void CreateSubscriberDeliveryTypeSettingsGroupIdIndex()
+        public virtual void CreateSubscriberDeliveryTypeSettingsGroupIdIndex()
         {
             IndexKeysDefinition<SubscriberDeliveryTypeSettings<ObjectId>> groupIdIndex = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.IndexKeys
                 .Ascending(p => p.GroupId);
@@ -83,11 +97,9 @@ namespace Sanatana.Notifications.DAL.MongoDb
             
 
             IMongoCollection<SubscriberDeliveryTypeSettings<ObjectId>> collection = Context.SubscriberDeliveryTypeSettings;
-            collection.Indexes.DropAllAsync().Wait();
-
             string subscriberName = collection.Indexes.CreateOneAsync(groupIdIndex, groupIdOptions).Result;
         }
-        public void CreateSubscriberCategorySettingsIndex(bool useGroupId)
+        public virtual void CreateSubscriberCategorySettingsIndex(bool useGroupId)
         {
             IndexKeysDefinition<SubscriberCategorySettings<ObjectId>> subscriberIndex = Builders<SubscriberCategorySettings<ObjectId>>.IndexKeys
                 .Ascending(p => p.SubscriberId);
@@ -118,13 +130,11 @@ namespace Sanatana.Notifications.DAL.MongoDb
             };
 
             IMongoCollection<SubscriberCategorySettings<ObjectId>> collection = Context.SubscriberCategorySettings;
-            collection.Indexes.DropAllAsync().Wait();
-
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
             string categoryName = collection.Indexes.CreateOneAsync(categoryIndex, categoryOptions).Result;
 
         }
-        public void CreateSubscriberTopicSettingsIndex()
+        public virtual void CreateSubscriberTopicSettingsIndex()
         {
             IndexKeysDefinition<SubscriberTopicSettings<ObjectId>> topicIndex = Builders<SubscriberTopicSettings<ObjectId>>.IndexKeys
                 .Ascending(p => p.CategoryId)
@@ -144,16 +154,13 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 Name = "SubscriberId",
                 Unique = false
             };
-
-
+            
             IMongoCollection<SubscriberTopicSettings<ObjectId>> collection = Context.SubscriberTopicSettings;
-            collection.Indexes.DropAllAsync().Wait();
-
             string topicName = collection.Indexes.CreateOneAsync(topicIndex, topicOptions).Result;
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
 
         }
-        public void CreateSubscriberReceivePeriodsIndex()
+        public virtual void CreateSubscriberReceivePeriodsIndex()
         {
             IndexKeysDefinition<SubscriberScheduleSettings<ObjectId>> subscriberIndex = Builders<SubscriberScheduleSettings<ObjectId>>.IndexKeys
                 .Ascending(p => p.SubscriberId);
@@ -165,11 +172,9 @@ namespace Sanatana.Notifications.DAL.MongoDb
             };
 
             IMongoCollection<SubscriberScheduleSettings<ObjectId>> collection = Context.SubscriberReceivePeriods;
-            collection.Indexes.DropAllAsync().Wait();
-
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
         }
-        public void CreateSignalEventIndex()
+        public virtual void CreateSignalEventIndex()
         {
             var sendDateIndex = Builders<SignalEvent<ObjectId>>.IndexKeys
                .Ascending(p => p.CreateDateUtc)
@@ -182,11 +187,9 @@ namespace Sanatana.Notifications.DAL.MongoDb
             };
                         
             IMongoCollection<SignalEvent<ObjectId>> collection = Context.SignalEvents;
-            collection.Indexes.DropAllAsync().Wait();
-
             string failedAttemptsName = collection.Indexes.CreateOneAsync(sendDateIndex, failedAttemptsOptions).Result;
         }
-        public void CreateSignalDispatchIndex()
+        public virtual void CreateSignalDispatchIndex()
         {
             var sendDateIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
                .Ascending(p => p.SendDateUtc)
@@ -211,13 +214,27 @@ namespace Sanatana.Notifications.DAL.MongoDb
 
 
             IMongoCollection<SignalDispatch<ObjectId>> collection = Context.SignalDispatches;
-            collection.Indexes.DropAllAsync().Wait();
-
             string sendDateName = collection.Indexes.CreateOneAsync(sendDateIndex, sendDateOptions).Result;
             string receiverName = collection.Indexes.CreateOneAsync(receiverIndex, receiverOptions).Result;
 
         }
-        public void CreateSignalBounceIndex()
+        public virtual void CreateStoredNotificationIndex()
+        {
+            var subscriberIndex = Builders<StoredNotification<ObjectId>>.IndexKeys
+               .Ascending(p => p.SubscriberId)
+               .Ascending(p => p.CreateDateUtc);
+
+            CreateIndexOptions sendDateOptions = new CreateIndexOptions()
+            {
+                Name = "SubscriberId + CreateDateUtc",
+                Unique = false
+            };
+
+            IMongoCollection<StoredNotification<ObjectId>> collection = Context.StoredNotifications;
+            string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, sendDateOptions).Result;
+
+        }
+        public virtual void CreateSignalBounceIndex()
         {
             IndexKeysDefinition<SignalBounce<ObjectId>> subscriberIndex = Builders<SignalBounce<ObjectId>>.IndexKeys
                .Ascending(p => p.ReceiverSubscriberId)
@@ -229,14 +246,11 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 Unique = false
             };
 
-
             IMongoCollection<SignalBounce<ObjectId>> collection = Context.SignalBounces;
-            collection.Indexes.DropAllAsync().Wait();
-
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
 
         }
-        public void CreateEventSettingsIndex()
+        public virtual void CreateEventSettingsIndex()
         {
             IndexKeysDefinition<EventSettings<ObjectId>> subscriberIndex = Builders<EventSettings<ObjectId>>.IndexKeys
                .Ascending(p => p.CategoryId);
@@ -247,12 +261,13 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 Unique = false
             };
 
-
             IMongoCollection<EventSettings<ObjectId>> collection = Context.EventSettings;
-            collection.Indexes.DropAllAsync().Wait();
-
             string subscriberName = collection.Indexes.CreateOneAsync(subscriberIndex, subscriberOptions).Result;
 
+        }
+        public virtual void CreateDispatchTemplateIndex()
+        {
+            //no extra indexes requied
         }
     }
 }

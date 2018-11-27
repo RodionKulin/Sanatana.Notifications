@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Sanatana.Notifications;
 using Sanatana.Notifications.Composing;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
@@ -14,9 +13,6 @@ using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sanatana.Notifications.DI.Autofac
 {
@@ -24,12 +20,12 @@ namespace Sanatana.Notifications.DI.Autofac
     /// Register core Sanatana.Notifications components. 
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
-    public class NotificationsAutofacModule<TKey> : Module
+    public class NotificationsCoreAutofacModule<TKey> : Module
         where TKey : struct
     {
         protected SenderSettings _senderSettings;
 
-        public NotificationsAutofacModule(SenderSettings senderSettings = null)
+        public NotificationsCoreAutofacModule(SenderSettings senderSettings = null)
         {
             _senderSettings = senderSettings ?? new SenderSettings();
         }
@@ -50,11 +46,12 @@ namespace Sanatana.Notifications.DI.Autofac
             builder.RegisterType<DatabaseEventProvider<TKey>>().As<IRegularJob>().SingleInstance();
 
             builder.RegisterType<EventQueue<TKey>>().As<IEventQueue<TKey>>().As<IRegularJob>().SingleInstance();
-            builder.RegisterType<DispatchQueue<TKey>>().As<IDispatchQueue<TKey>>().As<IRegularJob>().SingleInstance();            
+            builder.RegisterType<DispatchQueue<TKey>>().As<IDispatchQueue<TKey>>().As<IRegularJob>().SingleInstance();
             builder.RegisterType<SignalEventFlushJob<TKey>>().As<ISignalFlushJob<SignalEvent<TKey>>>().As<IRegularJob>().SingleInstance();
             builder.RegisterType<SignalDispatchFlushJob<TKey>>().As<ISignalFlushJob<SignalDispatch<TKey>>>().As<IRegularJob>().SingleInstance();
             builder.RegisterType<StoredNotificationFlushJob<TKey>>().As<IStoredNotificationFlushJob<TKey>>().As<IRegularJob>().SingleInstance();
 
+            builder.RegisterType<FileRepository>().As<IFileRepository>().SingleInstance();
             builder.RegisterType<TemporaryStorage<SignalEvent<TKey>>>().As<ITemporaryStorage<SignalEvent<TKey>>>().SingleInstance();
             builder.RegisterType<TemporaryStorage<SignalDispatch<TKey>>>().As<ITemporaryStorage<SignalDispatch<TKey>>>().SingleInstance();
 

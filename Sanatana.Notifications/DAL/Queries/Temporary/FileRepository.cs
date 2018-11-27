@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace Sanatana.Notifications.DAL.Queries
 {
-    public class FileRepository
+    public class FileRepository : IFileRepository
     {
         //init
         public FileRepository()
@@ -26,7 +26,7 @@ namespace Sanatana.Notifications.DAL.Queries
             if (fileInfo.Exists)
                 fileInfo.Delete();
 
-            var formatter = new BinaryFormatter();
+            IFormatter formatter = GetFormatter();
 
             using (FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.Append
                 , FileAccess.Write, FileShare.ReadWrite))
@@ -43,7 +43,7 @@ namespace Sanatana.Notifications.DAL.Queries
             if (!fileInfo.Exists || fileInfo.Length == 0)
                 return item;
 
-            var formatter = new BinaryFormatter();
+            IFormatter formatter = GetFormatter();
 
             using (FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.Open
                , FileAccess.Read, FileShare.ReadWrite))
@@ -80,6 +80,11 @@ namespace Sanatana.Notifications.DAL.Queries
 
 
         //common methods
+        protected virtual IFormatter GetFormatter()
+        {
+            return new BinaryFormatter();
+        }
+
         protected virtual FileInfo CreateDirectoryAndGetFile(string filePath)
         {
             var fileInfo = new FileInfo(filePath);

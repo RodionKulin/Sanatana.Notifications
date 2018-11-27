@@ -11,7 +11,7 @@ using System.Text;
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
 {
     /// <summary>
-    /// Register EntityFrameworkCore EventSettingsQueries implementation that fetches settings from database.
+    /// Register EntityFrameworkCore EventSettings and DispatchTemplates questies implementation that fetches settings from database.
     /// Single EventSettingsQueries implementation is required. Can be replaced by InMemoryEventSettingsQueries.
     /// </summary>
     public class EntityFrameworkEventSettingsAutofacModule : Module

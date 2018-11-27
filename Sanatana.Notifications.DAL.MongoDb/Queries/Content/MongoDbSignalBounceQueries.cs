@@ -17,8 +17,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
     public class MongoDbSignalBounceQueries : ISignalBounceQueries<ObjectId>
     {  
         //fields
-        protected MongoDbConnectionSettings _settings;
-        
+        protected MongoDbConnectionSettings _settings;        
         protected SenderMongoDbContext _context;
 
 

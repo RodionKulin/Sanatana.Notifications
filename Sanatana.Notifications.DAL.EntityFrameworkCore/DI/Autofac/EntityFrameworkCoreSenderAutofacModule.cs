@@ -12,14 +12,14 @@ using System.Text;
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
 {
     /// <summary>
-    /// Register EntityFrameworkCore implementation for database queries. 
+    /// Register EntityFrameworkCore implementation for core database queries. 
     /// Is required to use EntityFrameworkCore for database queries.
     /// </summary>
-    public class EntityFrameworkCoreAutofacModule : Module
+    public class EntityFrameworkCoreSenderAutofacModule : Module
     {
         private SqlConnectionSettings _connectionSettings;
 
-        public EntityFrameworkCoreAutofacModule(SqlConnectionSettings connectionSettings = null)
+        public EntityFrameworkCoreSenderAutofacModule(SqlConnectionSettings connectionSettings = null)
         {
             _connectionSettings = connectionSettings;
         }
