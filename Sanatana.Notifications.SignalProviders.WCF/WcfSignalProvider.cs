@@ -9,6 +9,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Web;
+using Sanatana.Notifications.SignalProviders.Interfaces;
 
 namespace Sanatana.Notifications.SignalProviders.WCF
 {

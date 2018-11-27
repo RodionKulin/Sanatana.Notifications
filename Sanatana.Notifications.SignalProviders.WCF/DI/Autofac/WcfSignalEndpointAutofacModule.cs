@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Sanatana.Notifications.SignalProviders;
+using Sanatana.Notifications.SignalProviders.Interfaces;
 using Sanatana.Notifications.SignalProviders.WCF;
 using System;
 using System.Collections.Generic;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.SignalProviders
+namespace Sanatana.Notifications.SignalProviders.Interfaces
 {
     public interface ISignalProviderControl
     {

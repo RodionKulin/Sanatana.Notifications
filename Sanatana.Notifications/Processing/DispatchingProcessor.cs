@@ -14,11 +14,11 @@ using Sanatana.Notifications.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Sanatana.Timers.Switchables;
 using Sanatana.Notifications.Sender;
+using Sanatana.Notifications.Processing.Interfaces;
 
 namespace Sanatana.Notifications.Processing
 {
-    public class DispatchingProcessor<TKey> : ProcessorBase<TKey>, IRegularJob
-        where TKey : struct
+    public class DispatchingProcessor<TKey> : ProcessorBase<TKey>, IRegularJob, IDispatchingProcessor where TKey : struct
     {
         //fields
         protected SenderState<TKey> _hubState;

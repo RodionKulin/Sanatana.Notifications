@@ -22,7 +22,8 @@ namespace Sanatana.NotificationsTests.DAL.Queries.Temporary
         //init
         public TemporaryStorageTests()
         {
-            _tempStorage = new TemporaryStorage<SignalEvent<long>>();
+            var fileRepository = new FileRepository();
+            _tempStorage = new TemporaryStorage<SignalEvent<long>>(fileRepository);
 
             string storageFolder = _tempStorage.GetStorageFolder();
             DirectoryInfo directory = new DirectoryInfo(storageFolder);

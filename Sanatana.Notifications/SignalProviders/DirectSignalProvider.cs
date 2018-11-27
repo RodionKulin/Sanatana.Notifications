@@ -9,6 +9,7 @@ using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Sender;
+using Sanatana.Notifications.SignalProviders.Interfaces;
 
 namespace Sanatana.Notifications.SignalProviders
 {

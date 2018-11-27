@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sanatana.Notifications.SignalProviders
+namespace Sanatana.Notifications.SignalProviders.Interfaces
 {
     public interface IDirectSignalProvider<TKey>
         where TKey : struct

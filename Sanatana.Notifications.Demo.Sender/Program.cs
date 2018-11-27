@@ -54,9 +54,9 @@ namespace Sanatana.Notifications.Demo.Sender
             };
 
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new NotificationsAutofacModule<long>());
+            builder.RegisterModule(new NotificationsCoreAutofacModule<long>());
             builder.RegisterModule(new InMemoryEventSettingsAutofacModule<long>(GetEventSettings()));
-            builder.RegisterModule(new EntityFrameworkCoreAutofacModule(connection));
+            builder.RegisterModule(new EntityFrameworkCoreSenderAutofacModule(connection));
             builder.RegisterInstance(new DispatchChannel<long>()
             {
                 Dispatcher = new ConsoleDispatcher<long>(),

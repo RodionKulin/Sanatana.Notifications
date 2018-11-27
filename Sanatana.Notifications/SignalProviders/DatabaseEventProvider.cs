@@ -5,6 +5,7 @@ using Sanatana.Notifications.Dispatching.Channels;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Sender;
+using Sanatana.Notifications.SignalProviders.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.SignalProviders
 {
-    public class DatabaseEventProvider<TKey> : IRegularJob
+    public class DatabaseEventProvider<TKey> : IRegularJob, IDatabaseEventProvider
         where TKey : struct
     {
         //fields
