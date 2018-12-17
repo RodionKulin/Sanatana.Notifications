@@ -2,17 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<Description>Notification framework</Description>
+	<PackageTags>Notifications;Emails;HttpHooks;StoredNotifications;CustomDeliveryTypes;Subscriptions;</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Sanatana.Timers">
-      <HintPath>..\ThirdParty\Sanatana.Timers.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Sanatana.Timers" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

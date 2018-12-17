@@ -87,9 +87,8 @@
     <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="Sanatana.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ThirdParty\Sanatana.EntityFrameworkCore.dll</HintPath>
+    <Reference Include="Sanatana.EntityFrameworkCore, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sanatana.EntityFrameworkCore.1.0.1\lib\netstandard2.0\Sanatana.EntityFrameworkCore.dll</HintPath>
     </Reference>
     <Reference Include="Should, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Should.1.1.20\lib\Should.dll</HintPath>

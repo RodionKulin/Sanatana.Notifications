@@ -11,6 +11,11 @@
     <AssemblyName>Sanatana.Notifications.SignalProviders.WCF</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Description>Notification framework WCF input Signal listener</Description>
+    <PackageTags>Notifications;WCF;SignalProviders</PackageTags>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

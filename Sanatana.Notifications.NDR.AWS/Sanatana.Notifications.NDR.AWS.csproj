@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<Description>Notification framework non-delivery reports handling for AWS SES</Description>
+	<PackageTags>Notifications;NDR;Non-delivery;AWS;SES;SNS</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
