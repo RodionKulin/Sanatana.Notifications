@@ -51,7 +51,8 @@ namespace Sanatana.Notifications.NDR
         /// <summary>
         /// Handle incoming message stream.
         /// </summary>
-        /// <param name="messageStream"></param>
+        /// <param name="requestStream"></param>
+        /// <returns></returns>
         public Task Handle(Stream requestStream)
         {
             string requestMessage = ReadRequestStream(requestStream);
@@ -62,7 +63,8 @@ namespace Sanatana.Notifications.NDR
         /// <summary>
         /// Handle incoming message string.
         /// </summary>
-        /// <param name="messageString"></param>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public async Task Handle(string requestMessage)
         {
             if (LogIncomingMessages)

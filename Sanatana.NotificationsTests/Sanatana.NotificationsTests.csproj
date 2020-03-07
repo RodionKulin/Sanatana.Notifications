@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -17,9 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Shouldly" Version="3.0.0" />
@@ -28,12 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Sanatana.Notifications.DAL.EntityFrameworkCore\Sanatana.Notifications.DAL.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Sanatana.Notifications\Sanatana.Notifications.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Sanatana.EntityFrameworkCore">
-      <HintPath>..\ThirdParty\Sanatana.EntityFrameworkCore.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

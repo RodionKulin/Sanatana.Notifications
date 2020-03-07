@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Should;
-using SpecsFor.ShouldExtensions;
+
+using FluentAssertions;
+using SpecsFor.StructureMap;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -62,18 +63,18 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .ThenBy(x => x.Order)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
                     SubscriberScheduleSettingsLong actualItem = actual[i];
                     SubscriberScheduleSettings<long> expectedItem = _insertedData[i];
 
-                    actualItem.Order.ShouldEqual(expectedItem.Order);
-                    actualItem.PeriodBegin.ShouldEqual(expectedItem.PeriodBegin);
-                    actualItem.PeriodEnd.ShouldEqual(expectedItem.PeriodEnd);
-                    actualItem.Set.ShouldEqual(expectedItem.Set);
+                    actualItem.Order.Should().Be(expectedItem.Order);
+                    actualItem.PeriodBegin.Should().Be(expectedItem.PeriodBegin);
+                    actualItem.PeriodEnd.Should().Be(expectedItem.PeriodEnd);
+                    actualItem.Set.Should().Be(expectedItem.Set);
                 }
             }
 

@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Should;
-using SpecsFor.ShouldExtensions;
+
+using FluentAssertions;
+using SpecsFor.StructureMap;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -75,8 +76,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .OrderBy(x => x.CreateDateUtc)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
@@ -85,7 +86,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 
                     expectedItem.SignalEventId = actualItem.SignalEventId;
 
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
         }
@@ -165,15 +166,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .OrderBy(x => x.CreateDateUtc)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
                     SignalEventLong actualItem = actual[i];
                     SignalEvent<long> expectedItem = _insertedData[i];
 
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
         }
@@ -233,18 +234,18 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 
             protected override void When()
             {
-                _actual = SUT.Select(10, 2).Result;
+                _actual = SUT.Find(10, 2).Result;
             }
 
             [Test]
             public void then_signal_events_selected_match_inserted_using_ef()
             {
-                _actual.ShouldNotBeEmpty();
-                _actual.Count.ShouldBeGreaterThanOrEqualTo(_insertedData.Count);
+                _actual.Should().NotBeEmpty();
+                _actual.Count.Should().BeGreaterOrEqualTo(_insertedData.Count);
 
                 foreach (var actual in _actual)
                 {
-                    actual.ShouldLookLikePartial(new
+                    actual.Should().BeEquivalentTo(new
                     {
                         TopicId = "topic1",
                         CategoryId = 1,

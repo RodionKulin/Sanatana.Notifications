@@ -12,7 +12,15 @@ namespace Sanatana.Notifications.DAL.Interfaces
         where TKey : struct
     {
         Task Insert(List<StoredNotification<TKey>> items);
-        Task<TotalResult<List<StoredNotification<TKey>>>> Select(List<TKey> subscriberIds, int page, int pageSize, bool descending);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subscriberIds"></param>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
+        Task<TotalResult<List<StoredNotification<TKey>>>> Select(List<TKey> subscriberIds, int pageIndex, int pageSize, bool descending);
         Task Update(List<StoredNotification<TKey>> items);
         Task Delete(List<StoredNotification<TKey>> items);
     }

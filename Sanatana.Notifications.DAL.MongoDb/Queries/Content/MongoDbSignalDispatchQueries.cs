@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSignalDispatchQueries : ISignalDispatchQueries<ObjectId>
     {

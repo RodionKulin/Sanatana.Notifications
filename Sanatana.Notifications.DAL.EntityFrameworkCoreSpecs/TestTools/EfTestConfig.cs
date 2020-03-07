@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Interfaces;
 using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Providers;
-using SpecsFor.Configuration;
+using SpecsFor.Core.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;

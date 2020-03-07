@@ -1,4 +1,4 @@
-﻿using Sanatana.EntityFrameworkCore.Commands;
+﻿using Sanatana.EntityFrameworkCore.Batch.Commands;
 using Sanatana.Notifications.DAL.Results;
 using System;
 using System.Collections.Generic;

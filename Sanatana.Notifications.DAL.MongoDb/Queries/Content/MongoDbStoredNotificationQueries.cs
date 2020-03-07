@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using MongoDB.Driver;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbStoredNotificationQueries : IStoredNotificationQueries<ObjectId>
     {
@@ -37,10 +37,18 @@ namespace Sanatana.Notifications.DAL.MongoDb
             await _context.StoredNotifications.InsertManyAsync(items, options).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subscriberIds"></param>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
         public async Task<TotalResult<List<StoredNotification<ObjectId>>>> Select(
-            List<ObjectId> subscriberIds, int page, int pageSize, bool descending)
+            List<ObjectId> subscriberIds, int pageIndex, int pageSize, bool descending)
         {
-            int skip = (page - 1) * pageSize;
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
             
             var filter = Builders<StoredNotification<ObjectId>>.Filter.Where(
                     p => subscriberIds.Contains(p.SubscriberId));
@@ -62,9 +70,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 fluent = fluent.SortBy(x => x.CreateDateUtc);
             }
 
-            Task<long> countTask = _context.StoredNotifications.CountAsync(filter, new CountOptions
-            {
-            });
+            Task<long> countTask = _context.StoredNotifications.CountDocumentsAsync(filter);
             Task<List<StoredNotification<ObjectId>>> listTask = fluent
                 .Skip(skip)
                 .Limit(pageSize)

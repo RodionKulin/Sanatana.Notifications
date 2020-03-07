@@ -1,15 +1,27 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<Description>Notification framework</Description>
-	<PackageTags>Notifications;Emails;HttpHooks;StoredNotifications;CustomDeliveryTypes;Subscriptions;</PackageTags>
+	  <Description>Notifications library including templates, subscriptions storage and various delivery types.</Description>
+	  <PackageTags>Notifications;Emails;HttpHooks;StoredNotifications;CustomDeliveryTypes;Subscriptions;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile />
+    <NoWarn>1701;1702;1591;1570</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Sanatana.Timers" Version="1.0.1" />
   </ItemGroup>
 

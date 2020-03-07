@@ -5,13 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Sanatana.MongoDb;
 using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSubscriberScheduleSettingsQueries : ISubscriberScheduleSettingsQueries<ObjectId>
     {

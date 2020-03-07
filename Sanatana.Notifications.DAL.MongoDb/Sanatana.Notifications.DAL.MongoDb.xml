@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sanatana.Notifications.DAL.MongoDb</name>
+    </assembly>
+    <members>
+        <member name="T:Sanatana.Notifications.DAL.MongoDb.DI.Autofac.MongoDbSenderAutofacModule">
+            <summary>
+            Register MongoDb implementation for core database queries. 
+            Is required to use MongoDb for database queries.
+            </summary>
+        </member>
+    </members>
+</doc>

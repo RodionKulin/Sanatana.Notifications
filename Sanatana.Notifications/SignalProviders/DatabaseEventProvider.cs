@@ -101,8 +101,7 @@ namespace Sanatana.Notifications.SignalProviders
 
             Stopwatch storageQueryTimer = Stopwatch.StartNew();
 
-            List<SignalEvent<TKey>> items =
-                _eventQueries.Select(ItemsQueryCount, MaxFailedAttempts)
+            List<SignalEvent<TKey>> items = _eventQueries.Find(ItemsQueryCount, MaxFailedAttempts)
                 .Result;
 
             _eventSink.EventPersistentStorageQueried(storageQueryTimer.Elapsed, items);

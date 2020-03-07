@@ -1,12 +1,12 @@
-﻿using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.Demo.Sender.Model
 {

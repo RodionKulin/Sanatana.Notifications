@@ -10,6 +10,6 @@ namespace Sanatana.Notifications.DAL.Interfaces
     public interface ISignalEventQueries<TKey> : ISignalQueries<SignalEvent<TKey>>
         where TKey : struct
     {
-        Task<List<SignalEvent<TKey>>> Select(int count, int maxFailedAttempts);
+        Task<List<SignalEvent<TKey>>> Find(int count, int maxFailedAttempts);
     }
 }

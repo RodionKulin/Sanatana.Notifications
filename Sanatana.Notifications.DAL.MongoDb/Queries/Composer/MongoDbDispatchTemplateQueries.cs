@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbDispatchTemplateQueries : IDispatchTemplateQueries<ObjectId>
     {
@@ -37,9 +37,15 @@ namespace Sanatana.Notifications.DAL.MongoDb
             await _context.DispatchTemplates.InsertManyAsync(items, options).ConfigureAwait(false);
         }
 
-        public async Task<TotalResult<List<DispatchTemplate<ObjectId>>>> Select(int page, int pageSize)
+        /// <summary>
+        /// Select DispatchTemplate items page
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public async Task<TotalResult<List<DispatchTemplate<ObjectId>>>> SelectPage(int pageIndex, int pageSize)
         {
-            int skip = (page - 1) * pageSize;
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
             var filter = Builders<DispatchTemplate<ObjectId>>.Filter.Where(p => true);
 
             var options = new FindOptions()
@@ -47,9 +53,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 AllowPartialResults = false
             };
 
-            Task<long> countTask = _context.DispatchTemplates.CountAsync(filter, new CountOptions
-            {
-            });
+            Task<long> countTask = _context.DispatchTemplates.EstimatedDocumentCountAsync();
             Task<List<DispatchTemplate<ObjectId>>> listTask = _context.DispatchTemplates.Find(filter, options)
                 .SortByDescending(x => x.DispatchTemplateId)
                 .Skip(skip)

@@ -1,16 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<Description>Notification framework MongoDb storage</Description>
-	<PackageTags>Notifications;StoredNotifications;Subscriptions;MongoDb</PackageTags>
+	  <Description>Notifications library MongoDb storage</Description>
+	  <PackageTags>Notifications;StoredNotifications;Subscriptions;MongoDb</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="MongoDB.Driver" Version="2.5.0" />
-    <PackageReference Include="Sanatana.MongoDb" Version="1.0.1" />
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="LinqKit.Core" Version="1.1.17" />
+    <PackageReference Include="Sanatana.MongoDb" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>

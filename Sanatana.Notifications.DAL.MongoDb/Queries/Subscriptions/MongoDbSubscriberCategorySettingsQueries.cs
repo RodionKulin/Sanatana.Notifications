@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Sanatana.MongoDb;
 using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSubscriberCategorySettingsQueries : ISubscriberCategorySettingsQueries<ObjectId>
     {
@@ -41,7 +40,6 @@ namespace Sanatana.Notifications.DAL.MongoDb
             };
 
             await _context.SubscriberCategorySettings.InsertManyAsync(settings, options);
-
         }
 
         public virtual async Task<List<SubscriberCategorySettings<ObjectId>>> Select(List<ObjectId> subscriberIds, int categoryId)
@@ -55,13 +53,24 @@ namespace Sanatana.Notifications.DAL.MongoDb
             return list;
         }
 
-        public async Task<TotalResult<List<SubscriberCategorySettings<ObjectId>>>> Select(int page, int pageSize, bool descending)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
+        public async Task<TotalResult<List<SubscriberCategorySettings<ObjectId>>>> Find(int pageIndex, int pageSize, bool descending)
         {
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
             var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(x => true);
 
             Task<List<SubscriberCategorySettings<ObjectId>>> listTask = _context
-                .SubscriberCategorySettings.Find(filter).ToListAsync();
-            Task<long> totalCountTask = _context.SubscriberCategorySettings.CountAsync(filter);
+                .SubscriberCategorySettings.Find(filter)
+                .Skip(skip)
+                .Limit(pageSize)
+                .ToListAsync();
+            Task<long> totalCountTask = _context.SubscriberCategorySettings.EstimatedDocumentCountAsync();
 
             List<SubscriberCategorySettings<ObjectId>> list = await listTask;
             long totalCount = await totalCountTask;
@@ -132,7 +141,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
         public virtual async Task Delete(ObjectId subscriberId)
         {
             var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
-                    p => p.SubscriberId == subscriberId);
+                p => p.SubscriberId == subscriberId);
 
             DeleteResult response = await _context.SubscriberCategorySettings.DeleteManyAsync(filter);
         }

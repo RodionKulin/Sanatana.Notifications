@@ -1,5 +1,6 @@
 ﻿using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using SpecsFor;
+using SpecsFor.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

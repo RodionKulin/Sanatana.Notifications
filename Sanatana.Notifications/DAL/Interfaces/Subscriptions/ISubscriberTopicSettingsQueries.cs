@@ -11,7 +11,17 @@ namespace Sanatana.Notifications.DAL.Interfaces
     {
         Task Insert(List<SubscriberTopicSettings<TKey>> settings);
         Task<SubscriberTopicSettings<TKey>> Select(TKey subscriberId, int categoryId, string topicId);
-        Task<TotalResult<List<SubscriberTopicSettings<TKey>>>> SelectPage(int page, int pageSize,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="subscriberIds"></param>
+        /// <param name="deliveryTypeIds"></param>
+        /// <param name="categoryIds"></param>
+        /// <param name="topics"></param>
+        /// <returns></returns>
+        Task<TotalResult<List<SubscriberTopicSettings<TKey>>>> SelectPage(int pageIndex, int pageSize,
              List<TKey> subscriberIds = null,  List<int> deliveryTypeIds = null, List<int> categoryIds = null, List<string> topics = null);
         Task UpdateIsEnabled(List<SubscriberTopicSettings<TKey>> items);
         Task UpsertIsEnabled(List<SubscriberTopicSettings<TKey>> items);

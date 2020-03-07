@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Sanatana.MongoDb;
 using MongoDB.Driver;
 using Sanatana.Notifications.Composing;
@@ -12,7 +11,7 @@ using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbEventSettingsQueries : IEventSettingsQueries<ObjectId>
     {
@@ -47,9 +46,15 @@ namespace Sanatana.Notifications.DAL.MongoDb
             await _context.EventSettings.InsertManyAsync(items, options).ConfigureAwait(false);
         }
 
-        public virtual async Task<TotalResult<List<EventSettings<ObjectId>>>> Select(int page, int pageSize)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public virtual async Task<TotalResult<List<EventSettings<ObjectId>>>> Select(int pageIndex, int pageSize)
         {
-            int skip = MongoDbUtility.ToSkipNumber(page, pageSize);
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
             var filter = Builders<EventSettings<ObjectId>>.Filter.Where(p => true);
 
             Task<List<EventSettings<ObjectId>>> listTask = _context.EventSettings
@@ -57,7 +62,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 .Skip(skip)
                 .Limit(pageSize)
                 .ToListAsync();
-            Task<long> countTask = _context.EventSettings.CountAsync(filter);
+            Task<long> countTask = _context.EventSettings.EstimatedDocumentCountAsync();
 
             long count = await countTask.ConfigureAwait(false);
             List<EventSettings<ObjectId>> list = await listTask.ConfigureAwait(false);

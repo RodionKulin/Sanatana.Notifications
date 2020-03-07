@@ -52,9 +52,15 @@ namespace Sanatana.Notifications.DAL.Queries
             return Task.FromResult(items);
         }
 
-        public virtual Task<TotalResult<List<EventSettings<TKey>>>> Select(int page, int pageSize)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public virtual Task<TotalResult<List<EventSettings<TKey>>>> Select(int pageIndex, int pageSize)
         {
-            int skip = (page - 1) * pageSize;
+            int skip = pageIndex * pageSize;
             List<EventSettings<TKey>> list = _items.Skip(skip).Take(pageSize).ToList();
             var result = new TotalResult<List<EventSettings<TKey>>>(list, _items.Count);
             return Task.FromResult(result);

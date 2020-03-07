@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using Sanatana.MongoDb;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.DAL.MongoDb.Queries;
 using Sanatana.Notifications.DAL.Queries;
 using System;
 using System.Collections.Generic;

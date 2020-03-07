@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSignalBounceQueries : ISignalBounceQueries<ObjectId>
     {  
@@ -43,9 +43,16 @@ namespace Sanatana.Notifications.DAL.MongoDb
 
 
         //Select
-        public async Task<TotalResult<List<SignalBounce<ObjectId>>>> Select(int page, int pageSize, List<ObjectId> receiverSubscriberIds = null)
+        /// <summary>
+        /// Select SignalBounce items page
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="receiverSubscriberIds"></param>
+        /// <returns></returns>
+        public async Task<TotalResult<List<SignalBounce<ObjectId>>>> SelectPage(int pageIndex, int pageSize, List<ObjectId> receiverSubscriberIds = null)
         {
-            int skip = MongoDbUtility.ToSkipNumber(page, pageSize);
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
 
             var filter = Builders<SignalBounce<ObjectId>>.Filter.Where(p => true);
             if(receiverSubscriberIds != null )
@@ -60,7 +67,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 .Skip(skip)
                 .Limit(pageSize)
                 .ToListAsync();
-            Task<long> countTask = _context.SignalBounces.CountAsync(filter);
+            Task<long> countTask = _context.SignalBounces.CountDocumentsAsync(filter);
 
             long count = await countTask.ConfigureAwait(false);
             List<SignalBounce<ObjectId>> list = await listTask.ConfigureAwait(false);

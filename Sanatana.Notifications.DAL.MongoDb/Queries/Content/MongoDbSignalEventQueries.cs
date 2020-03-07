@@ -10,7 +10,7 @@ using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSignalEventQueries : ISignalEventQueries<ObjectId>
     {
@@ -46,8 +46,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
             await _context.SignalEvents.InsertManyAsync(items, options);
         }
 
-        public virtual async Task<List<SignalEvent<ObjectId>>> Select(
-            int count, int maxFailedAttempts)
+        public virtual async Task<List<SignalEvent<ObjectId>>> Find(int count, int maxFailedAttempts)
         {
             var filter = Builders<SignalEvent<ObjectId>>.Filter.Where(
                 p => p.FailedAttempts < maxFailedAttempts);

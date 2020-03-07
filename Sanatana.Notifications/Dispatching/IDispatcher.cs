@@ -16,7 +16,7 @@ namespace Sanatana.Notifications.Dispatching
         /// <summary>
         /// Send message
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="item"></param>
         /// <returns></returns>
         Task<ProcessingResult> Send(SignalDispatch<TKey> item);
 

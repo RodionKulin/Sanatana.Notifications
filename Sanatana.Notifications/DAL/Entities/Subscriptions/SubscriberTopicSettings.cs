@@ -26,11 +26,12 @@ namespace Sanatana.Notifications.DAL.Entities
 
         //init
         public static SubscriberTopicSettings<TKey> Create(
-            TKey subscriberId, int categoryId, string topicId)
+            TKey subscriberId, int deliveryType, int categoryId, string topicId)
         {
             return new SubscriberTopicSettings<TKey>()
             {
                 SubscriberId = subscriberId,
+                DeliveryType = deliveryType,
                 CategoryId = categoryId,
                 TopicId = topicId,
 

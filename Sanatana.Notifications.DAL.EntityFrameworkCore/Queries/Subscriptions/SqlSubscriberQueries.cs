@@ -1,5 +1,4 @@
 ﻿using Sanatana.EntityFrameworkCore;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
@@ -10,23 +9,24 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Sanatana.EntityFrameworkCore.Batch;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
     public class SqlSubscriberQueries : ISubscriberQueries<long>
     {
         //fields        
-        protected SqlConnectionSettings _connectionSettings;
         protected ISenderDbContextFactory _dbContextFactory;
+        protected SqlConnectionSettings _connectionSettings;
 
 
         //init
-        public SqlSubscriberQueries(SqlConnectionSettings connectionSettings
-            , ISenderDbContextFactory dbContextFactory)
+        public SqlSubscriberQueries(SqlConnectionSettings connectionSettings, ISenderDbContextFactory dbContextFactory)
         {
             _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
@@ -447,19 +447,19 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 .IncludeProperty(p => p.SubscriberId)
                 .IncludeProperty(p => p.DeliveryType);
 
-            merge.Update.ExcludeAllByDefault = true;
+            merge.UpdateMatched.ExcludeAllByDefault = true;
 
             if (parameters.UpdateDeliveryTypeSendCount)
             {
-                merge.Update.Assign(t => t.SendCount, (t, s) => t.SendCount + s.SendCount);
+                merge.UpdateMatched.Assign(t => t.SendCount, (t, s) => t.SendCount + s.SendCount);
             }
 
             if (parameters.UpdateDeliveryTypeLastSendDateUtc)
             {
-                merge.Update.Assign(t => t.LastSendDateUtc, (t, s) => DateTime.UtcNow);
+                merge.UpdateMatched.Assign(t => t.LastSendDateUtc, (t, s) => DateTime.UtcNow);
             }
 
-            return merge.ConstructCommand(MergeType.Update);
+            return merge.ConstructCommandTVP(MergeType.Update);
         }
 
         protected virtual string CreateCategoryUpdateQuery(UpdateParameters parameters, DbContext context)
@@ -472,16 +472,16 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 .IncludeProperty(p => p.DeliveryType)
                 .IncludeProperty(p => p.CategoryId);
 
-            merge.Update.ExcludeAllByDefault = true;
+            merge.UpdateMatched.ExcludeAllByDefault = true;
 
             if (parameters.UpdateCategorySendCount)
             {
-                merge.Update.Assign(t => t.SendCount, (t, s) => t.SendCount + s.SendCount);
+                merge.UpdateMatched.Assign(t => t.SendCount, (t, s) => t.SendCount + s.SendCount);
             }
 
             if (parameters.UpdateCategoryLastSendDateUtc)
             {
-                merge.Update.Assign(t => t.LastSendDateUtc, (t, s) => DateTime.UtcNow);
+                merge.UpdateMatched.Assign(t => t.LastSendDateUtc, (t, s) => DateTime.UtcNow);
             }
 
             if (parameters.CreateCategoryIfNotExist)
@@ -496,7 +496,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             MergeType mergeType = parameters.CreateCategoryIfNotExist
                 ? MergeType.Upsert
                 : MergeType.Update;
-            return merge.ConstructCommand(mergeType);
+            return merge.ConstructCommandTVP(mergeType);
         }
 
         protected virtual string CreateTopicUpdateQuery(UpdateParameters parameters, DbContext context)
@@ -508,16 +508,16 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 .IncludeProperty(p => p.CategoryId)
                 .IncludeProperty(p => p.TopicId);
 
-            merge.Update.ExcludeAllByDefault = true;
+            merge.UpdateMatched.ExcludeAllByDefault = true;
 
             if (parameters.UpdateTopicSendCount)
             {
-                merge.Update.Assign(t => t.SendCount, (t, s) => t.SendCount + s.SendCount);
+                merge.UpdateMatched.Assign(t => t.SendCount, (t, s) => t.SendCount + s.SendCount);
             }
 
             if (parameters.UpdateTopicLastSendDateUtc)
             {
-                merge.Update.Assign(t => t.LastSendDateUtc, (t, s) => DateTime.UtcNow);
+                merge.UpdateMatched.Assign(t => t.LastSendDateUtc, (t, s) => DateTime.UtcNow);
             }
 
             if (parameters.CreateTopicIfNotExist)
@@ -533,7 +533,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             MergeType mergeType = parameters.CreateTopicIfNotExist
                 ? MergeType.Upsert
                 : MergeType.Update;
-            return merge.ConstructCommand(mergeType);
+            return merge.ConstructCommandTVP(mergeType);
         }
 
     }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Sanatana.MongoDb;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
@@ -13,7 +12,7 @@ using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSubscriberTopicSettingsQueries : ISubscriberTopicSettingsQueries<ObjectId>
     {
@@ -62,11 +61,21 @@ namespace Sanatana.Notifications.DAL.MongoDb
             return item;
         }
 
-        public virtual async Task<TotalResult<List<SubscriberTopicSettings<ObjectId>>>> SelectPage(int page, int pageSize
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="subscriberIds"></param>
+        /// <param name="deliveryTypeIds"></param>
+        /// <param name="categoryIds"></param>
+        /// <param name="topicIds"></param>
+        /// <returns></returns>
+        public virtual async Task<TotalResult<List<SubscriberTopicSettings<ObjectId>>>> SelectPage(int pageIndex, int pageSize
             , List<ObjectId> subscriberIds = null, List<int> deliveryTypeIds = null, List<int> categoryIds = null
             , List<string> topicIds = null)
         {
-            int skip = MongoDbUtility.ToSkipNumber(page, pageSize);
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
 
             var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => p.IsDeleted == false);
 
@@ -96,7 +105,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 .Limit(pageSize)
                 .ToListAsync();
 
-            Task<long> countTask = _context.SubscriberTopicSettings.CountAsync(filter);
+            Task<long> countTask = _context.SubscriberTopicSettings.CountDocumentsAsync(filter);
 
             List<SubscriberTopicSettings<ObjectId>> list = await listTask;
             long total = await countTask;

@@ -25,11 +25,14 @@ namespace Sanatana.Notifications.DAL.Entities
         /// </summary>
         public int CategoryId { get; set; }
         /// <summary>
-        /// Optional identifier to match EventSettings with custom ICompositionHandler. Default ICompositionHandler is used if value if left null. If you need to override selecting subscribers, building dispatches, scheduling and updates you can do it via appropriate database queries interfaces or by overriding whole ICompositionHandler that is doing the pipelining.
+        /// Optional identifier to match EventSettings with custom ICompositionHandler. 
+        /// Default ICompositionHandler is used if value if left null. 
+        /// If you need to override selecting subscribers, building dispatches, scheduling and updates you can do it via appropriate database queries interfaces 
+        /// or by overriding whole ICompositionHandler that is doing the pipelining.
         /// </summary>
         public int? CompositionHandlerId { get; set; }
         /// <summary>
-        /// Builders that hold required configuration to construct SignalDispatch that will be send.
+        /// Templates that hold required configuration to construct SignalDispatch that will be send.
         /// </summary>
         public List<DispatchTemplate<TKey>> Templates { get; set; }
         /// <summary>

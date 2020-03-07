@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac;
 using Sanatana.Notifications.DeliveryTypes.Trace;
@@ -42,7 +43,7 @@ namespace Sanatana.NotificationsTests.TestTools
             ContainerBuilder builder = new ContainerBuilder();
             builder.RegisterModule(new NotificationsCoreAutofacModule<long>());
             builder.RegisterModule(new InMemoryEventSettingsAutofacModule<long>(new List<EventSettings<long>>()));               
-            builder.RegisterModule(new EntityFrameworkCoreSenderAutofacModule(new EntityFrameworkCore.SqlConnectionSettings("", "")));
+            builder.RegisterModule(new EntityFrameworkCoreSenderAutofacModule(new SqlConnectionSettings("", "")));
             builder.RegisterInstance(new DispatchChannel<long>()
             {
                 Dispatcher = new TraceDispatcher<long>(),

@@ -2,7 +2,8 @@
 using Moq;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Interfaces;
-using SpecsFor.Configuration;
+using SpecsFor.Core.Configuration;
+using StructureMap.AutoMocking;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -27,7 +28,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Provider
                 return;
             }
 
-            ISenderDbContextFactory factory = instance.MockContainer.GetInstance<ISenderDbContextFactory>();
+            dynamic specsDynamic = instance;
+            AutoMockedContainer autoMockContainer = specsDynamic.Mocker.MoqAutoMocker.Container;
+            ISenderDbContextFactory factory = autoMockContainer.GetInstance<ISenderDbContextFactory>();
             factory.InitializeDatabase();
 
             _isInitialized = true;

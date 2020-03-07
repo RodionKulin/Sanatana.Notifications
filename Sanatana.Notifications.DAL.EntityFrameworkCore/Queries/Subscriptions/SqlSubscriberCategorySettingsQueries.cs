@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
 using AutoMapper.QueryableExtensions;
 using Sanatana.Notifications.DAL;
 using AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using Sanatana.EntityFrameworkCore.Commands;
 using Sanatana.EntityFrameworkCore;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Sanatana.EntityFrameworkCore.Batch;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -70,14 +70,21 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             List<SubscriberCategorySettings<long>> result = list.Cast<SubscriberCategorySettings<long>>().ToList();
             return result;
         }
-        public virtual async Task<TotalResult<List<SubscriberCategorySettings<long>>>> Select(int page, int pageSize, bool descending)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
+        public virtual async Task<TotalResult<List<SubscriberCategorySettings<long>>>> Find(int pageIndex, int pageSize, bool descending)
         {
             RepositoryResult<SubscriberCategorySettingsLong> response = null;
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 response = await repository
-                    .SelectPageAsync<SubscriberCategorySettingsLong, long>(page, pageSize, descending
+                    .FindPageAsync<SubscriberCategorySettingsLong, long>(pageIndex, pageSize, descending
                     , x => true
                     , x => x.SubscriberCategorySettingsId, true)
                     .ConfigureAwait(false);                
@@ -104,7 +111,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                      .IncludeProperty(p => p.IsEnabled);
                 merge.Compare
                     .IncludeProperty(p => p.SubscriberCategorySettingsId);
-                merge.Update
+                merge.UpdateMatched
                     .IncludeProperty(p => p.IsEnabled);
                 int changes = await merge.ExecuteAsync(MergeType.Update)
                     .ConfigureAwait(false);
@@ -149,7 +156,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                         .IncludeProperty(p => p.SubscriberId)
                         .IncludeProperty(p => p.CategoryId)
                         .IncludeProperty(p => p.DeliveryType);
-                    merge.Update
+                    merge.UpdateMatched
                         .IncludeProperty(p => p.IsEnabled);
                     merge.Insert
                         .IncludeProperty(p => p.SubscriberId)

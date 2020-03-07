@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Should;
-using SpecsFor.ShouldExtensions;
 using Sanatana.Notifications.DeliveryTypes.Email;
 using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.Composing.Templates;
@@ -19,11 +17,20 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using AutoMapper;
+using SpecsFor.StructureMap;
+using FluentAssertions;
+using SpecsFor.Core;
+using Moq;
+using StructureMap;
+using Sanatana.Notifications.DAL.Interfaces;
+using StructureMap.AutoMocking;
+using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
     public class SqlEventSettingsQueriesSpecs
     {
+
         [TestFixture]
         public class when_event_settings_insert_using_ef
            : SpecsFor<SqlEventSettingsQueries>, INeedDbContext
@@ -106,11 +113,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             {
                 List<EventSettingsLong> actual = DbContext.EventSettings
                     .Where(x => x.CategoryId == _categoryId)
-                   .OrderBy(x => x.EventSettingsId)
-                   .ToList();
+                    .OrderBy(x => x.EventSettingsId)
+                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
@@ -120,14 +127,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     expectedItem.EventSettingsId = actualItem.EventSettingsId;
                     actualItem.Templates = expectedItem.Templates;
 
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
 
             [Test]
             public void then_dispatch_templates_inserted_are_found_using_ef()
             {
-                INotificationsMapperFactory mapperFactory = MockContainer.GetInstance<INotificationsMapperFactory>();
+                INotificationsMapperFactory mapperFactory = Mocker.GetServiceInstance<INotificationsMapperFactory>();
                 IMapper mapper = mapperFactory.GetMapper();
 
                 List<DispatchTemplateLong> actual = DbContext.DispatchTemplates
@@ -139,9 +146,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .SelectMany(x => x.Templates)
                     .ToList();
 
-                actual.ShouldNotBeEmpty();
+                actual.Should().NotBeEmpty();
                 int expectedCount = _insertedData.Sum(x => x.Templates.Count);
-                actual.Count.ShouldEqual(expectedCount);
+                actual.Count.Should().Be(expectedCount);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
@@ -152,7 +159,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     expectedItem.EventSettingsId = mappedActualItem.EventSettingsId;
                     expectedItem.DispatchTemplateId = mappedActualItem.DispatchTemplateId;
 
-                    mappedActualItem.ShouldLookLike(expectedItem);
+                    mappedActualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
         }
@@ -264,8 +271,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .OrderBy(x => x.EventSettingsId)
                     .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedSettings.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedSettings.Count);
 
                 for (int i = 0; i < _insertedSettings.Count; i++)
                 {
@@ -275,7 +282,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     expectedItem.EventSettingsId = actualItem.EventSettingsId;
                     expectedItem.Templates = null;
 
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
 
@@ -289,10 +296,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .ThenBy(x => x.DispatchTemplateId)
                    .ToList();
 
-                actualList.ShouldNotBeEmpty();
-                actualList.Count.ShouldEqual(_insertedTemplates.Count);
+                actualList.Should().NotBeEmpty();
+                actualList.Count.Should().Be(_insertedTemplates.Count);
 
-                INotificationsMapperFactory mapperFactory = MockContainer.GetInstance<INotificationsMapperFactory>();
+                
+                INotificationsMapperFactory mapperFactory = Mocker.GetServiceInstance<INotificationsMapperFactory>();
                 IMapper mapper = mapperFactory.GetMapper();
 
                 for (int i = 0; i < _insertedSettings.Count; i++)
@@ -301,7 +309,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     DispatchTemplate<long> mappedActualItem = mapper.Map<DispatchTemplate<long>>(actualItem);
                     DispatchTemplate<long> expectedItem = _insertedTemplates[i];
                     
-                    mappedActualItem.ShouldLookLike(expectedItem);
+                    mappedActualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
         }
@@ -401,7 +409,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .Where(x => x.CategoryId == _categoryId)
                     .ToList();
 
-                actual.Count.ShouldEqual(0);
+                actual.Count.Should().Be(0);
             }
 
             [Test]
@@ -412,7 +420,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .Where(x => templateIds.Contains(x.DispatchTemplateId))
                    .ToList();
 
-                actualList.Count.ShouldEqual(0);
+                actualList.Count.Should().Be(0);
             }
         }
 

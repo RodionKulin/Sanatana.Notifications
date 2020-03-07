@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sanatana.Notifications.DAL.EntityFrameworkCore</name>
+    </assembly>
+    <members>
+        <member name="T:Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac.EntityFrameworkCoreSenderAutofacModule">
+            <summary>
+            Register EntityFrameworkCore implementation for core database queries. 
+            Is required to use EntityFrameworkCore for database queries.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac.EntityFrameworkEventSettingsAutofacModule">
+            <summary>
+            Register EntityFrameworkCore EventSettings and DispatchTemplates questies implementation that fetches settings from database.
+            Single EventSettingsQueries implementation is required. Can be replaced by InMemoryEventSettingsQueries.
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac.EntityFrameworkEventSettingsAutofacModule.#ctor(System.Boolean)">
+            <summary>
+            </summary>
+            <param name="useCaching">Enable caching of DispatchTemplate and EventSettings.</param>
+        </member>
+        <member name="T:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_EventSettings">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[EventSettingsType] AS TABLE(
+            	[EventSettingsId] [bigint] NOT NULL,
+            	[DisplayName] varchar(max) NOT NULL,
+            	[CategoryId] [int] NOT NULL,
+            	[Subscription] varchar(max) NOT NULL,
+            	[Updates] varchar(max) NOT NULL,
+            	[CompositionHandlerId] varchar(max) NOT NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SignalDispatch">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SignalDispatchType] AS TABLE(
+            	[SignalDispatchId] [bigint] NOT NULL,
+            	[SendDateUtc] [datetime2](7) NOT NULL,
+            	[IsScheduled] [bit] NOT NULL,
+            	[FailedAttempts] [int] NOT NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SignalEvent">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SignalEventType] AS TABLE(
+            	[SignalEventId] [bigint] NOT NULL,
+            	[FailedAttempts] [int] NOT NULL,
+            	[EventSettingsId] [int] NULL,
+            	[SubscriberIdRangeFrom] [bigint] NULL,
+            	[SubscriberIdRangeTo] [bigint] NULL,
+            	[SubscriberIdFromDeliveryTypesHandled] [xml] NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_StoredNotification">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[StoredNotificationType] AS TABLE(
+            	[StoredNotificationId] [bigint] NOT NULL,
+            	[SubscriberId] [bigint] NOT NULL,
+            	[CategoryId] [int] NULL,
+            	[TopicId] [nvarchar](max) NULL,
+            	[CreateDateUtc] [datetime2](7) NOT NULL,
+            	[MessageSubject] [nvarchar](max) NULL,
+            	[MessageBody] [nvarchar](max) NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_Subscriber">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SubscriberType] AS TABLE(
+            	[SubscriberId] [bigint] NOT NULL,
+            	[SendCount] [int] NOT NULL,
+            	[DeliveryType] [int] NOT NULL,
+            	[CategoryId] [int] NOT NULL,
+            	[TopicId] [int] NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SubscriberCategorySettings">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SubscriberCategorySettingsType] AS TABLE(
+            	[SubscriberId] [bigint] NOT NULL,
+            	[GroupId] [bigint] NULL,
+            	[DeliveryType] [int] NOT NULL,
+            	[CategoryId] [int] NOT NULL,
+            	[LastSendDateUtc] [datetime2](7) NULL,
+            	[SendCount] [int] NOT NULL,
+            	[IsEnabled] [bit] NOT NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SubscriberCategorySettingsIsEnabled">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SubscriberCategorySettingsTypeIsEnabled] AS TABLE(
+            	[SubscriberCategorySettingsId] [bigint] NOT NULL,
+            	[IsEnabled] [bit] NOT NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SubscriberNDRSettings">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SubscriberNDRSettingsType] AS TABLE(
+            	[SubscriberId] [bigint] NOT NULL,
+            	[DeliveryType]  [int] NOT NULL,
+            	[NDRCount] [int] NOT NULL,
+            	[IsBlockedOfNDR] [bit] NOT NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SubscriberTopicSettings">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SubscriberTopicSettingsType] AS TABLE(
+            	[TopicId] [nvarchar](1000) NOT NULL,
+            	[CategoryId] [int] NOT NULL,
+            	[DeliveryType] [int] NOT NULL,
+            	[SubscriberId] [bigint] NOT NULL,
+            	[AddDateUtc] [datetime2](7) NOT NULL,
+            	[IsEnabled] [bit] NOT NULL
+            ).
+             </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.EntityFrameworkCore.Resources.InstallScripts.type_SubscriberTopicSettingsIsEnabled">
+             <summary>
+               Looks up a localized string similar to CREATE TYPE [pref].[SubscriberTopicSettingsTypeIsEnabled] AS TABLE(
+            	[SubscriberTopicSettingsId] [bigint] NOT NULL,
+            	[IsEnabled] [bit] NOT NULL
+            ).
+             </summary>
+        </member>
+    </members>
+</doc>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,14 +11,17 @@ using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using System.Linq.Expressions;
-using Sanatana.EntityFrameworkCore.Commands;
 using Sanatana.EntityFrameworkCore;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using LinqKit;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
+using Sanatana.EntityFrameworkCore.Batch;
+using Microsoft.Data.SqlClient;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -29,15 +31,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         protected SqlConnectionSettings _connectionSettings;
         protected ISenderDbContextFactory _dbContextFactory;        
         protected IMapper _mapper;
-        
+
 
         //init
-        public SqlSubscriberTopicSettingsQueries(ISenderDbContextFactory dbContextFactory
-            , INotificationsMapperFactory mapperFactory, SqlConnectionSettings connectionSettings)
+        public SqlSubscriberTopicSettingsQueries(SqlConnectionSettings connectionSettings, 
+            ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
         {
+            _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
             _mapper = mapperFactory.GetMapper();
-            _connectionSettings = connectionSettings;
         }
         
 
@@ -60,7 +62,17 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //select
-        public virtual async Task<TotalResult<List<SubscriberTopicSettings<long>>>> SelectPage(int page, int pageSize,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="subscriberIds"></param>
+        /// <param name="deliveryTypeIds"></param>
+        /// <param name="categoryIds"></param>
+        /// <param name="topicIds"></param>
+        /// <returns></returns>
+        public virtual async Task<TotalResult<List<SubscriberTopicSettings<long>>>> SelectPage(int pageIndex, int pageSize,
              List<long> subscriberIds = null, List<int> deliveryTypeIds = null, List<int> categoryIds = null, List<string> topicIds = null)
         {
             RepositoryResult<SubscriberTopicSettingsLong> topicsPage;
@@ -89,8 +101,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     where = where.And(topicsWhere);
                 }
 
-                topicsPage = await repository.SelectPageAsync<SubscriberTopicSettingsLong, long>(
-                    page, pageSize, true, where
+                topicsPage = await repository.FindPageAsync<SubscriberTopicSettingsLong, long>(
+                    pageIndex, pageSize, true, where
                     , x => x.SubscriberId, true)
                     .ConfigureAwait(false);                
             }
@@ -134,7 +146,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                      .IncludeProperty(p => p.IsEnabled);
                 merge.Compare
                     .IncludeProperty(p => p.SubscriberTopicSettingsId);
-                merge.Update
+                merge.UpdateMatched
                     .IncludeProperty(p => p.IsEnabled);
 
                 int changes = await merge.ExecuteAsync(MergeType.Update)
@@ -156,53 +168,46 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             using (IDbContextTransaction ts = repository.Context.Database.BeginTransaction())
             {
-                try
+                SqlTransaction sqlTransaction = (SqlTransaction)ts.GetDbTransaction();
+                if (disabledTopics.Count > 0)
                 {
-                    if (disabledTopics.Count > 0)
-                    {
-                        int changes = await repository.DeleteManyAsync<SubscriberTopicSettingsLong>(
-                            x => disabledTopics.Contains(x.SubscriberTopicSettingsId))
-                            .ConfigureAwait(false);
-                    }
-
-                    if (enabledTopics.Count > 0)
-                    {
-                        string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema
-                            , TableValuedParameters.SUBSCRIBER_TOPIC_SETTINGS_TYPE);
-                        MergeCommand<SubscriberTopicSettingsLong> merge = repository.MergeTVP(enabledTopics, tvpName);
-                        merge.Source
-                            .IncludeProperty(p => p.TopicId)
-                            .IncludeProperty(p => p.CategoryId)
-                            .IncludeProperty(p => p.DeliveryType)
-                            .IncludeProperty(p => p.SubscriberId)
-                            .IncludeProperty(p => p.AddDateUtc)
-                            .IncludeProperty(p => p.IsEnabled);
-                        merge.Compare
-                            .IncludeProperty(p => p.SubscriberId)
-                            .IncludeProperty(p => p.TopicId)
-                            .IncludeProperty(p => p.CategoryId)
-                            .IncludeProperty(p => p.DeliveryType);
-                        merge.Update
-                            .IncludeProperty(p => p.IsEnabled);
-                        merge.Insert
-                            .IncludeProperty(p => p.TopicId)
-                            .IncludeProperty(p => p.CategoryId)
-                            .IncludeProperty(p => p.DeliveryType)
-                            .IncludeProperty(p => p.SubscriberId)
-                            .IncludeProperty(p => p.AddDateUtc)
-                            .IncludeProperty(p => p.IsEnabled)
-                            .IncludeDefaultValue(p => p.SendCount)
-                            .IncludeDefaultValue(p => p.IsDeleted);
-                        int changes = await merge.ExecuteAsync(MergeType.Upsert).ConfigureAwait(false);
-                    }
-
-                    ts.Commit();
+                    int changes = await repository.DeleteManyAsync<SubscriberTopicSettingsLong>(
+                        x => disabledTopics.Contains(x.SubscriberTopicSettingsId))
+                        .ConfigureAwait(false);
                 }
-                catch (Exception)
+
+                if (enabledTopics.Count > 0)
                 {
-                    ts.Rollback();
-                    throw;
+                    string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema
+                        , TableValuedParameters.SUBSCRIBER_TOPIC_SETTINGS_TYPE);
+                    MergeCommand<SubscriberTopicSettingsLong> merge = repository.MergeTVP(enabledTopics, tvpName, sqlTransaction);
+                    merge.Source
+                        .IncludeProperty(p => p.TopicId)
+                        .IncludeProperty(p => p.CategoryId)
+                        .IncludeProperty(p => p.DeliveryType)
+                        .IncludeProperty(p => p.SubscriberId)
+                        .IncludeProperty(p => p.AddDateUtc)
+                        .IncludeProperty(p => p.IsEnabled);
+                    merge.Compare
+                        .IncludeProperty(p => p.SubscriberId)
+                        .IncludeProperty(p => p.TopicId)
+                        .IncludeProperty(p => p.CategoryId)
+                        .IncludeProperty(p => p.DeliveryType);
+                    merge.UpdateMatched
+                        .IncludeProperty(p => p.IsEnabled);
+                    merge.Insert
+                        .IncludeProperty(p => p.TopicId)
+                        .IncludeProperty(p => p.CategoryId)
+                        .IncludeProperty(p => p.DeliveryType)
+                        .IncludeProperty(p => p.SubscriberId)
+                        .IncludeProperty(p => p.AddDateUtc)
+                        .IncludeProperty(p => p.IsEnabled)
+                        .IncludeDefaultValue(p => p.SendCount)
+                        .IncludeDefaultValue(p => p.IsDeleted);
+                    int changes = await merge.ExecuteAsync(MergeType.Upsert).ConfigureAwait(false);
                 }
+
+                ts.Commit();
             }
         }
 
@@ -212,13 +217,13 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                MergeCommand<SubscriberTopicSettingsLong> merge = repository.MergeParameters(mappedItem);
+                MergeCommand<SubscriberTopicSettingsLong> merge = repository.Merge(mappedItem);
                 merge.Compare.IncludeProperty(p => p.SubscriberId)
                     .IncludeProperty(p => p.CategoryId)
                     .IncludeProperty(p => p.TopicId);
                 if (updateExisting)
                 {
-                    merge.Update.IncludeProperty(p => p.IsEnabled)
+                    merge.UpdateMatched.IncludeProperty(p => p.IsEnabled)
                         .IncludeProperty(p => p.IsDeleted);
                 }
                 int changes = await merge.ExecuteAsync(MergeType.Upsert)

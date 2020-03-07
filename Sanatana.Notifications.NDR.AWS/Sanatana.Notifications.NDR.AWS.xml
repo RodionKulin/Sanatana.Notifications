@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sanatana.Notifications.NDR.AWS</name>
+    </assembly>
+    <members>
+        <member name="P:Sanatana.Notifications.NDR.AWS.AmazonNDRParser`1.SourceAddressToVerify">
+            <summary>
+            Source email address. If specified, then only NDR with matching source will be handled.
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.NDR.AWS.AmazonNDRParser`1.ParseBounceInfo(System.String)">
+            <summary>
+            Handle request from AWS SNS with NDR.
+            </summary>
+            <param name="messageString"></param>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.Undetermined">
+            <summary>
+            Amazon SES was unable to determine a specific bounce reason.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.General">
+            <summary>
+            Permanent - Amazon SES received a general hard bounce and recommends that you remove the recipient's email address from your mailing list.
+            Transient - Amazon SES received a general bounce. You may be able to successfully retry sending to that recipient in the future.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.NoEmail">
+            <summary>
+            Amazon SES received a permanent hard bounce because the target email address does not exist. It is recommended that you remove that recipient from your mailing list.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.Suppressed">
+            <summary>
+            Amazon SES has suppressed sending to this address because it has a recent history of bouncing as an invalid address. For information about how to remove an address from the suppression list, see Removing an Email Address from the Amazon SES Suppression List.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.MailboxFull">
+            <summary>
+            Amazon SES received a mailbox full bounce. You may be able to successfully retry sending to that recipient in the future.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.MessageTooLarge">
+            <summary>
+            Amazon SES received a message too large bounce. You may be able to successfully retry sending to that recipient if you reduce the message size.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.ContentRejected">
+            <summary>
+            Amazon SES received a content rejected bounce. You may be able to successfully retry sending to that recipient if you change the message content.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.AttachmentRejected">
+            <summary>
+            Amazon SES received an attachment rejected bounce. You may be able to successfully retry sending to that recipient if you remove or change the attachment.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceSubType.Unknown">
+            <summary>
+            Unknown type
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceType.Undetermined">
+            <summary>
+            Amazon SES was unable to determine a specific bounce reason.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceType.Permanent">
+            <summary>
+            Amazon SES received a general hard bounce and recommends that you remove the recipient's email address from your mailing list.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceType.Transient">
+            <summary>
+            Amazon SES received a general bounce. You may be able to successfully retry sending to that recipient in the future.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonBounceType.Unknown">
+            <summary>
+            Unknown type
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.Abuse">
+            <summary>
+            Indicates unsolicited email or some other kind of email abuse.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.AuthFailure">
+            <summary>
+            Indicates unsolicited email or some other kind of email abuse.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.Fraud">
+            <summary>
+            Indicates some kind of fraud or phishing activity.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.NotSpam">
+            <summary>
+            Indicates that the entity providing the report does not consider the message to be spam. This may be used to correct a message that was incorrectly tagged or categorized as spam.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.Other">
+            <summary>
+            Indicates any other feedback that does not fit into other registered types.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.Virus">
+            <summary>
+            Reports that a virus is found in the originating message.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NDR.AWS.AmazonComplaintFeedbackType.Unknown">
+            <summary>
+            Unknown type
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.NDR.AWS.SettingsAwsNdr.ConfirmSubsription">
+            <summary>
+            Accept subsciption on receiving SNS messages on this address.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.NDR.AWS.SettingsAwsNdr.SourceAddressesToVerify">
+            <summary>
+            Source email addresses. If specified, then only NDR with contained source will be handled.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.NDR.AWS.SNS.AmazonSnsManager.ConfirmSubsription">
+            <summary>
+            Accept subsciption on receiving SNS messages on this address.
+            </summary>
+        </member>
+    </members>
+</doc>

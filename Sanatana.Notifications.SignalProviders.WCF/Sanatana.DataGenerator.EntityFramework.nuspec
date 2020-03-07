@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Sanatana.Notifications.SignalProviders.WCF</id>
+    <version>$version$</version>
+    <authors>Sanatana</authors>
+    <owners>Sanatana</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>WCF server listening for incoming Signals as a SignalProvider for Notification framework</description>
+	  <licenseUrl>https://github.com/RodionKulin/Sanatana.DataGenerator/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/RodionKulin/Sanatana.DataGenerator</projectUrl>
+    <tags>Notifications;SignalProviders;WCF</tags>
+    <copyright>Copyright ©2015 RodionKulin</copyright>
+    <releaseNotes></releaseNotes>
+
+    <dependencies>
+      <dependency id="Autofac" version="4.8.1" />
+      <dependency id="Sanatana.Notifications" version="1.0.2" />
+    </dependencies>   
+  </metadata>
+  <files>
+    <file src="bin\release\Sanatana.Notifications.SignalProviders.WCF.dll" target="lib\net461\" />
+    <file src="bin\release\Sanatana.Notifications.SignalProviders.WCF.xml" target="lib\net461\" />
+  </files>
+</package>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,11 +8,11 @@ using Sanatana.Notifications.DAL;
 using AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using Sanatana.EntityFrameworkCore.Commands;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
 using System.Linq.Expressions;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -52,8 +51,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //select
-        public virtual async Task<TotalResult<List<SignalBounce<long>>>> Select(
-            int page, int pageSize, List<long> receiverSubscriberIds = null)
+        public virtual async Task<TotalResult<List<SignalBounce<long>>>> SelectPage(
+            int pageIndex, int pageSize, List<long> receiverSubscriberIds = null)
         {
             RepositoryResult<SignalBounceLong> response = null;
 
@@ -66,8 +65,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                         && receiverSubscriberIds.Contains(x.ReceiverSubscriberId.Value);
                 }
 
-                response = await repository
-                    .SelectPageAsync<SignalBounceLong, long>(page, pageSize, true,
+                response = await repository.FindPageAsync(pageIndex, pageSize, true,
                         where, x => x.SignalBounceId, true)
                     .ConfigureAwait(false);
             }

@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Should;
-using SpecsFor.ShouldExtensions;
+using FluentAssertions;
 using Sanatana.Notifications.DAL.Results;
+using SpecsFor.StructureMap;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -60,8 +60,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .OrderBy(x => x.CreateDateUtc)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
@@ -70,7 +70,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 
                     expectedItem.StoredNotificationId = actualItem.StoredNotificationId;
 
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
         }
@@ -131,15 +131,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .OrderBy(x => x.CreateDateUtc)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
                     StoredNotificationLong actualItem = actual[i];
                     StoredNotification<long> expectedItem = _insertedData[i];
 
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
         }
@@ -184,19 +184,19 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             protected override void When()
             {
                 TotalResult<List<StoredNotification<long>>> totalResult = 
-                    SUT.Select(new List<long> { _subscriberId }, 1, 10, false).Result;
+                    SUT.Select(new List<long> { _subscriberId }, 0, 10, false).Result;
                 _actual = totalResult.Data;
             }
 
             [Test]
             public void then_stored_notifications_selected_match_inserted_using_ef()
             {
-                _actual.ShouldNotBeEmpty();
-                _actual.Count.ShouldBeGreaterThanOrEqualTo(_insertedData.Count);
+                _actual.Should().NotBeEmpty();
+                _actual.Count.Should().BeGreaterOrEqualTo(_insertedData.Count);
 
                 foreach (var actual in _actual)
                 {
-                    actual.ShouldLookLikePartial(new
+                    actual.Should().BeEquivalentTo(new
                     {
                         TopicId = "topic1",
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 5, 0),

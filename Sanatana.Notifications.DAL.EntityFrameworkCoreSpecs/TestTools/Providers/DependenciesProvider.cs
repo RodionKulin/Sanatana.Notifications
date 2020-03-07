@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using StructureMap;
-using SpecsFor.Configuration;
 using System.IO;
 using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Interfaces;
 using System.Configuration;
@@ -14,6 +13,11 @@ using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.Interfaces;
+using SpecsFor.Core.Configuration;
+using SpecsFor.Core;
+using SpecsFor.StructureMap;
+using StructureMap.AutoMocking;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Providers
 {
@@ -22,19 +26,22 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Provider
         //methods
         public override void SpecInit(INeedDbContext instance)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["SenderDbContext"].ConnectionString;
+            dynamic specsDynamic = instance;
+            AutoMockedContainer autoMockContainer = specsDynamic.Mocker.MoqAutoMocker.Container;
+
+            string connectionString = @"Data Source=.\;Initial Catalog=SanatanaNotificationsSpecs;integrated security=true;MultipleActiveResultSets=True;";
             var connection = new SqlConnectionSettings
             {
                 ConnectionString = connectionString,
                 Schema = "dbo"
             };
 
-            instance.MockContainer.Configure(cfg =>
+            autoMockContainer.Configure(cfg =>
             {
                 cfg.For<SqlConnectionSettings>().Use(connection);
                 cfg.For<ISenderDbContextFactory>().Use<SenderDbContextFactory>();
                 cfg.For<INotificationsMapperFactory>().Use<NotificationsMapperFactory>();
-                
+
                 cfg.For<IDispatchTemplateQueries<long>>().Use<SqlDispatchTemplateQueries>();
                 cfg.For<SqlDispatchTemplateQueries>().Use<SqlDispatchTemplateQueries>();
                 cfg.For<SqlEventSettingsQueries>().Use<SqlEventSettingsQueries>();
@@ -51,10 +58,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Provider
                 cfg.For<SqlSubscriberTopicSettingsQueries>().Use<SqlSubscriberTopicSettingsQueries>();
             });
 
-            ISenderDbContextFactory factory =  instance.MockContainer.GetInstance<ISenderDbContextFactory>();
+            ISenderDbContextFactory factory = autoMockContainer.GetInstance<ISenderDbContextFactory>();
             instance.DbContext = factory.GetDbContext();
             instance.DbContext.ChangeTracker.QueryTrackingBehavior = Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
-
         }
     }
 }

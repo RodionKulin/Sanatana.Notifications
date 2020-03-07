@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using Sanatana.EntityFrameworkCore.Commands;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -28,10 +28,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //init
-        public SqlSubscriberDeliveryTypeSettingsQueries(SqlConnectionSettings connectionSettings
-            , ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
+        public SqlSubscriberDeliveryTypeSettingsQueries(SqlConnectionSettings connectionSettings, 
+            ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
         {
-            
             _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
             _mapper = mapperFactory.GetMapper();
@@ -100,15 +99,22 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             return item;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deliveryTypes"></param>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         public virtual async Task<TotalResult<List<SubscriberDeliveryTypeSettings<long>>>> SelectPage(
-            List<int> deliveryTypes, int page, int pageSize)
+            List<int> deliveryTypes, int pageIndex, int pageSize)
         {
             RepositoryResult<SubscriberDeliveryTypeSettingsLong> result;
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                result = await repository.SelectPageAsync<SubscriberDeliveryTypeSettingsLong, long>(
-                    page, pageSize, true
+                result = await repository.FindPageAsync<SubscriberDeliveryTypeSettingsLong, long>(
+                    pageIndex, pageSize, true
                     , x => deliveryTypes.Contains(x.DeliveryType)
                     , x => x.SubscriberId
                     , true)
@@ -233,13 +239,16 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema, TableValuedParameters.SUBSCRIBER_NDR_SETTINGS_TYPE);
                 MergeCommand<SubscriberDeliveryTypeSettingsLong> merge = repository.MergeTVP(mappedList, tvpName);
-                merge.Source.IncludeProperty(p => p.SubscriberId)
+                merge.Source
+                    .IncludeProperty(p => p.SubscriberId)
                     .IncludeProperty(p => p.DeliveryType)
                     .IncludeProperty(p => p.NDRCount)
                     .IncludeProperty(p => p.IsNDRBlocked);
-                merge.Compare.IncludeProperty(p => p.SubscriberId)
+                merge.Compare
+                    .IncludeProperty(p => p.SubscriberId)
                     .IncludeProperty(p => p.DeliveryType);
-                merge.Update.IncludeProperty(p => p.NDRCount)
+                merge.UpdateMatched
+                    .IncludeProperty(p => p.NDRCount)
                     .IncludeProperty(p => p.IsNDRBlocked);
                 int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);
             }

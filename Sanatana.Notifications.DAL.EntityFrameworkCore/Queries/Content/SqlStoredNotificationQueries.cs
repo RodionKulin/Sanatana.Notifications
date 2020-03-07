@@ -7,12 +7,13 @@ using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using AutoMapper;
 using Sanatana.Notifications.DAL;
-using Sanatana.EntityFrameworkCore.Commands;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -26,12 +27,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //init
-        public SqlStoredNotificationQueries(ISenderDbContextFactory dbContextFactory
-            , INotificationsMapperFactory mapperFactory, SqlConnectionSettings connectionSettings)
+        public SqlStoredNotificationQueries(SqlConnectionSettings connectionSettings, 
+            ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
         {
+            _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
             _mapper = mapperFactory.GetMapper();
-            _connectionSettings = connectionSettings;
         }
 
 
@@ -51,15 +52,23 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subscriberIds"></param>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
         public virtual async Task<TotalResult<List<StoredNotification<long>>>> Select(List<long> subscriberIds
-            , int page, int pageSize, bool descending)
+            , int pageIndex, int pageSize, bool descending)
         {
             RepositoryResult<StoredNotificationLong> response = null;
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 response = await repository
-                    .SelectPageAsync<StoredNotificationLong, DateTime>(page, pageSize, descending
+                    .FindPageAsync<StoredNotificationLong, DateTime>(pageIndex, pageSize, descending
                     , x => subscriberIds.Contains(x.SubscriberId)
                     , x => x.CreateDateUtc, true)
                     .ConfigureAwait(false);                
@@ -87,11 +96,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     .IncludeProperty(x => x.TopicId)
                     .IncludeProperty(x => x.CreateDateUtc)
                     .IncludeProperty(x => x.MessageSubject)
-                    .IncludeProperty(x => x.MessageBody)
-                    ;
+                    .IncludeProperty(x => x.MessageBody);
                 merge.Compare
                     .IncludeProperty(p => p.StoredNotificationId);
-                merge.Update
+                merge.UpdateMatched
                     .ExcludeProperty(p => p.StoredNotificationId);
                 int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);
             }

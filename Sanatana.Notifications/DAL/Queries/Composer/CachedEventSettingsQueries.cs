@@ -62,12 +62,18 @@ namespace Sanatana.Notifications.DAL.Queries
             return items;
         }
 
-        public virtual async Task<TotalResult<List<EventSettings<TKey>>>> Select(int page, int pageSize)
+        /// <summary>
+        /// 0-based page index
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public virtual async Task<TotalResult<List<EventSettings<TKey>>>> Select(int pageIndex, int pageSize)
         {
             TotalResult<List<EventSettings<TKey>>> allItems = await GetFromCacheOrFetch()
                 .ConfigureAwait(false);
 
-            int skip = (page - 1) * pageSize;
+            int skip = pageIndex * pageSize;
             List<EventSettings<TKey>> selectedPage = allItems.Data
                 .Skip(skip)
                 .Take(pageSize)
@@ -98,7 +104,7 @@ namespace Sanatana.Notifications.DAL.Queries
                 return _cache;
             }
 
-            TotalResult<List<EventSettings<TKey>>> allItems = await _storageQueries.Select(1, int.MaxValue)
+            TotalResult<List<EventSettings<TKey>>> allItems = await _storageQueries.Select(0, int.MaxValue)
                 .ConfigureAwait(false);
 
             _cache = allItems;

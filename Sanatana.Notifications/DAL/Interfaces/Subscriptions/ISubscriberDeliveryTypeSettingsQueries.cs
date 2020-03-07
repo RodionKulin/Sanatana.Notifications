@@ -18,7 +18,14 @@ namespace Sanatana.Notifications.DAL.Interfaces
         Task<List<SubscriberDeliveryTypeSettings<TKey>>> Select(TKey subscriberId);
         Task<List<SubscriberDeliveryTypeSettings<TKey>>> Select(int deliveryType, List<string> addresses);
         Task<SubscriberDeliveryTypeSettings<TKey>> Select(TKey subscriberId, int deliveryType);
-        Task<TotalResult<List<SubscriberDeliveryTypeSettings<TKey>>>> SelectPage(List<int> deliveryTypes, int page, int pageSize);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deliveryTypes"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize">0-based page index</param>
+        /// <returns></returns>
+        Task<TotalResult<List<SubscriberDeliveryTypeSettings<TKey>>>> SelectPage(List<int> deliveryTypes, int pageIndex, int pageSize);
         Task Update(SubscriberDeliveryTypeSettings<TKey> settings);
         Task UpdateAddress(TKey subscriberId, int deliveryType, string address);
         Task UpdateLastVisit(TKey subscriberId);

@@ -10,7 +10,7 @@ using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DAL.MongoDb
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSubscriberDeliveryTypeSettingsQueries : ISubscriberDeliveryTypeSettingsQueries<ObjectId>
     {
@@ -50,7 +50,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                     p => p.Address == address
                     && p.DeliveryType == deliveryType);
 
-            long count = await _context.SubscriberDeliveryTypeSettings.CountAsync(filter);
+            long count = await _context.SubscriberDeliveryTypeSettings.CountDocumentsAsync(filter);
             bool exists = count > 0;
 
             return exists;
@@ -94,9 +94,9 @@ namespace Sanatana.Notifications.DAL.MongoDb
         }
 
         public virtual async Task<TotalResult<List<SubscriberDeliveryTypeSettings<ObjectId>>>> SelectPage(
-            List<int> deliveryTypes, int page, int pageSize)
+            List<int> deliveryTypes, int pageIndex, int pageSize)
         {
-            int skip = MongoDbUtility.ToSkipNumber(page, pageSize);
+            int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
 
             var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
                     p => deliveryTypes.Contains(p.DeliveryType));
@@ -107,7 +107,7 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 .Limit(pageSize)
                 .ToListAsync();
 
-            Task<long> totalTask = _context.SubscriberDeliveryTypeSettings.CountAsync(filter);
+            Task<long> totalTask = _context.SubscriberDeliveryTypeSettings.CountDocumentsAsync(filter);
 
             List<SubscriberDeliveryTypeSettings<ObjectId>> list = await listTask;
             long total = await totalTask;

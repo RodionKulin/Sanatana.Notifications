@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using System.Transactions;
 using AutoMapper.QueryableExtensions;
 using System.Linq.Expressions;
 using LinqKit;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using Sanatana.EntityFrameworkCore.Commands;
 using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Microsoft.Data.SqlClient;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -43,8 +43,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         {
             foreach (SubscriberScheduleSettings<long> item in periods)
             {
-                item.PeriodBegin = SqlUtility.ToSqlTime(item.PeriodBegin);
-                item.PeriodEnd = SqlUtility.ToSqlTime(item.PeriodEnd);
+                item.PeriodBegin = SqlDataFomatting.ToSqlTime(item.PeriodBegin);
+                item.PeriodEnd = SqlDataFomatting.ToSqlTime(item.PeriodEnd);
             }
             List<SubscriberScheduleSettingsLong> periodsMapped = periods
                 .Select(_mapper.Map<SubscriberScheduleSettingsLong>)
@@ -87,8 +87,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         {
             foreach (SubscriberScheduleSettings<long> item in periods)
             {
-                item.PeriodBegin = SqlUtility.ToSqlTime(item.PeriodBegin);
-                item.PeriodEnd = SqlUtility.ToSqlTime(item.PeriodEnd);
+                item.PeriodBegin = SqlDataFomatting.ToSqlTime(item.PeriodBegin);
+                item.PeriodEnd = SqlDataFomatting.ToSqlTime(item.PeriodEnd);
             }
             List<int> sets = periods
                 .Select(x => x.Set)
@@ -102,28 +102,20 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             using (var repository = new Repository(_dbContextFactory.GetDbContext()))
             using (IDbContextTransaction ts = repository.Context.Database.BeginTransaction())
             {
-                try
-                {
-                    SqlTransaction underlyingTransaction = (SqlTransaction)ts.GetDbTransaction();
+                SqlTransaction underlyingTransaction = (SqlTransaction)ts.GetDbTransaction();
 
-                    int changes = await repository.DeleteManyAsync<SubscriberScheduleSettingsLong>(
-                        x => x.SubscriberId == subscriberId
-                        && sets.Contains(x.Set))
-                        .ConfigureAwait(false);
+                int changes = await repository.DeleteManyAsync<SubscriberScheduleSettingsLong>(
+                    x => x.SubscriberId == subscriberId
+                    && sets.Contains(x.Set))
+                    .ConfigureAwait(false);
 
-                    InsertCommand<SubscriberScheduleSettingsLong> insertCommand = repository
-                        .Insert<SubscriberScheduleSettingsLong>(underlyingTransaction);
-                    insertCommand.Insert
-                        .ExcludeProperty(x => x.SubscriberScheduleSettingsId);
-                    changes = await insertCommand.ExecuteAsync(periodsMapped).ConfigureAwait(false);
+                InsertCommand<SubscriberScheduleSettingsLong> insertCommand = repository
+                    .Insert<SubscriberScheduleSettingsLong>(underlyingTransaction);
+                insertCommand.Insert
+                    .ExcludeProperty(x => x.SubscriberScheduleSettingsId);
+                changes = await insertCommand.ExecuteAsync(periodsMapped).ConfigureAwait(false);
 
-                    ts.Commit();
-                }
-                catch (Exception)
-                {
-                    ts.Rollback();
-                    throw;
-                }          
+                ts.Commit();
             }
         }
 

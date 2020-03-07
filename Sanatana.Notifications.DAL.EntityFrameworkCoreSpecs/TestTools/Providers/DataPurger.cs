@@ -1,5 +1,4 @@
 ﻿using SpecsFor;
-using SpecsFor.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Interfaces;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
+using SpecsFor.Core.Configuration;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Providers
 {
@@ -18,16 +18,13 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Provider
             SenderDbContext context = instance.DbContext;
 
             //Disable all foreign keys.
-            context.Database
-                .ExecuteSqlCommand("EXEC sp_msforeachtable \"ALTER TABLE ? NOCHECK CONSTRAINT all\"");
+            context.Database.ExecuteSqlRaw("EXEC sp_msforeachtable \"ALTER TABLE ? NOCHECK CONSTRAINT all\"");
 
             //Remove all data from tables EXCEPT for the EF Migration History table!
-            context.Database
-                .ExecuteSqlCommand("EXEC sp_msforeachtable \"SET QUOTED_IDENTIFIER ON; IF '?' != '[dbo].[__MigrationHistory]' DELETE FROM ?\"");
+            context.Database.ExecuteSqlRaw("EXEC sp_msforeachtable \"SET QUOTED_IDENTIFIER ON; IF '?' != '[dbo].[__MigrationHistory]' DELETE FROM ?\"");
 
             //Turn FKs back on
-            context.Database
-                .ExecuteSqlCommand("EXEC sp_msforeachtable \"ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all\"");
+            context.Database.ExecuteSqlRaw("EXEC sp_msforeachtable \"ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all\"");
 
         }
     }

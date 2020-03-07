@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Sanatana.EntityFrameworkCore;
+using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;

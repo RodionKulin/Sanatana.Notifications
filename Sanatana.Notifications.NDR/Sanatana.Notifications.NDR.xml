@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sanatana.Notifications.NDR</name>
+    </assembly>
+    <members>
+        <member name="P:Sanatana.Notifications.NDR.NdrHandler`1.NDRCountToBlock">
+            <summary>
+            Maximum number of warnings before blocking delivery address to be used again.
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.NDR.NdrHandler`1.Handle(System.IO.Stream)">
+            <summary>
+            Handle incoming message stream.
+            </summary>
+            <param name="messageStream"></param>
+        </member>
+        <member name="M:Sanatana.Notifications.NDR.NdrHandler`1.Handle(System.String)">
+            <summary>
+            Handle incoming message string.
+            </summary>
+            <param name="messageString"></param>
+        </member>
+        <member name="M:Sanatana.Notifications.NDR.NdrHandler`1.ReadRequestStream(System.IO.Stream)">
+            <summary>
+            Read incoming stream to string.
+            </summary>
+            <param name="requestStream"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

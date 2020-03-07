@@ -27,7 +27,8 @@ namespace Sanatana.Notifications.DAL.Entities
         public DateTime? NDRBlockResetCodeSendDateUtc { get; set; }
         public string NDRBlockResetCode { get; set; }
 
-        
+        public List<SubscriberCategorySettings<TKey>> SubscriberCategorySettings { get; set; }
+
 
         //init
         public static SubscriberDeliveryTypeSettings<TKey> Create(TKey subscriberId, int deliveryType, string address

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,11 +11,12 @@ using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using System.Reflection;
-using Sanatana.EntityFrameworkCore.Commands;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.EntityFrameworkCore.Batch;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -134,7 +134,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
                 upsert.Compare.IncludeProperty(p => p.SignalDispatchId);
 
-                upsert.Update.IncludeProperty(p => p.SendDateUtc)
+                upsert.UpdateMatched
+                    .IncludeProperty(p => p.SendDateUtc)
                     .IncludeProperty(p => p.FailedAttempts)
                     .IncludeProperty(p => p.IsScheduled);
 

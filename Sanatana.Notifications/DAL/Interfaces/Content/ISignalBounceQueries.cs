@@ -10,8 +10,15 @@ namespace Sanatana.Notifications.DAL.Interfaces
         where TKey : struct
     {
         Task Insert(List<SignalBounce<TKey>> items);
-        Task<TotalResult<List<SignalBounce<TKey>>>> Select(
-             int page, int pageSize, List<TKey> receiverSubscriberIds = null);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <param name="receiverSubscriberIds"></param>
+        /// <returns></returns>
+        Task<TotalResult<List<SignalBounce<TKey>>>> SelectPage(
+             int pageIndex, int pageSize, List<TKey> receiverSubscriberIds = null);
         Task Delete(List<TKey> receiverSubscriberIds);
         Task Delete(List<SignalBounce<TKey>> items);
     }

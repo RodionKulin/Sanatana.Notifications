@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Sanatana.Notifications.DeliveryTypes.Email;
 using Sanatana.Notifications.DeliveryTypes.Http;
 using Sanatana.Notifications.DeliveryTypes.StoredNotification;
+using Sanatana.Notifications.DeliveryTypes.Slack;
 
 namespace Sanatana.Notifications.DAL.MongoDb
 {
@@ -111,15 +112,18 @@ namespace Sanatana.Notifications.DAL.MongoDb
             _settings = settings;
             _database = GetDatabase(settings);
 
-            lock (_mapLock)
+            if (!_isMapped)
             {
-                if (!_isMapped)
+                lock (_mapLock)
                 {
-                    _isMapped = true;
-                    RegisterConventions();
-                    MapSignals();
-                    MapSubscriberSettings();
-                    MapEventSettings();
+                    if (!_isMapped)
+                    {
+                        _isMapped = true;
+                        RegisterConventions();
+                        MapSignals();
+                        MapSubscriberSettings();
+                        MapEventSettings();
+                    }
                 }
             }
         }
@@ -207,6 +211,12 @@ namespace Sanatana.Notifications.DAL.MongoDb
                 cm.SetIgnoreExtraElements(true);
             });
 
+            BsonClassMap.RegisterClassMap<SlackDispatch<ObjectId>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap(m => m.SignalDispatchId));
+                cm.SetIgnoreExtraElements(true);
+            });
         }
 
         protected virtual void MapSubscriberSettings()

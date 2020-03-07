@@ -50,7 +50,7 @@ namespace Sanatana.Notifications.DAL.Queries
             return item;
         }
 
-        public virtual async Task<TotalResult<List<DispatchTemplate<TKey>>>> Select(int page, int pageSize)
+        public virtual async Task<TotalResult<List<DispatchTemplate<TKey>>>> SelectPage(int page, int pageSize)
         {
             TotalResult<List<DispatchTemplate<TKey>>> allItems = await GetFromCacheOrFetch().ConfigureAwait(false);
 
@@ -96,7 +96,7 @@ namespace Sanatana.Notifications.DAL.Queries
                 return _cache;
             }
 
-            TotalResult<List<DispatchTemplate<TKey>>> allItems = await _storageQueries.Select(1, int.MaxValue)
+            TotalResult<List<DispatchTemplate<TKey>>> allItems = await _storageQueries.SelectPage(0, int.MaxValue)
                 .ConfigureAwait(false);
 
             _cache = allItems;

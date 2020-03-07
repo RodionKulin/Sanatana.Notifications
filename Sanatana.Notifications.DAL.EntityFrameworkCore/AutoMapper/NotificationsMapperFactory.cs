@@ -29,7 +29,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper
 
         //methods
         public virtual IMapper GetMapper()
-        { 
+        {
             return _mapper.Value;
         }
 
@@ -65,8 +65,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper
 
             //Dispatch template
             configuration.CreateMap<DispatchTemplate<long>, DispatchTemplateLong>()
-                .ForMember(d => d.DerivedEntityData, o => o.ResolveUsing(
-                    new ToJsonValueResolver<DispatchTemplate<long>, DispatchTemplateLong>()));
+                .ForMember(d => d.DerivedEntityData, o => o.MapFrom<ToJsonValueResolver<DispatchTemplate<long>, DispatchTemplateLong>>());
             configuration.CreateMap<DispatchTemplateLong, DispatchTemplate<long>>()
                 .ConstructUsing((serialized, generic) =>
                 {
@@ -80,8 +79,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper
 
             //Dispatch
             configuration.CreateMap<SignalDispatch<long>, SignalDispatchLong>()
-                .ForMember(d => d.DerivedEntityData, o => o.ResolveUsing(
-                    new ToJsonValueResolver<SignalDispatch<long>, SignalDispatchLong>()));
+                .ForMember(d => d.DerivedEntityData, o => o.MapFrom<ToJsonValueResolver<SignalDispatch<long>, SignalDispatchLong>>());
             configuration.CreateMap<SignalDispatchLong, SignalDispatch<long>>()
                 .ConstructUsing((serialized, generic) =>
                 {

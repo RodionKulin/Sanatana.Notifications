@@ -8,11 +8,12 @@ using Sanatana.Notifications.DAL;
 using AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using Sanatana.EntityFrameworkCore.Commands;
 using Sanatana.EntityFrameworkCore;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -25,8 +26,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //init
-        public SqlSignalEventQueries(SqlConnectionSettings connectionSettings
-            , ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
+        public SqlSignalEventQueries(SqlConnectionSettings connectionSettings, 
+            ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
         {
             _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
@@ -50,13 +51,13 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             }
         }
 
-        public virtual async Task<List<SignalEvent<long>>> Select(int count, int maxFailedAttempts)
+        public virtual async Task<List<SignalEvent<long>>> Find(int count, int maxFailedAttempts)
         {
             RepositoryResult<SignalEventLong> result;
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                result = await repository.SelectPageAsync<SignalEventLong, long>(1, count, false,
+                result = await repository.FindPageAsync<SignalEventLong, long>(0, count, false,
                     x => x.FailedAttempts < maxFailedAttempts,
                     x => x.SignalEventId,
                     false)
@@ -87,7 +88,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
                 update.Compare.IncludeProperty(p => p.SignalEventId);
 
-                update.Update.IncludeProperty(p => p.FailedAttempts)
+                update.UpdateMatched
+                    .IncludeProperty(p => p.FailedAttempts)
                     .IncludeProperty(p => p.EventSettingsId)
                     .IncludeProperty(p => p.SubscriberIdRangeFrom)
                     .IncludeProperty(p => p.SubscriberIdRangeTo)

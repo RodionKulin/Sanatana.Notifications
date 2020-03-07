@@ -5,11 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sanatana.EntityFrameworkCore;
-using Sanatana.EntityFrameworkCore.Scripts;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Resources;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Data.Common;
+using Sanatana.EntityFrameworkCore.Batch.Scripts;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Context
 {

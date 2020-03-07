@@ -14,7 +14,13 @@ namespace Sanatana.Notifications.DAL.Interfaces
         where TKey : struct
     {
         Task Insert(List<DispatchTemplate<TKey>> items);
-        Task<TotalResult<List<DispatchTemplate<TKey>>>> Select(int page, int pageSize);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        Task<TotalResult<List<DispatchTemplate<TKey>>>> SelectPage(int pageIndex, int pageSize);
         Task<List<DispatchTemplate<TKey>>> SelectForEventSettings(TKey eventSettingsId);
         Task<DispatchTemplate<TKey>> Select(TKey dispatchTemplatesId);
         Task Update(List<DispatchTemplate<TKey>> items);

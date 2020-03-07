@@ -11,28 +11,24 @@ using AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.EntityFrameworkCore;
-using Sanatana.EntityFrameworkCore.Commands;
-using Sanatana.EntityFrameworkCore.Commands.Merge;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
-using System.Data.SqlClient;
+using Sanatana.EntityFrameworkCore.Batch.Commands;
+using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
     public class SqlDispatchTemplateQueries : IDispatchTemplateQueries<long>
     {
         //fields        
-        protected SqlConnectionSettings _connectionSettings;
         protected ISenderDbContextFactory _dbContextFactory;
         protected IMapper _mapper;
 
 
         //init
-        public SqlDispatchTemplateQueries(SqlConnectionSettings connectionSettings
-            , ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
+        public SqlDispatchTemplateQueries(ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
         {
-            _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
             _mapper = mapperFactory.GetMapper();
         }
@@ -63,14 +59,19 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //select
-        public virtual async Task<TotalResult<List<DispatchTemplate<long>>>> Select(int page, int pageSize)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageIndex">0-based page index</param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public virtual async Task<TotalResult<List<DispatchTemplate<long>>>> SelectPage(int pageIndex, int pageSize)
         {
             RepositoryResult<DispatchTemplateLong> response = null;
             
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                response = await repository
-                    .SelectPageAsync<DispatchTemplateLong, long>(page, pageSize, true,
+                response = await repository.FindPageAsync<DispatchTemplateLong, long>(pageIndex, pageSize, true,
                         x => true, x => x.EventSettingsId, true)
                     .ConfigureAwait(false);                
             }
@@ -125,10 +126,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                MergeCommand<DispatchTemplateLong> merge = repository.MergeParameters(mappedItems);
+                MergeCommand<DispatchTemplateLong> merge = repository.Merge(mappedItems);
                 merge.Compare
                     .IncludeProperty(p => p.DispatchTemplateId);
-                merge.Update
+                merge.UpdateMatched
                     .ExcludeProperty(x => x.DispatchTemplateId);
                 int changes = await merge.ExecuteAsync(MergeType.Update).ConfigureAwait(false);                
             }

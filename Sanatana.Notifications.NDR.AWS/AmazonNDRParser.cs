@@ -43,7 +43,8 @@ namespace Sanatana.Notifications.NDR.AWS
         /// <summary>
         /// Handle request from AWS SNS with NDR.
         /// </summary>
-        /// <param name="messageString"></param>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public List<SignalBounce<TKey>> ParseBounceInfo(string requestMessage)
         {
             //string > sns message

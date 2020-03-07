@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Sanatana.EntityFrameworkCore;
+using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
@@ -33,6 +34,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             builder.Property(t => t.LastVisitUtc).HasColumnType("datetime2");
             builder.Property(t => t.LastSendDateUtc).HasColumnType("datetime2");
             builder.Property(t => t.NDRBlockResetCodeSendDateUtc).HasColumnType("datetime2");
+
+            //Ignore
+            builder.Ignore(t => t.SubscriberCategorySettings);
 
             // Table 
             builder.ToTable(DefaultTableNameConstants.SubscriberDeliveryTypeSettings, _connectionSettings.Schema);

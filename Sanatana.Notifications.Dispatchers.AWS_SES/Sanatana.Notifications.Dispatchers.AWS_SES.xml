@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sanatana.Notifications.Dispatchers.AWS_SES</name>
+    </assembly>
+    <members>
+        <member name="P:Sanatana.Notifications.Dispatchers.AWS_SES.AmazonEmailDispatcher`1.AvailabilityCheckEmailAddress">
+            <summary>
+            Address that will be used to check email channel availability. Sample email will be forwarded on check.
+            </summary>
+        </member>
+    </members>
+</doc>

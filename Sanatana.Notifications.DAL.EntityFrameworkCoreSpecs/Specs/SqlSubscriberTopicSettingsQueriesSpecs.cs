@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Should;
-using SpecsFor.ShouldExtensions;
+using FluentAssertions;
+using SpecsFor.StructureMap;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -52,8 +52,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .OrderBy(x => x.SubscriberTopicSettingsId)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
@@ -61,7 +61,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     SubscriberTopicSettings<long> expectedItem = _insertedData[i];
 
                     expectedItem.SubscriberTopicSettingsId = actualItem.SubscriberTopicSettingsId;
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
 
@@ -113,8 +113,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                    .OrderBy(x => x.SubscriberTopicSettingsId)
                    .ToList();
 
-                actual.ShouldNotBeEmpty();
-                actual.Count.ShouldEqual(_insertedData.Count);
+                actual.Should().NotBeEmpty();
+                actual.Count.Should().Be(_insertedData.Count);
 
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
@@ -122,7 +122,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     SubscriberTopicSettings<long> expectedItem = _insertedData[i];
 
                     expectedItem.SubscriberTopicSettingsId = actualItem.SubscriberTopicSettingsId;
-                    actualItem.ShouldLookLike(expectedItem);
+                    actualItem.Should().BeEquivalentTo(expectedItem);
                 }
             }
 

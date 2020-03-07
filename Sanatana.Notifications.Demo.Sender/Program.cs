@@ -29,6 +29,8 @@ using Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac;
 using Sanatana.Notifications.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Sanatana.EntityFrameworkCore.Batch;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Sanatana.Notifications.Demo.Sender
 {
@@ -47,7 +49,7 @@ namespace Sanatana.Notifications.Demo.Sender
         private static ISender CreateSenderWithMsSql()
         {
             bool initDatabase = true;
-            SqlConnectionSettings connection = new SqlConnectionSettings
+            var connection = new SqlConnectionSettings
             {
                 Schema = "msg",
                 ConnectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString
@@ -85,7 +87,7 @@ namespace Sanatana.Notifications.Demo.Sender
             ISenderDbContextFactory contextFactory = container.Resolve<ISenderDbContextFactory>();
             using (SenderDbContext context = contextFactory.GetDbContext())
             {
-                var creator = (RelationalDatabaseCreator)context.Database.GetService<IDatabaseCreator>();
+                var creator = (SqlServerDatabaseCreator)context.Database.GetService<IDatabaseCreator>();
                 dbExists = creator.Exists();
             }
 

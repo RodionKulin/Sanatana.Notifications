@@ -9,12 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Should;
-using SpecsFor.ShouldExtensions;
+using FluentAssertions;
 using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.DeliveryTypes.Email;
 using Should.Core;
+using SpecsFor.StructureMap;
+using SpecsFor.Core;
+using Moq;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -101,8 +103,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             [Test]
             public void then_subscribers_matched_by_id_are_found_using_ef()
             {
-                _matchedSubscribers.ShouldNotBeEmpty();
-                _matchedSubscribers.Count.ShouldEqual(_subscriberIds.Count);
+                _matchedSubscribers.Should().NotBeEmpty();
+                _matchedSubscribers.Count.Should().Be(_subscriberIds.Count);
 
                 _matchedSubscribers = _matchedSubscribers.OrderBy(x => x.SubscriberId).ToList();
                 _subscriberIds = _subscriberIds.OrderBy(x => x).ToList();
@@ -111,8 +113,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     Subscriber<long> actualItem = _matchedSubscribers[i];
                     long expectedId = _subscriberIds[i];
-                    actualItem.DeliveryType.ShouldEqual(_deliveryType);
-                    actualItem.Address.ShouldNotBeEmpty();
+                    actualItem.DeliveryType.Should().Be(_deliveryType);
+                    actualItem.Address.Should().NotBeEmpty();
                 }
             }
         }
@@ -227,8 +229,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .Where(x => _subscriberIds.Contains(x.SubscriberId))
                     .ToList();
 
-                _matchedSubscribers.ShouldNotBeEmpty();
-                _matchedSubscribers.Count.ShouldEqual(_subscriberIds.Count);
+                _matchedSubscribers.Should().NotBeEmpty();
+                _matchedSubscribers.Count.Should().Be(_subscriberIds.Count);
 
                 _matchedSubscribers = _matchedSubscribers.OrderBy(x => x.SubscriberId).ToList();
                 _subscriberIds = _subscriberIds.OrderBy(x => x).ToList();
@@ -236,12 +238,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 for (int i = 0; i < _subscriberIds.Count; i++)
                 {
                     SubscriberDeliveryTypeSettingsLong actualItem = _matchedSubscribers[i];
-                    actualItem.DeliveryType.ShouldEqual(_deliveryType);
-                    actualItem.Address.ShouldNotBeEmpty();
-                    actualItem.SendCount.ShouldEqual(1);
-                    actualItem.LastSendDateUtc.ShouldNotEqual(null);
-                    actualItem.LastSendDateUtc.Value
-                        .ShouldEqual(_sendDate, DatePrecision.Second);
+                    actualItem.DeliveryType.Should().Be(_deliveryType);
+                    actualItem.Address.Should().NotBeEmpty();
+                    actualItem.SendCount.Should().Be(1);
+                    actualItem.LastSendDateUtc.Should().NotBeNull();
+                    actualItem.LastSendDateUtc.Value.Should().BeCloseTo(_sendDate, 1000);
                 }
             }
             
@@ -254,8 +255,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .Where(x => _subscriberIds.Contains(x.SubscriberId))
                     .ToList();
 
-                _matchedSubscribers.ShouldNotBeEmpty();
-                _matchedSubscribers.Count.ShouldEqual(_subscriberIds.Count);
+                _matchedSubscribers.Should().NotBeEmpty();
+                _matchedSubscribers.Count.Should().Be(_subscriberIds.Count);
 
                 _matchedSubscribers = _matchedSubscribers.OrderBy(x => x.SubscriberId).ToList();
                 _subscriberIds = _subscriberIds.OrderBy(x => x).ToList();
@@ -263,12 +264,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 for (int i = 0; i < _subscriberIds.Count; i++)
                 {
                     SubscriberCategorySettingsLong actualItem = _matchedSubscribers[i];
-                    actualItem.DeliveryType.ShouldEqual(_deliveryType);
-                    actualItem.CategoryId.ShouldEqual(_categoryId);
-                    actualItem.SendCount.ShouldEqual(1);
-                    actualItem.LastSendDateUtc.ShouldNotEqual(null);
-                    actualItem.LastSendDateUtc.Value
-                        .ShouldEqual(_sendDate, DatePrecision.Second);
+                    actualItem.DeliveryType.Should().Be(_deliveryType);
+                    actualItem.CategoryId.Should().Be(_categoryId);
+                    actualItem.SendCount.Should().Be(1);
+                    actualItem.LastSendDateUtc.Should().NotBeNull();
+                    actualItem.LastSendDateUtc.Value.Should().BeCloseTo(_sendDate, 1000);
                 }
             }
 
@@ -281,8 +281,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     .Where(x => _subscriberIds.Contains(x.SubscriberId))
                     .ToList();
 
-                _matchedSubscribers.ShouldNotBeEmpty();
-                _matchedSubscribers.Count.ShouldEqual(_subscriberIds.Count);
+                _matchedSubscribers.Should().NotBeEmpty();
+                _matchedSubscribers.Count.Should().Be(_subscriberIds.Count);
 
                 _matchedSubscribers = _matchedSubscribers.OrderBy(x => x.SubscriberId).ToList();
                 _subscriberIds = _subscriberIds.OrderBy(x => x).ToList();
@@ -290,13 +290,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 for (int i = 0; i < _subscriberIds.Count; i++)
                 {
                     SubscriberTopicSettingsLong actualItem = _matchedSubscribers[i];
-                    actualItem.DeliveryType.ShouldEqual(_deliveryType);
-                    actualItem.CategoryId.ShouldEqual(_categoryId);
-                    actualItem.TopicId.ShouldEqual(_topicId);
-                    actualItem.SendCount.ShouldEqual(1);
-                    actualItem.LastSendDateUtc.ShouldNotEqual(null);
-                    actualItem.LastSendDateUtc.Value
-                        .ShouldEqual(_sendDate, DatePrecision.Second);
+                    actualItem.DeliveryType.Should().Be(_deliveryType);
+                    actualItem.CategoryId.Should().Be(_categoryId);
+                    actualItem.TopicId.Should().Be(_topicId);
+                    actualItem.SendCount.Should().Be(1);
+                    actualItem.LastSendDateUtc.Should().NotBeNull();
+                    actualItem.LastSendDateUtc.Value.Should().BeCloseTo(_sendDate, 1000);
                 }
             }
         }

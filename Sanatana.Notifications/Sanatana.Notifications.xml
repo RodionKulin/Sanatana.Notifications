@@ -1,0 +1,743 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sanatana.Notifications</name>
+    </assembly>
+    <members>
+        <member name="M:Sanatana.Notifications.Composing.Templates.ReplaceTransformer.#ctor(System.String,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="keyFormat">Use default "{0}" format to replace keys in table as provided. Or append some additional characters like "#{0}" or "{{{0}}}".</param>
+            <param name="ignoreCase">Ignore case of the key in template.</param>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.DispatchTemplate`1.DispatchTemplateId">
+            <summary>
+            Identifier. Only required if stored in database. Is set by database itself.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.DispatchTemplate`1.EventSettingsId">
+            <summary>
+            Foreign key to join with EventSettings. Only required if stored in database. Is set in database queries layer.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.DispatchTemplate`1.DisplayName">
+            <summary>
+            Optional field for display in UI.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.DispatchTemplate`1.DeliveryType">
+            <summary>
+            Delivery type identifier to assign to SignalDispatch. Will be used to match constructed SignalDispatch with DispatchChannel.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.DispatchTemplate`1.ScheduleSet">
+            <summary>
+            Optional identifier. If not null enables scheduling of dispatches for later sending. ScheduleSet is used to match SubscriberScheduleSettings set of daytime intervals that user chosen to receive notifications.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.DispatchTemplate`1.IsActive">
+            <summary>
+            Toggle to enable or disable building SignalDispatches from this Template. Often used in conjunction with storing EventSettings and DispatchTemplates in database.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.EventSettingsId">
+            <summary>
+            Required unique identifier. Assigned by database if database storage is chosen. By default should be assigned manually cause settings are stored in memory.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.DisplayName">
+            <summary>
+            Optional field for display in UI.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.CategoryId">
+            <summary>
+            Identifier used to match incoming SignalEvent to EventSettings. SignalEvents can come from IDirectSignalProvider, WcfSignalProvider or other SignalProviders including custom.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.CompositionHandlerId">
+            <summary>
+            Optional identifier to match EventSettings with custom ICompositionHandler. Default ICompositionHandler is used if value if left null. If you need to override selecting subscribers, building dispatches, scheduling and updates you can do it via appropriate database queries interfaces or by overriding whole ICompositionHandler that is doing the pipelining.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.Templates">
+            <summary>
+            Builders that hold required configuration to construct SignalDispatch that will be send.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.Subscription">
+            <summary>
+            Query settings describing how to select subscribers that will be notified.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Entities.EventSettings`1.Updates">
+            <summary>
+            Query settings to update data for subscribers after receiving a SignalEvent. Update data like incrementing a number of messages sent and latest send time.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DAL.Enums.BounceType">
+            <summary>
+            Bounce type that describes reason on message rejection.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.DAL.Enums.BounceType.HardBounce">
+            <summary>
+            Hard bounce should lead to excluding address from using again.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.DAL.Enums.BounceType.SoftBounce">
+            <summary>
+            Soft bounce means failure to deliver with possibility to try again.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.DAL.Enums.BounceType.Unknown">
+            <summary>
+            Unknown bounce type.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DAL.Queries.ShortGuid">
+            <summary>
+            Represents a globally unique identifier (GUID) with a
+            shorter string value. Sguid
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Queries.ShortGuid.Guid">
+            <summary>
+            Gets/sets the underlying Guid
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DAL.Queries.ShortGuid.Value">
+            <summary>
+            Gets/sets the underlying base64 encoded string
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.DAL.Queries.ShortGuid.Empty">
+            <summary>
+            A read-only instance of the ShortGuid class whose value
+            is guaranteed to be all zeroes.
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.#ctor(System.String)">
+            <summary>
+            Creates a ShortGuid from a base64 encoded string
+            </summary>
+            <param name="value">The encoded guid as a
+            base64 string</param>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.#ctor(System.Guid)">
+            <summary>
+            Creates a ShortGuid from a Guid
+            </summary>
+            <param name="guid">The Guid to encode</param>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.Encode(System.String)">
+            <summary>
+            Creates a new instance of a Guid using the string value,
+            then returns the base64 encoded version of the Guid.
+            </summary>
+            <param name="value">An actual Guid string (i.e. not a ShortGuid)</param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.Encode(System.Guid)">
+            <summary>
+            Encodes the given Guid as a base64 string that is 22
+            characters long.
+            </summary>
+            <param name="guid">The Guid to encode</param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.Decode(System.String)">
+            <summary>
+            Decodes the given base64 string
+            </summary>
+            <param name="value">The base64 encoded string of a Guid</param>
+            <returns>A new Guid</returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.NewGuid">
+            <summary>
+            Initialises a new instance of the ShortGuid class
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.ToString">
+            <summary>
+            Returns the base64 encoded guid as a string
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.Equals(System.Object)">
+            <summary>
+            Returns a value indicating whether this instance and a
+            specified Object represent the same type and value.
+            </summary>
+            <param name="obj">The object to compare</param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.GetHashCode">
+            <summary>
+            Returns the HashCode for underlying Guid.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.op_Equality(Sanatana.Notifications.DAL.Queries.ShortGuid,Sanatana.Notifications.DAL.Queries.ShortGuid)">
+            <summary>
+            Determines if both ShortGuids have the same underlying
+            Guid value.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.op_Inequality(Sanatana.Notifications.DAL.Queries.ShortGuid,Sanatana.Notifications.DAL.Queries.ShortGuid)">
+            <summary>
+            Determines if both ShortGuids do not have the
+            same underlying Guid value.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.op_Implicit(Sanatana.Notifications.DAL.Queries.ShortGuid)~System.String">
+            <summary>
+            Implicitly converts the ShortGuid to it's string equivilent
+            </summary>
+            <param name="shortGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.op_Implicit(Sanatana.Notifications.DAL.Queries.ShortGuid)~System.Guid">
+            <summary>
+            Implicitly converts the ShortGuid to it's Guid equivilent
+            </summary>
+            <param name="shortGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.op_Implicit(System.String)~Sanatana.Notifications.DAL.Queries.ShortGuid">
+            <summary>
+            Implicitly converts the string to a ShortGuid
+            </summary>
+            <param name="shortGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.DAL.Queries.ShortGuid.op_Implicit(System.Guid)~Sanatana.Notifications.DAL.Queries.ShortGuid">
+            <summary>
+            Implicitly converts the Guid to a ShortGuid
+            </summary>
+            <param name="guid"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpEmailDispatcher`1.AvailabilityCheckEmailAddress">
+            <summary>
+            Address that will be used to check email channel availability. Sample email will be forwarded on check.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.Server">
+            <summary>
+            Host of SMTP server that will be forwarding email to receiver
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.Port">
+            <summary>
+            SMTP server port
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.EnableSsl">
+            <summary>
+            SMTP host secure connection usage
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.Credentials">
+            <summary>
+            Login and password used to authenticate in SMTP server
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.SenderAddress">
+            <summary>
+            Required email address that will be shown to receiver in from field. Usually same as credentials login.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.SenderDisplayName">
+            <summary>
+            Optional display name from your email that will send email.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DeliveryTypes.Trace.TraceDispatcher`1">
+            <summary>
+            Writes output to the Visual Studio Output Window or Immediate Window.
+            Depends if checked Options > Debugging > General > Redirect all Output Window text to the Immediate Window.
+            </summary>
+            <typeparam name="TKey"></typeparam>
+        </member>
+        <member name="F:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1._nextLimitsEndUtc">
+            <summary>
+            Time of the limits end for this channel.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1._nextTimeoutEndUtc">
+            <summary>
+            Time of the penalty end for this channel.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1.DeliveryType">
+            <summary>
+            Identifier of delivery type that is used to match Dispatch to DispatchChannel.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1.Dispatcher">
+            <summary>
+            Dispatch message sender.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1.LimitCounter">
+            <summary>
+            Message counter, that can limit number of messages. 
+            For example limit number of messages per period of time with PeriodLimitCounter.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1.Interrupter">
+            <summary>
+            Message successive and failed attempts counter, that can interrupt DispatchChannel from processing Dispatches.
+            For example introduce progressive timeout on failed attempts with ProgressiveTimeoutInterrupter.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Channels.DispatchChannel`1.AvailableLimitCapacity">
+            <summary>
+            Amount of deliveries before reaching the limit. 
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.Channels.DispatchChannelRegistry`1.GetActiveDeliveryTypes(System.Boolean)">
+            <summary>
+            Get delivery types that have dispatchers with no penalty or limit reached.
+            </summary>
+            <param name="checkLimitCapacity">Limit capacity should only be check after if was set by Channel.SetLimitCapacity method.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.Channels.DispatchChannelRegistry`1.Match(Sanatana.Notifications.DAL.Entities.SignalDispatch{`0})">
+            <summary>
+            Find DispatchChannel matching a signal.
+            </summary>
+            <param name="signal"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.Channels.DispatchChannelRegistry`1.GetAll">
+            <summary>
+            Get all DispatchChannels
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.IDispatcher`1.Send(Sanatana.Notifications.DAL.Entities.SignalDispatch{`0})">
+            <summary>
+            Send message
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.IDispatcher`1.CheckAvailability">
+            <summary>
+            Check availability of dispatcher. Method is called in case of failed send attempt.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Sanatana.Notifications.Dispatching.Interrupters.ProgressiveTimeoutInterrupter`1">
+            <summary>
+            Increase timeout time on each failed delivery. Multiply minimum timeout duration to the fails count power of 2 until timeout maximum duration is reached.
+            </summary>
+            <typeparam name="TKey"></typeparam>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Interrupters.ProgressiveTimeoutInterrupter`1.TimeoutMinDuration">
+            <summary>
+            Starting timeout duration that is applied after number of failed attempts first time.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Interrupters.ProgressiveTimeoutInterrupter`1.TimeoutMaxDuration">
+            <summary>
+            Max timeout duration that can be applied.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Interrupters.ProgressiveTimeoutInterrupter`1.FailedAttemptsCountTimeoutStart">
+            <summary>
+            Number of failed attempts when reached will trigger a timeout to delivery channel.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Interrupters.StaticTimeoutInterrupter`1.TimeoutDuration">
+            <summary>
+            Timeout duration that is applied after number of failed attempts.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Interrupters.StaticTimeoutInterrupter`1.FailedAttemptsCountTimeoutStart">
+            <summary>
+            Number of failed attempts when reached will trigger a timeout to delivery channel.
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.Limits.ILimitCounter.InsertTime">
+            <summary>
+            Increment counter of dispatches sent.
+            </summary>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.Limits.ILimitCounter.GetLimitsEndTimeUtc">
+            <summary>
+            Get time of restriction pause end.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Sanatana.Notifications.Dispatching.Limits.ILimitCounter.GetLimitCapacity">
+            <summary>
+            Get dispatch amount capacity.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Sanatana.Notifications.Dispatching.Limits.PeriodLimitCounter">
+            <summary>
+            LimitCounter that manages limits based on amounts of signals processed per timespan.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.Dispatching.Limits.PeriodLimitCounter._journalStorage">
+            <summary>
+            Journal with dispatch timestamps. Is always ordered ascending.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Limits.PeriodLimitCounter.JournalCleanPeriod">
+            <summary>
+            Period to clean journal entries that fall out of scope of monitoring timespans.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Dispatching.Limits.PeriodLimitCounter.JournalCleanAfterInsertsCount">
+            <summary>
+            Max number of new journal entries from previous journal cleaning to trigger journal cleaning again.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DI.Autofac.DispatchChannelsAutofacModule`1">
+            <summary>
+            Register DispatchChannels including a sender and it's settings.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DI.Autofac.InMemoryEventSettingsAutofacModule`1">
+            <summary>
+            Register InMemoryEventSettingsQueries. 
+            Single EventSettingsQueries implementation is required. Can be replaced by database EventSettingsQueries.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.DI.Autofac.NotificationsCoreAutofacModule`1">
+            <summary>
+            Register core Sanatana.Notifications components. 
+            </summary>
+            <typeparam name="TKey"></typeparam>
+        </member>
+        <member name="P:Sanatana.Notifications.Flushing.SignalFlushJobBase`1.FlushPeriod">
+            <summary>
+            Period between batch queries to flush processing results to permanent storage.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Flushing.SignalFlushJobBase`1.QueueLimit">
+            <summary>
+            Limit of queue size in FlushJob when exceeded starts to flush processing results to permanent storage.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Flushing.SignalFlushJobBase`1.IsTemporaryStorageEnabled">
+            <summary>
+            Enable removing items from temporary storage while they are successfully flushed to permanent storage.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.Monitoring.TraceMonitor`1">
+            <summary>
+            Writes output to the Immediate Window
+            </summary>
+            <typeparam name="TKey"></typeparam>
+        </member>
+        <member name="F:Sanatana.Notifications.NotificationsConstants.STATIC_INTERRUPTER_TIMEOUT_DURATION">
+            <summary>
+            Timeout duration that is applied after number of failed attempts.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NotificationsConstants.PROGRESSIVE_INTERRUPTER_TIMEOUT_MIN_DURATION">
+            <summary>
+            Starting timeout duration that is applied after number of failed attempts first time.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NotificationsConstants.PROGRESSIVE_INTERRUPTER_TIMEOUT_MAX_DURATION">
+            <summary>
+            Max timeout duration that can be applied.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NotificationsConstants.FAILED_ATTEMPTS_COUNT_TIMEOUT_START">
+            <summary>
+            Number of failed attempts when reached will trigger a timeout to delivery channel.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NotificationsConstants.JOURNAL_STORAGE_CLEAN_PERIOD">
+            <summary>
+            Period to clean journal entries that fall out of scope of monitoring timespans.
+            </summary>
+        </member>
+        <member name="F:Sanatana.Notifications.NotificationsConstants.JOURNAL_STORAGE_CLEAN_INSERT_COUNT">
+            <summary>
+            Max number of new journal entries from previous journal cleaning to trigger journal cleaning again.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:Sanatana.Notifications.NotificationsConstants.EMAIL_MAX_ADDRESS_LENGTH" -->
+        <member name="M:Sanatana.Notifications.Processing.DispatchingProcessor`1.CanContinue(System.Boolean)">
+            <summary>
+            Check if can process dispatches. Checking limit capacity is done only once while queue is still not empty.
+            </summary>
+            <param name="checkLimitCapacity"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Sanatana.Notifications.Processing.ProcessorBase`1.MaxParallelItems">
+            <summary>
+            Number of parallel items processed. By default equal to processors count.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Queues.DispatchQueue`1.FailedAttemptRetryPeriod">
+            <summary>
+            Pause duration after failed attempt before retrying.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Queues.QueueBase`2.PersistBeginOnItemsCount">
+            <summary>
+            Items number limit when exceeded starts flushing queue items to permanent storage.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Queues.QueueBase`2.PersistEndOnItemsCount">
+            <summary>
+            Target number of queue items when when flishing to permanent storage stops. 
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Queues.QueueBase`2.IsTemporaryStorageEnabled">
+            <summary>
+            Enable storing items in temporary storage while they are processed to prevent data loss in case of power down.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.Resources.MonitorMessages">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.DispatchesComposed">
+            <summary>
+              Looks up a localized string similar to {0}: {1} dispatches composed with result {2} in {3}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.DispatchPersistentStorageQueried">
+            <summary>
+              Looks up a localized string similar to {0}: Dispatch storage query time {1} for {2} items..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.DispatchSent">
+            <summary>
+              Looks up a localized string similar to {0}: Dispatch processed with result {1} in {2}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.DispatchTransferred">
+            <summary>
+              Looks up a localized string similar to {0}: Dispatch received in category: {1}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.EventPersistentStorageQueried">
+            <summary>
+              Looks up a localized string similar to {0}: Event storage query time {1} for {2} items..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.EventTransferred">
+            <summary>
+              Looks up a localized string similar to {0}: Event received in category: {1}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.SenderSwitched">
+            <summary>
+              Looks up a localized string similar to {0}: Sender switched to {1}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.MonitorMessages.TraceDispatcher_DispatchReceived">
+            <summary>
+              Looks up a localized string similar to {0}: Message received for dispatching with content {1}.
+            </summary>
+        </member>
+        <member name="T:Sanatana.Notifications.Resources.SenderInternalMessages">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.Common_ParameterMissing">
+            <summary>
+              Looks up a localized string similar to {0} parameter was not provided..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.CompositionHandlerFactory_MoreThanOneFound">
+            <summary>
+              Looks up a localized string similar to More than one {0} registered with {1} of \&quot;{2}\&quot;..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.CompositionHandlerFactory_NotFound">
+            <summary>
+              Looks up a localized string similar to No {0} registered with {1} of \&quot;{2}\&quot;..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.DispatchBuilder_NoTemplateMatched">
+            <summary>
+              Looks up a localized string similar to No template delivery type matched subscriber delivery type(s) {0}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.DispatchChannelManager_NotFound">
+            <summary>
+              Looks up a localized string similar to No {0} registered with {1} of \&quot;{2}\&quot;..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.Dispatcher_WrongInputType">
+            <summary>
+              Looks up a localized string similar to Signal type {0} can not be sended with {1}. Expected type {2}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.Filerepository_CorruptedFile">
+            <summary>
+              Looks up a localized string similar to Temp storage file {0} is corrupted..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.Filerepository_InvalidGuidName">
+            <summary>
+              Looks up a localized string similar to Temp storage file {0} is not a valid Guid..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.InMemorySignalProvider_InvokeMethodInStoppedState">
+            <summary>
+              Looks up a localized string similar to Can not invoke method on stopped instance of {0}. Need to Start {1} first..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.LimitPeriod_LowerBound">
+            <summary>
+              Looks up a localized string similar to Limit can not be lower than 0..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.ProcessorBase_ParallelNumberOutOfRange">
+            <summary>
+              Looks up a localized string similar to Number of parallel items processed can not be lower than 1..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.SmtpEmailSender_Fail">
+            <summary>
+              Looks up a localized string similar to Exception while delivering email to address {0}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.SmtpEmailSender_SmtpFail">
+            <summary>
+              Looks up a localized string similar to Smtp exception while delivering email to address {0}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.SubscribersFetcher_UnknownAddresseeType">
+            <summary>
+              Looks up a localized string similar to Unknown addressee type {0} in {1}..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Resources.SenderInternalMessages.Validation_ComposerIdNotSet">
+            <summary>
+              Looks up a localized string similar to ComposerId not set. Value can not be default..
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.DatabaseSignalProviderItemsQueryCount">
+            <summary>
+            Number of signals queried from permanent storage on signle request.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.DatabaseSignalProviderItemsMaxFailedAttempts">
+            <summary>
+            Maximum number of failed attempts after which item won't be fetched from permanent storage any more.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.DatabaseSignalProviderQueryPeriod">
+            <summary>
+            Query period to permanent storage to fetch new signals.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.SignalQueueOnFailedAttemptRetryPeriod">
+            <summary>
+            Pause duration after failed attempt before retrying.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.SignalQueueIsTemporaryStorageEnabled">
+            <summary>
+            Enable storing items in temporary storage while they are processed to prevent data loss in case of power down.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.SignalQueuePersistBeginOnItemsCount">
+            <summary>
+            Items number limit when exceeded starts flushing queue items to permanent storage.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.SignalQueuePersistEndOnItemsCount">
+            <summary>
+            Target number of queue items when when flishing to permanent storage stops. 
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.FlushJobFlushPeriod">
+            <summary>
+            Max time until next flush of SignalEvent and SignalDispatch batch of Insert, Update, Delete operations.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.FlushJobQueueLimit">
+            <summary>
+            Number of items in flush queue when reached will trigger flush of SignalEvent and SignalDispatch batch of Insert, Update, Delete operations.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.MaxParallelDispatchesProcessed">
+            <summary>
+            Maximum number of parallel dispatches processed to be sent. By default equal to processors count.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.Sender.SenderSettings.MaxParallelEventsProcessed">
+            <summary>
+            Maximum number of parallel events processed to compose dispatches. By default equal to processors count.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.SignalProviders.DatabaseDispatchProvider`1.QueryPeriod">
+            <summary>
+            Query period to permanent storage to fetch new signals.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.SignalProviders.DatabaseDispatchProvider`1.ItemsQueryCount">
+            <summary>
+            Number of signals queried from permanent storage on signle request.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.SignalProviders.DatabaseDispatchProvider`1.MaxFailedAttempts">
+            <summary>
+            Maximum number of failed attempts after which item won't be fetched from permanent storage any more.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.SignalProviders.DatabaseEventProvider`1.QueryPeriod">
+            <summary>
+            Query period to permanent storage to fetch new signals.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.SignalProviders.DatabaseEventProvider`1.ItemsQueryCount">
+            <summary>
+            Number of signals queries from permanent storage on 1 request.
+            </summary>
+        </member>
+        <member name="P:Sanatana.Notifications.SignalProviders.DatabaseEventProvider`1.MaxFailedAttempts">
+            <summary>
+            Maximum number of failed attempts, after which item won't be fetched from permanent storage.
+            </summary>
+        </member>
+    </members>
+</doc>
