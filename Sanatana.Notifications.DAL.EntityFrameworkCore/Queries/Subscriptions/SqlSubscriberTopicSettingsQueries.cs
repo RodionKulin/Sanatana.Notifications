@@ -3,58 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using System.Linq.Expressions;
-using Sanatana.EntityFrameworkCore;
-using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Sanatana.EntityFrameworkCore.Batch.Commands;
 using LinqKit;
 using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 using Sanatana.EntityFrameworkCore.Batch;
 using Microsoft.Data.SqlClient;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
-    public class SqlSubscriberTopicSettingsQueries : ISubscriberTopicSettingsQueries<long>
+    public class SqlSubscriberTopicSettingsQueries : ISubscriberTopicSettingsQueries<SubscriberTopicSettingsLong, long>
     {
         //fields
         protected SqlConnectionSettings _connectionSettings;
-        protected ISenderDbContextFactory _dbContextFactory;        
-        protected IMapper _mapper;
+        protected ISenderDbContextFactory _dbContextFactory;
 
 
         //init
         public SqlSubscriberTopicSettingsQueries(SqlConnectionSettings connectionSettings, 
-            ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
+            ISenderDbContextFactory dbContextFactory)
         {
             _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
-            _mapper = mapperFactory.GetMapper();
         }
         
 
         //insert
-        public virtual async Task Insert(List<SubscriberTopicSettings<long>> items)
+        public virtual async Task Insert(List<SubscriberTopicSettingsLong> items)
         {
-            List<SubscriberTopicSettingsLong> mappedList = items
-                .Select(_mapper.Map<SubscriberTopicSettingsLong>)
-                .ToList();
-            
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 InsertCommand<SubscriberTopicSettingsLong> command = repository.Insert<SubscriberTopicSettingsLong>();
                 command.Insert.ExcludeProperty(x => x.SubscriberTopicSettingsId);
-                int changes = await command.ExecuteAsync(mappedList)
+                int changes = await command.ExecuteAsync(items)
                     .ConfigureAwait(false);
             }
         }
@@ -72,7 +58,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         /// <param name="categoryIds"></param>
         /// <param name="topicIds"></param>
         /// <returns></returns>
-        public virtual async Task<TotalResult<List<SubscriberTopicSettings<long>>>> SelectPage(int pageIndex, int pageSize,
+        public virtual async Task<TotalResult<List<SubscriberTopicSettingsLong>>> SelectPage(int pageIndex, int pageSize,
              List<long> subscriberIds = null, List<int> deliveryTypeIds = null, List<int> categoryIds = null, List<string> topicIds = null)
         {
             RepositoryResult<SubscriberTopicSettingsLong> topicsPage;
@@ -107,13 +93,13 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     .ConfigureAwait(false);                
             }
 
-            return topicsPage.ToTotalResult<SubscriberTopicSettingsLong, SubscriberTopicSettings<long>>();
+            return topicsPage.ToTotalResult();
         }
 
-        public virtual async Task<SubscriberTopicSettings<long>> Select(
+        public virtual async Task<SubscriberTopicSettingsLong> Select(
             long subscriberId, int categoryId, string topicId)
         {
-            SubscriberTopicSettings<long> item = null;
+            SubscriberTopicSettingsLong item = null;
             
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
@@ -131,16 +117,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
         //update
-        public virtual async Task UpdateIsEnabled(List<SubscriberTopicSettings<long>> items)
+        public virtual async Task UpdateIsEnabled(List<SubscriberTopicSettingsLong> items)
         {
-            List<SubscriberTopicSettingsLong> mappedList = items
-                .Select(_mapper.Map<SubscriberTopicSettingsLong>)
-                .ToList();
-            
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema, TableValuedParameters.SUBSCRIBER_TOPIC_SETTINGS_TYPE_IS_ENABLED);
-                MergeCommand<SubscriberTopicSettingsLong> merge = repository.MergeTVP(mappedList, tvpName);
+                MergeCommand<SubscriberTopicSettingsLong> merge = repository.MergeTVP(items, tvpName);
                 merge.Source
                      .IncludeProperty(p => p.SubscriberTopicSettingsId)
                      .IncludeProperty(p => p.IsEnabled);
@@ -154,15 +136,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             }            
         }
 
-        public virtual async Task UpsertIsEnabled(List<SubscriberTopicSettings<long>> items)
+        public virtual async Task UpsertIsEnabled(List<SubscriberTopicSettingsLong> items)
         {
             List<long> disabledTopics = items
-                   .Where(x => x.IsEnabled == false)
-                   .Select(x => x.SubscriberTopicSettingsId)
-                   .ToList();
+                .Where(x => x.IsEnabled == false)
+                .Select(x => x.SubscriberTopicSettingsId)
+                .ToList();
             List<SubscriberTopicSettingsLong> enabledTopics = items
                 .Where(x => x.IsEnabled)
-                .Select(_mapper.Map<SubscriberTopicSettingsLong>)
                 .ToList();
 
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
@@ -211,13 +192,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             }
         }
 
-        public virtual async Task Upsert(SubscriberTopicSettings<long> item, bool updateExisting)
+        public virtual async Task Upsert(SubscriberTopicSettingsLong item, bool updateExisting)
         {
-            SubscriberTopicSettingsLong mappedItem = _mapper.Map<SubscriberTopicSettingsLong>(item);
-            
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                MergeCommand<SubscriberTopicSettingsLong> merge = repository.Merge(mappedItem);
+                MergeCommand<SubscriberTopicSettingsLong> merge = repository.Merge(item);
                 merge.Compare.IncludeProperty(p => p.SubscriberId)
                     .IncludeProperty(p => p.CategoryId)
                     .IncludeProperty(p => p.TopicId);
@@ -231,14 +210,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             }
         }
 
-        public virtual async Task UpdateIsDeleted(SubscriberTopicSettings<long> item)
+        public virtual async Task UpdateIsDeleted(SubscriberTopicSettingsLong item)
         {
-            SubscriberTopicSettingsLong mappedItem = _mapper.Map<SubscriberTopicSettingsLong>(item);
-            
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 int changes = await repository
-                    .UpdateOneAsync(mappedItem, x => x.IsDeleted)
+                    .UpdateOneAsync(item, x => x.IsDeleted)
                     .ConfigureAwait(false);                
             }
         }
@@ -283,7 +260,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                int changes = await repository.DeleteManyAsync<SubscriberTopicSettingsLong>(where)
+                int changes = await repository.DeleteManyAsync(where)
                     .ConfigureAwait(false);
             }
         }

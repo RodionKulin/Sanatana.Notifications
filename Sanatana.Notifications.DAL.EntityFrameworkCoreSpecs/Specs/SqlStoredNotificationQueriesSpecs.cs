@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Sanatana.Notifications.DAL.Results;
 using SpecsFor.StructureMap;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {

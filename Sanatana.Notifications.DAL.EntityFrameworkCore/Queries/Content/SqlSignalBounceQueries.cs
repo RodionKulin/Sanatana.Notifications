@@ -14,7 +14,7 @@ using Sanatana.Notifications.DAL.Results;
 using System.Linq.Expressions;
 using Sanatana.EntityFrameworkCore.Batch.Commands;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
     public class SqlSignalBounceQueries : ISignalBounceQueries<long>
     {

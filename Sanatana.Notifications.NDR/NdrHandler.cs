@@ -12,12 +12,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.NDR
 {
-    public class NdrHandler<TKey> : INdrHandler
+    public class NdrHandler<TDeliveryType, TKey> : INdrHandler
+        where TDeliveryType : SubscriberDeliveryTypeSettings<TKey>
         where TKey : struct
     {
         //fields
         protected ISignalBounceQueries<TKey> _bouncedQueries;
-        protected ISubscriberDeliveryTypeSettingsQueries<TKey> _subscriberQueries;
+        protected ISubscriberDeliveryTypeSettingsQueries<TDeliveryType, TKey> _deliveryTypeSettingsQueries;
         protected INdrParser<TKey> _ndrParser;
         protected ILogger _logger;
 
@@ -37,13 +38,13 @@ namespace Sanatana.Notifications.NDR
         {
         }
         public NdrHandler(int deliveryType, ILogger logger, INdrParser<TKey> ndrParser
-            , ISignalBounceQueries<TKey> bouncedQueries, ISubscriberDeliveryTypeSettingsQueries<TKey> subscriberQueries)
+            , ISignalBounceQueries<TKey> bouncedQueries, ISubscriberDeliveryTypeSettingsQueries<TDeliveryType, TKey> subscriberQueries)
         {
             DeliveryType = deliveryType;
             _logger = logger;
             _ndrParser = ndrParser;
             _bouncedQueries = bouncedQueries;
-            _subscriberQueries = subscriberQueries;
+            _deliveryTypeSettingsQueries = subscriberQueries;
         }
 
 
@@ -81,8 +82,8 @@ namespace Sanatana.Notifications.NDR
             //update SubscriberSettings
             if (addressesBounced.Count > 0)
             {
-                List<SubscriberDeliveryTypeSettings<TKey>> subscriberSettings =
-                    await _subscriberQueries.Select(DeliveryType, addressesBounced);
+                List<TDeliveryType> subscriberSettings =
+                    await _deliveryTypeSettingsQueries.Select(DeliveryType, addressesBounced);
 
                 await UpdateSubscriberSettings(bouncedMessages, subscriberSettings).ConfigureAwait(false);
                
@@ -113,9 +114,9 @@ namespace Sanatana.Notifications.NDR
             return requestMessage;
         }
                 
-        private Task UpdateSubscriberSettings(List<SignalBounce<TKey>> bouncedMessages, List<SubscriberDeliveryTypeSettings<TKey>> subscriberSettings)
+        private Task UpdateSubscriberSettings(List<SignalBounce<TKey>> bouncedMessages, List<TDeliveryType> subscriberSettings)
         {
-            var updatedSubscriberSettings = new List<SubscriberDeliveryTypeSettings<TKey>>();
+            var updatedSubscriberSettings = new List<TDeliveryType>();
 
 
             //check number of not delivered messages for each address
@@ -124,7 +125,7 @@ namespace Sanatana.Notifications.NDR
                 if (string.IsNullOrEmpty(bounce.ReceiverAddress))
                     continue;
 
-                SubscriberDeliveryTypeSettings<TKey> subscriberDeliveryTypeSettings = subscriberSettings
+                TDeliveryType subscriberDeliveryTypeSettings = subscriberSettings
                     .FirstOrDefault(p => p.Address == bounce.ReceiverAddress);
 
                 //address that is not wired to any subscriber
@@ -146,7 +147,7 @@ namespace Sanatana.Notifications.NDR
             //update SubscriberSettings
             if (updatedSubscriberSettings.Count > 0)
             {
-                return _subscriberQueries.UpdateNDRSettings(updatedSubscriberSettings);
+                return _deliveryTypeSettingsQueries.UpdateNDRSettings(updatedSubscriberSettings);
             }
             else
             {
@@ -154,14 +155,14 @@ namespace Sanatana.Notifications.NDR
             }
         }
 
-        private void SetReceiverSubscriberIds(List<SignalBounce<TKey>> bouncedMessages, List<SubscriberDeliveryTypeSettings<TKey>> subscriberSettings)
+        private void SetReceiverSubscriberIds(List<SignalBounce<TKey>> bouncedMessages, List<TDeliveryType> subscriberSettings)
         {
             foreach (SignalBounce<TKey> bounce in bouncedMessages)
             {
                 if (string.IsNullOrEmpty(bounce.ReceiverAddress))
                     continue;
 
-                SubscriberDeliveryTypeSettings<TKey> subscriberDeliveryTypeSettings = subscriberSettings
+                TDeliveryType subscriberDeliveryTypeSettings = subscriberSettings
                     .FirstOrDefault(p => p.Address == bounce.ReceiverAddress);
 
                 if (subscriberDeliveryTypeSettings == null)

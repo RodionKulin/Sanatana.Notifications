@@ -12,7 +12,6 @@ namespace Sanatana.Notifications.DAL.Entities
         //properties
         public TKey SubscriberDeliveryTypeSettingsId { get; set; }
         public TKey SubscriberId { get; set; }
-        public TKey? GroupId { get; set; }
         public int DeliveryType { get; set; }
         public string Address { get; set; }
         public string Language { get; set; }
@@ -27,7 +26,6 @@ namespace Sanatana.Notifications.DAL.Entities
         public DateTime? NDRBlockResetCodeSendDateUtc { get; set; }
         public string NDRBlockResetCode { get; set; }
 
-        public List<SubscriberCategorySettings<TKey>> SubscriberCategorySettings { get; set; }
 
 
         //init
@@ -37,7 +35,6 @@ namespace Sanatana.Notifications.DAL.Entities
             return new SubscriberDeliveryTypeSettings<TKey>()
             {
                 SubscriberId = subscriberId,
-                GroupId = groupId,
                 DeliveryType = deliveryType,
                 Address = address,
                 Language = language,

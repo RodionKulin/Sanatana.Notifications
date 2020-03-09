@@ -8,8 +8,17 @@ namespace Sanatana.Notifications.DAL.Entities
 {
     public enum AddresseeType
     {
-        AllSubscsribers,
-        SpecifiedSubscribersById,
+        /// <summary>
+        /// Match subscribers using SubscriptionParameters
+        /// </summary>
+        SubscriptionParameters,
+        /// <summary>
+        /// Find subscribers by provided SubscriberIds
+        /// </summary>
+        SubscriberIds,
+        /// <summary>
+        /// Send dispatches to provided addresses
+        /// </summary>
         DirectAddresses
     }
 }

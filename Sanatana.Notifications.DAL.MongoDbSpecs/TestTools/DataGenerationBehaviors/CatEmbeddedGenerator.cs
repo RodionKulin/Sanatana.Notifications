@@ -25,48 +25,56 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
 {
     public class CatEmbeddedGenerator : CatCollectionGenerator
     {
-        //methods        
+        //register entities
         protected override void RegisterEntities(INeedSubscriptionsData instance, GeneratorSetup setup)
         {
-            var dbContext = instance.Mocker.GetServiceInstance<SenderMongoDbContext>();
+            var dbContext = instance.Mocker.GetServiceInstance<SpecsDbContext>();
             IMongoDatabase db = dbContext.SignalBounces.Database;
             
             setup.RegisterEntity<SubscriberWithMissingData>()
                 .SetGenerator(GenerateSubscriber)
-                .SetPersistentStorage(instance.GeneratedEntities)
                 .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
 
-            setup.RegisterEntity<SubscriberDeliveryTypeSettings<ObjectId>>()
+            setup.RegisterEntity<SpecsDeliveryTypeSettings>()
                 .SetMultiGenerator<SubscriberWithMissingData>(GenerateDeliveryTypes)
                 .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName))
-                .SetPersistentStorage(instance.GeneratedEntities)
                 .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
 
             setup.RegisterEntity<SubscriberTopicSettings<ObjectId>>()
-                .SetMultiGenerator<SubscriberDeliveryTypeSettings<ObjectId>, SubscriberWithMissingData>(GenerateTopicsForDeliveryTypeSettings)
+                .SetMultiGenerator<SpecsDeliveryTypeSettings, SubscriberWithMissingData>(GenerateTopicsForDeliveryTypeSettings)
                 .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberTopicSettings.CollectionNamespace.CollectionName))
-                .SetPersistentStorage(instance.GeneratedEntities)
                 .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
         }
 
-
-        //amounts
         protected override void SetDataAmounts(GeneratorSetup setup)
         {
             setup.GetEntityDescription<SubscriberWithMissingData>()
                 .SetTargetCount(1000);
-            setup.GetEntityDescription<SubscriberDeliveryTypeSettings<ObjectId>>()
+            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
                 .SetTargetCount(2000);
             setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
                 .SetTargetCount(8000);
         }
 
+        protected override void SetMemoryStorage(INeedSubscriptionsData instance, GeneratorSetup setup)
+        {
+            _storage = new InMemoryStorage();
+            instance.GeneratedEntities = _storage;
+
+            setup.GetEntityDescription<SubscriberWithMissingData>()
+                .SetPersistentStorage(instance.GeneratedEntities);
+            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
+                .SetPersistentStorage(instance.GeneratedEntities);
+            setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
+                .SetPersistentStorage(instance.GeneratedEntities);
+        }
+
 
         //generators
-        protected override List<SubscriberDeliveryTypeSettings<ObjectId>> GenerateDeliveryTypes(
+        protected override List<SpecsDeliveryTypeSettings> GenerateDeliveryTypes(
             GeneratorContext genContext, SubscriberWithMissingData subscriber)
         {
-            List<SubscriberDeliveryTypeSettings<ObjectId>> deliveryTypes = base.GenerateDeliveryTypes(genContext, subscriber);
+            List<SpecsDeliveryTypeSettings> deliveryTypes = base.GenerateDeliveryTypes(genContext, subscriber);
 
             deliveryTypes.ForEach(dt =>
             {
@@ -77,7 +85,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
         }
 
         protected virtual List<SubscriberTopicSettings<ObjectId>> GenerateTopicsForDeliveryTypeSettings(GeneratorContext genContext,
-            SubscriberDeliveryTypeSettings<ObjectId> dt, SubscriberWithMissingData subscriber)
+            SpecsDeliveryTypeSettings dt, SubscriberWithMissingData subscriber)
         {
             string[] topics = new[]
             {

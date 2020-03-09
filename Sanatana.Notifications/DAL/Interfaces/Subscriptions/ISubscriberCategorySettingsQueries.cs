@@ -6,11 +6,12 @@ using Sanatana.Notifications.DAL.Entities;
 
 namespace Sanatana.Notifications.DAL.Interfaces
 {
-    public interface ISubscriberCategorySettingsQueries<TKey>
+    public interface ISubscriberCategorySettingsQueries<TCategory, TKey>
+        where TCategory : SubscriberCategorySettings<TKey>
         where TKey : struct
     {
-        Task Insert(List<SubscriberCategorySettings<TKey>> items);
-        Task<List<SubscriberCategorySettings<TKey>>> Select(List<TKey> subscriberIds, int categoryId);
+        Task Insert(List<TCategory> items);
+        Task<List<TCategory>> Select(List<TKey> subscriberIds, int categoryId);
         /// <summary>
         /// 
         /// </summary>
@@ -18,10 +19,10 @@ namespace Sanatana.Notifications.DAL.Interfaces
         /// <param name="pageSize"></param>
         /// <param name="descending"></param>
         /// <returns></returns>
-        Task<TotalResult<List<SubscriberCategorySettings<TKey>>>> Find(int pageIndex, int pageSize, bool descending);
-        Task UpdateIsEnabled(List<SubscriberCategorySettings<TKey>> items);
-        Task UpsertIsEnabled(List<SubscriberCategorySettings<TKey>> items);
+        Task<TotalResult<List<TCategory>>> Find(int pageIndex, int pageSize, bool descending);
+        Task UpdateIsEnabled(List<TCategory> items);
+        Task UpsertIsEnabled(List<TCategory> items);
         Task Delete(TKey subscriberId);
-        Task Delete(SubscriberCategorySettings<TKey> item);
+        Task Delete(TCategory item);
     }
 }

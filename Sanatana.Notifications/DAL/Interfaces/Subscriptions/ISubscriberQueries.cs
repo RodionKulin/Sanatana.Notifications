@@ -10,8 +10,7 @@ namespace Sanatana.Notifications.DAL.Interfaces
     public interface ISubscriberQueries<TKey>
         where TKey : struct
     {
-        Task<List<Subscriber<TKey>>> Select(
-            SubscriptionParameters parameters, SubscribersRangeParameters<TKey> subscribersRange);
+        Task<List<Subscriber<TKey>>> Select(SubscriptionParameters parameters, SubscribersRangeParameters<TKey> subscribersRange);
         Task Update(UpdateParameters parameters, List<SignalDispatch<TKey>> items);
     }
 }

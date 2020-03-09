@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 using FluentAssertions;
 using SpecsFor.StructureMap;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -22,7 +23,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
            : SpecsFor<SqlSignalEventQueries>, INeedDbContext
         {
             private List<SignalEvent<long>> _insertedData;
-            private long _groupId = 5;
+            private string _topicId = "topic19";
+
             public SenderDbContext DbContext { get; set; }
 
             protected override void When()
@@ -31,11 +33,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     new SignalEvent<long>()
                     {
-                        TopicId = "topic1",
+                        TopicId = _topicId,
                         CategoryId = 1,
                         EventSettingsId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
-                        DataKeyValues = new Dictionary<string, string>
+                        AddresseeType = AddresseeType.SubscriptionParameters,
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -43,16 +45,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         PredefinedAddresses = new List<DeliveryAddress>(),
                         PredefinedSubscriberIds = new List<long>(),
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 1, 0),
-                        GroupId = _groupId,
                         SubscriberIdFromDeliveryTypesHandled = new List<int>()
                     },
                     new SignalEvent<long>()
                     {
-                        TopicId = "topic1",
+                        TopicId = _topicId,
                         CategoryId = 1,
                         EventSettingsId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
-                        DataKeyValues = new Dictionary<string, string>
+                        AddresseeType = AddresseeType.SubscriptionParameters,
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -60,7 +61,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         PredefinedAddresses = new List<DeliveryAddress>(),
                         PredefinedSubscriberIds = new List<long>(),
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 2, 0),
-                        GroupId = _groupId,
                         SubscriberIdFromDeliveryTypesHandled = new List<int>()
             }
                 };
@@ -72,7 +72,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             public void then_signal_events_inserted_are_found_using_ef()
             {
                 List<SignalEventLong> actual = DbContext.SignalEvents
-                   .Where(x => x.GroupId == _groupId)
+                   .Where(x => x.TopicId == _topicId)
                    .OrderBy(x => x.CreateDateUtc)
                    .ToList();
 
@@ -96,7 +96,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
            : SpecsFor<SqlSignalEventQueries>, INeedDbContext
         {
             private List<SignalEventLong> _insertedData;
-            private long _groupId = 6;
+            private string _topicId = "topic18";
             public SenderDbContext DbContext { get; set; }
 
             protected override void Given()
@@ -105,11 +105,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     new SignalEventLong()
                     {
-                        TopicId = "topic1",
+                        TopicId = _topicId,
                         CategoryId = 1,
                         EventSettingsId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
-                        DataKeyValues = new Dictionary<string, string>
+                        AddresseeType = AddresseeType.SubscriptionParameters,
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -117,16 +117,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         PredefinedAddresses = new List<DeliveryAddress>(),
                         PredefinedSubscriberIds = new List<long>(),
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 1, 0),
-                        GroupId = _groupId,
                         SubscriberIdFromDeliveryTypesHandled = new List<int>()
                     },
                     new SignalEventLong()
                     {
-                        TopicId = "topic1",
+                        TopicId = _topicId,
                         CategoryId = 1,
                         EventSettingsId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
-                        DataKeyValues = new Dictionary<string, string>
+                        AddresseeType = AddresseeType.SubscriptionParameters,
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -134,7 +133,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         PredefinedAddresses = new List<DeliveryAddress>(),
                         PredefinedSubscriberIds = new List<long>(),
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 2, 0),
-                        GroupId = _groupId,
                         SubscriberIdFromDeliveryTypesHandled = new List<int>()
                     }
                 };
@@ -162,7 +160,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             public void then_signal_events_updated_are_found_using_ef()
             {
                 List<SignalEventLong> actual = DbContext.SignalEvents
-                   .Where(x => x.GroupId == _groupId)
+                   .Where(x => x.TopicId == _topicId)
                    .OrderBy(x => x.CreateDateUtc)
                    .ToList();
 
@@ -185,7 +183,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
         {
             private List<SignalEventLong> _insertedData;
             private List<SignalEvent<long>> _actual;
-            private long _groupId = 7;
+            private string _topicId = "topic17";
             public SenderDbContext DbContext { get; set; }
 
             protected override void Given()
@@ -194,11 +192,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     new SignalEventLong()
                     {
-                        TopicId = "topic1",
+                        TopicId = _topicId,
                         CategoryId = 1,
                         EventSettingsId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
-                        DataKeyValues = new Dictionary<string, string>
+                        AddresseeType = AddresseeType.SubscriptionParameters,
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -206,16 +204,15 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         PredefinedAddresses = new List<DeliveryAddress>(),
                         PredefinedSubscriberIds = new List<long>(),
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 1, 0),
-                        GroupId = _groupId,
                         SubscriberIdFromDeliveryTypesHandled = new List<int>()
                     },
                     new SignalEventLong()
                     {
-                        TopicId = "topic1",
+                        TopicId = _topicId,
                         CategoryId = 1,
                         EventSettingsId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
-                        DataKeyValues = new Dictionary<string, string>
+                        AddresseeType = AddresseeType.SubscriptionParameters,
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -223,7 +220,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         PredefinedAddresses = new List<DeliveryAddress>(),
                         PredefinedSubscriberIds = new List<long>(),
                         CreateDateUtc = new DateTime(2000, 1, 2, 3, 4, 2, 0),
-                        GroupId = _groupId,
                         SubscriberIdFromDeliveryTypesHandled = new List<int>()
                     }
                 };
@@ -249,7 +245,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     {
                         TopicId = "topic1",
                         CategoryId = 1,
-                        AddresseeType = AddresseeType.AllSubscsribers,
+                        AddresseeType = AddresseeType.SubscriptionParameters,
                         DataKeyValues = new Dictionary<string, string>
                         {
                             { "1", "1" },

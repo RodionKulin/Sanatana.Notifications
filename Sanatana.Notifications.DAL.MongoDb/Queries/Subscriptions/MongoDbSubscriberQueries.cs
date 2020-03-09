@@ -15,22 +15,27 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using Sanatana.MongoDb.Extensions;
+using Sanatana.Notifications.DAL.MongoDb.Context;
+using Sanatana.Notifications.DAL.MongoDb.Entities;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
-    public class MongoDbSubscriberQueries : ISubscriberQueries<ObjectId>
+    public class MongoDbSubscriberQueries<TDeliveryType, TCategory, TTopic> : ISubscriberQueries<ObjectId>
+        where TDeliveryType : MongoDbSubscriberDeliveryTypeSettings<TCategory>, new()
+        where TCategory : SubscriberCategorySettings<ObjectId>, new()
+        where TTopic : SubscriberTopicSettings<ObjectId>, new()
     {
         //fields
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSubscriberQueries(SenderMongoDbContext context)
+        public MongoDbSubscriberQueries(ICollectionFactory collectionFactory)
         {
-            _context = context;
+            _collectionFactory = collectionFactory;
         }
 
-        
+
 
         //Select with join
         public virtual Task<List<Subscriber<ObjectId>>> Select(
@@ -49,22 +54,22 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         protected virtual Task<List<Subscriber<ObjectId>>> LookupStartingWithTopics(
             SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            var pipeline = new EmptyPipelineDefinition<SubscriberTopicSettings<ObjectId>>()
-                .As<SubscriberTopicSettings<ObjectId>, SubscriberTopicSettings<ObjectId>, SubscriberTopicSettings<ObjectId>>();
+            var pipeline = new EmptyPipelineDefinition<TTopic>()
+                .As<TTopic, TTopic, TTopic>();
 
             var pipeline2 = pipeline.Match(ToTopicSettingsFilter(parameters, subscribersRange))
-                .As<SubscriberTopicSettings<ObjectId>, SubscriberTopicSettings<ObjectId>, BsonDocument>();
+                .As<TTopic, TTopic, BsonDocument>();
             pipeline2 = AddCategoryLookupStages(pipeline2, parameters, subscribersRange);
             pipeline2 = AddDeliveryTypeLookupStages(pipeline2, parameters, subscribersRange);
 
-            //var bsonDocs = _context.SubscriberTopicSettings.Aggregate(pipeline2).ToList();
+            //var bsonDocs = _collectionFactory.GetCollection<TTopic>().Aggregate(pipeline2).ToList();
             //string jsonResults = bsonDocs.Select(x => x.ToJsonIntended()).Join(",");
             //return null;
 
-            PipelineDefinition<SubscriberTopicSettings<ObjectId>, Subscriber<ObjectId>> pipelineProjected =
+            PipelineDefinition<TTopic, Subscriber<ObjectId>> pipelineProjected =
                 AddSubscribersProjectionAndLimitStage(pipeline2, subscribersRange);
 
-            return _context.SubscriberTopicSettings
+            return _collectionFactory.GetCollection<TTopic>()
                 .Aggregate(pipelineProjected)
                 .ToListAsync();
         }
@@ -72,21 +77,21 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         protected virtual Task<List<Subscriber<ObjectId>>> LookupStartingWithDeliveryTypes(
             SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            var pipeline = new EmptyPipelineDefinition<SubscriberDeliveryTypeSettings<ObjectId>>()
-                .As<SubscriberDeliveryTypeSettings<ObjectId>, SubscriberDeliveryTypeSettings<ObjectId>, SubscriberDeliveryTypeSettings<ObjectId>>();
+            var pipeline = new EmptyPipelineDefinition<TDeliveryType>()
+                .As<TDeliveryType, TDeliveryType, TDeliveryType>();
 
             var pipeline2 = pipeline.Match(ToDeliveryTypeSettingsFilter(parameters, subscribersRange))
-                .As<SubscriberDeliveryTypeSettings<ObjectId>, SubscriberDeliveryTypeSettings<ObjectId>, BsonDocument>();
+                .As<TDeliveryType, TDeliveryType, BsonDocument>();
             pipeline2 = AddCategoryLookupStages(pipeline2, parameters, subscribersRange);
 
-            //var bsonDocs = _context.SubscriberDeliveryTypeSettings.Aggregate(pipeline2).ToListAsync();
+            //var bsonDocs = _collectionFactory.GetCollection<TDeliveryType>().Aggregate(pipeline2).ToListAsync();
             //string jsonResults = bsonDocs.Select(x => x.ToJsonIntended()).Join(",");
             //return null;
 
-            PipelineDefinition<SubscriberDeliveryTypeSettings<ObjectId>, Subscriber<ObjectId>> pipelineProjected
+            PipelineDefinition<TDeliveryType, Subscriber<ObjectId>> pipelineProjected
                 = AddSubscribersProjectionAndLimitStage(pipeline2, subscribersRange);
 
-            return _context.SubscriberDeliveryTypeSettings
+            return _collectionFactory.GetCollection<TDeliveryType>()
                 .Aggregate(pipelineProjected)
                 .ToListAsync();
         }
@@ -95,11 +100,11 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             PipelineDefinition<TInput, BsonDocument> pipeline, SubscriptionParameters parameters, 
             SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            string deliveryTypeCollection = _context.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName;
-            string deliveryTypeField = FieldDefinitions.GetFieldMappedName<SubscriberTopicSettings<ObjectId>>(x => x.DeliveryType);
-            string subscriberIdField = FieldDefinitions.GetFieldMappedName<SubscriberTopicSettings<ObjectId>>(x => x.SubscriberId);
-            string topicLastSendDateField = FieldDefinitions.GetFieldMappedName<SubscriberTopicSettings<ObjectId>>(x => x.LastSendDateUtc);
-            string lastVisitField = FieldDefinitions.GetFieldMappedName<SubscriberDeliveryTypeSettings<ObjectId>>(x => x.LastVisitUtc);
+            string deliveryTypeCollection = _collectionFactory.GetCollection<TDeliveryType>().CollectionNamespace.CollectionName;
+            string deliveryTypeField = FieldDefinitions.GetFieldMappedName<TTopic>(x => x.DeliveryType);
+            string subscriberIdField = FieldDefinitions.GetFieldMappedName<TTopic>(x => x.SubscriberId);
+            string topicLastSendDateField = FieldDefinitions.GetFieldMappedName<TTopic>(x => x.LastSendDateUtc);
+            string lastVisitField = FieldDefinitions.GetFieldMappedName<TDeliveryType>(x => x.LastVisitUtc);
             string deliveryTypeIntermediateField = "dts";
 
             string matchConditions = ToDeliveryTypeSettingsLookupFilter(parameters, subscribersRange);
@@ -165,14 +170,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 return pipeline;
             }
 
-            string categoryCollection = _context.SubscriberCategorySettings.CollectionNamespace.CollectionName;
+            string categoryCollection = _collectionFactory.GetCollection<TCategory>().CollectionNamespace.CollectionName;
             string subscriberIdField = subscribersRange.SelectFromTopics
-                ? FieldDefinitions.GetFieldMappedName<SubscriberTopicSettings<ObjectId>>(x => x.SubscriberId)
-                : FieldDefinitions.GetFieldMappedName<SubscriberDeliveryTypeSettings<ObjectId>>(x => x.SubscriberId);
+                ? FieldDefinitions.GetFieldMappedName<TTopic>(x => x.SubscriberId)
+                : FieldDefinitions.GetFieldMappedName<TDeliveryType>(x => x.SubscriberId);
             string deliveryTypeField = subscribersRange.SelectFromTopics
-                ? FieldDefinitions.GetFieldMappedName<SubscriberTopicSettings<ObjectId>>(x => x.DeliveryType)
-                : FieldDefinitions.GetFieldMappedName<SubscriberDeliveryTypeSettings<ObjectId>>(x => x.DeliveryType);
-            string categoryField = FieldDefinitions.GetFieldMappedName<SubscriberTopicSettings<ObjectId>>(x => x.CategoryId);
+                ? FieldDefinitions.GetFieldMappedName<TTopic>(x => x.DeliveryType)
+                : FieldDefinitions.GetFieldMappedName<TDeliveryType>(x => x.DeliveryType);
+            string categoryField = FieldDefinitions.GetFieldMappedName<TTopic>(x => x.CategoryId);
             string categoriesIntermediateField = "cats";
 
             bool joinOnCategories = subscribersRange.SelectFromTopics;
@@ -216,7 +221,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         protected virtual PipelineDefinition<TInput, Subscriber<ObjectId>> AddSubscribersProjectionAndLimitStage<TInput>(
             PipelineDefinition<TInput, BsonDocument> pipeline, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            var projection = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Projection
+            var projection = Builders<TDeliveryType>.Projection
                   .Exclude(x => x.SubscriberDeliveryTypeSettingsId)
                   .Include(x => x.SubscriberId)
                   .Include(x => x.DeliveryType)
@@ -225,7 +230,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                   .Include(x => x.Language);
 
             var pipelineTyped = pipeline
-                .As<TInput, BsonDocument, SubscriberDeliveryTypeSettings<ObjectId>>()
+                .As<TInput, BsonDocument, TDeliveryType>()
                 .Project(projection)
                 .As<TInput, BsonDocument, Subscriber<ObjectId>>();
 
@@ -240,34 +245,34 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
 
         //subscriber query filters
-        public virtual FilterDefinition<SubscriberDeliveryTypeSettings<ObjectId>> ToDeliveryTypeSettingsFilter(
+        public virtual FilterDefinition<TDeliveryType> ToDeliveryTypeSettingsFilter(
             SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter
+            var filter = Builders<TDeliveryType>.Filter
                 .Where(p => p.Address != null);
 
             if (subscribersRange.FromSubscriberIds != null)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => subscribersRange.FromSubscriberIds.Contains(p.SubscriberId));
             }
 
             if (subscribersRange.SubscriberIdRangeFromIncludingSelf != null)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => subscribersRange.SubscriberIdRangeFromIncludingSelf.Value <= p.SubscriberId);
             }
 
             if (subscribersRange.SubscriberIdRangeToIncludingSelf != null)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => p.SubscriberId <= subscribersRange.SubscriberIdRangeToIncludingSelf.Value);
             }
 
             if (subscribersRange.SubscriberIdFromDeliveryTypesHandled != null
                 && subscribersRange.SubscriberIdRangeFromIncludingSelf != null)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => p.SubscriberId != subscribersRange.SubscriberIdRangeToIncludingSelf.Value
                     || (p.SubscriberId == subscribersRange.SubscriberIdRangeToIncludingSelf.Value
                         && !subscribersRange.SubscriberIdFromDeliveryTypesHandled.Contains(p.DeliveryType))
@@ -276,38 +281,32 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
             if (parameters.DeliveryType != null)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => p.DeliveryType == parameters.DeliveryType.Value);
             }
-
-            if (subscribersRange.GroupId != null)
-            {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
-                    p => p.GroupId == subscribersRange.GroupId.Value);
-            }
-
+            
             if (parameters.CheckDeliveryTypeEnabled)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => p.IsEnabled == true);
             }
 
             if (parameters.CheckDeliveryTypeLastSendDate)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => p.LastSendDateUtc == null
                     || (p.LastVisitUtc != null && p.LastVisitUtc > p.LastSendDateUtc));
             }
 
             if (parameters.CheckDeliveryTypeSendCountNotGreater != null)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TDeliveryType>.Filter.Where(
                     p => p.SendCount <= parameters.CheckDeliveryTypeSendCountNotGreater.Value);
             }
 
             if (parameters.CheckIsNDRBlocked)
             {
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(p => p.IsNDRBlocked == false);
+                filter &= Builders<TDeliveryType>.Filter.Where(p => p.IsNDRBlocked == false);
             }
 
             return filter;
@@ -316,8 +315,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         protected virtual string ToDeliveryTypeSettingsLookupFilter(
             SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            string deliveryTypeField = FieldDefinitions.GetFieldMappedName<SubscriberDeliveryTypeSettings<ObjectId>>(x => x.DeliveryType);
-            string subscriberIdField = FieldDefinitions.GetFieldMappedName<SubscriberDeliveryTypeSettings<ObjectId>>(x => x.SubscriberId);
+            string deliveryTypeField = FieldDefinitions.GetFieldMappedName<TDeliveryType>(x => x.DeliveryType);
+            string subscriberIdField = FieldDefinitions.GetFieldMappedName<TDeliveryType>(x => x.SubscriberId);
 
             var deliveryTypesFilter = ToDeliveryTypeSettingsFilter(parameters, subscribersRange);
             string deliveryTypesFilterJson = FilterDefinitionExtensions.ToJson(deliveryTypesFilter);
@@ -336,62 +335,56 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             ]";
         }
 
-        protected virtual FilterDefinition<SubscriberCategorySettings<ObjectId>> ToCategorySettingsFilter(
+        protected virtual FilterDefinition<TCategory> ToCategorySettingsFilter(
            SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(p => true);
+            var filter = Builders<TCategory>.Filter.Where(p => true);
 
             if (parameters.DeliveryType != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => p.DeliveryType == parameters.DeliveryType.Value);
             }
 
             if (parameters.CategoryId != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => p.CategoryId == parameters.CategoryId);
-            }
-
-            if (subscribersRange.GroupId != null)
-            {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
-                    p => p.GroupId == subscribersRange.GroupId.Value);
             }
 
             if (parameters.CheckCategoryEnabled)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(p => p.IsEnabled == true);
+                filter &= Builders<TCategory>.Filter.Where(p => p.IsEnabled == true);
             }
 
             if (parameters.CheckCategorySendCountNotGreater != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => p.SendCount <= parameters.CheckCategorySendCountNotGreater.Value);
             }
 
             if (subscribersRange.FromSubscriberIds != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => subscribersRange.FromSubscriberIds.Contains(p.SubscriberId));
             }
 
             if (subscribersRange.SubscriberIdRangeFromIncludingSelf != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => subscribersRange.SubscriberIdRangeFromIncludingSelf.Value <= p.SubscriberId);
             }
 
             if (subscribersRange.SubscriberIdRangeToIncludingSelf != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => p.SubscriberId <= subscribersRange.SubscriberIdRangeToIncludingSelf.Value);
             }
 
             if (subscribersRange.SubscriberIdFromDeliveryTypesHandled != null
                 && subscribersRange.SubscriberIdRangeFromIncludingSelf != null)
             {
-                filter &= Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TCategory>.Filter.Where(
                     p => p.SubscriberId != subscribersRange.SubscriberIdRangeToIncludingSelf.Value
                     || (p.SubscriberId == subscribersRange.SubscriberIdRangeToIncludingSelf.Value
                     && !subscribersRange.SubscriberIdFromDeliveryTypesHandled.Contains(p.DeliveryType)));
@@ -403,9 +396,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         protected virtual string ToCategorySettingsLookupFilter(SubscriptionParameters parameters,
            SubscribersRangeParameters<ObjectId> subscribersRange, bool joinOnCategories)
         {
-            string subscriberIdField = FieldDefinitions.GetFieldMappedName<SubscriberCategorySettings<ObjectId>>(x => x.SubscriberId);
-            string deliveryTypeField = FieldDefinitions.GetFieldMappedName<SubscriberCategorySettings<ObjectId>>(x => x.DeliveryType);
-            string categoryField = FieldDefinitions.GetFieldMappedName<SubscriberCategorySettings<ObjectId>>(x => x.CategoryId);
+            string subscriberIdField = FieldDefinitions.GetFieldMappedName<TCategory>(x => x.SubscriberId);
+            string deliveryTypeField = FieldDefinitions.GetFieldMappedName<TCategory>(x => x.DeliveryType);
+            string categoryField = FieldDefinitions.GetFieldMappedName<TCategory>(x => x.CategoryId);
 
             string categoriesJoinCondition = joinOnCategories
                 ? $", $eq: [\"${categoryField}\", \"$$category_id\"]"
@@ -430,51 +423,51 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             ]";
         }
 
-        protected virtual FilterDefinition<SubscriberTopicSettings<ObjectId>> ToTopicSettingsFilter(
+        protected virtual FilterDefinition<TTopic> ToTopicSettingsFilter(
             SubscriptionParameters parameters, SubscribersRangeParameters<ObjectId> subscribersRange)
         {
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TTopic>.Filter.Where(
                 p => p.TopicId == subscribersRange.TopicId
                 && p.IsDeleted == false);
 
             if (parameters.DeliveryType != null)
             {
-                filter &= Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TTopic>.Filter.Where(
                     p => p.DeliveryType == parameters.DeliveryType.Value);
             }
 
             if (parameters.CategoryId != null)
             {
-                filter &= Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TTopic>.Filter.Where(
                     p => p.CategoryId == parameters.CategoryId);
             }
 
             if (parameters.CheckTopicEnabled)
             {
-                filter &= Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => p.IsEnabled);
+                filter &= Builders<TTopic>.Filter.Where(p => p.IsEnabled);
             }
 
             if (parameters.CheckTopicSendCountNotGreater != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                filter = Builders<TTopic>.Filter.Where(
                     p => p.SendCount <= parameters.CheckTopicSendCountNotGreater.Value);
             }
 
             if (subscribersRange.FromSubscriberIds != null)
             {
-                filter &= Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TTopic>.Filter.Where(
                     p => subscribersRange.FromSubscriberIds.Contains(p.SubscriberId));
             }
 
             if (subscribersRange.SubscriberIdRangeFromIncludingSelf != null)
             {
-                filter &= Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TTopic>.Filter.Where(
                     p => subscribersRange.SubscriberIdRangeFromIncludingSelf.Value <= p.SubscriberId);
             }
 
             if (subscribersRange.SubscriberIdRangeToIncludingSelf != null)
             {
-                filter &= Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                filter &= Builders<TTopic>.Filter.Where(
                     p => p.SubscriberId <= subscribersRange.SubscriberIdRangeToIncludingSelf.Value);
             }
 
@@ -507,14 +500,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 return;
             }
 
-            var operations = new List<WriteModel<SubscriberDeliveryTypeSettings<ObjectId>>>();
+            var operations = new List<WriteModel<TDeliveryType>>();
             foreach (SignalDispatch<ObjectId> item in items)
             {
-                var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TDeliveryType>.Filter.Where(
                     p => p.SubscriberId == item.ReceiverSubscriberId.Value
                     && p.DeliveryType == item.DeliveryType);
 
-                var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update.Combine();
+                var update = Builders<TDeliveryType>.Update.Combine();
                 if (parameters.UpdateDeliveryTypeLastSendDateUtc)
                 {
                     update = update.Set(p => p.LastSendDateUtc, item.SendDateUtc);
@@ -524,7 +517,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                     update = update.Inc(p => p.SendCount, 1);
                 }
 
-                operations.Add(new UpdateOneModel<SubscriberDeliveryTypeSettings<ObjectId>>(filter, update)
+                operations.Add(new UpdateOneModel<TDeliveryType>(filter, update)
                 {
                     IsUpsert = false
                 });
@@ -535,8 +528,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult<SubscriberDeliveryTypeSettings<ObjectId>> response =
-                await _context.SubscriberDeliveryTypeSettings.BulkWriteAsync(operations, options);
+            BulkWriteResult<TDeliveryType> response =
+                await _collectionFactory.GetCollection<TDeliveryType>().BulkWriteAsync(operations, options);
         }
 
         protected virtual async Task UpdateCategoryCounters(UpdateParameters parameters, List<SignalDispatch<ObjectId>> items)
@@ -546,14 +539,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 return;
             }
 
-            var operations = new List<WriteModel<SubscriberCategorySettings<ObjectId>>>();
+            var operations = new List<WriteModel<TCategory>>();
             foreach (SignalDispatch<ObjectId> item in items)
             {
-                var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TCategory>.Filter.Where(
                     p => p.SubscriberId == item.ReceiverSubscriberId.Value
                     && p.DeliveryType == item.DeliveryType);
 
-                var update = Builders<SubscriberCategorySettings<ObjectId>>.Update.Combine();
+                var update = Builders<TCategory>.Update.Combine();
                 if (parameters.UpdateDeliveryTypeLastSendDateUtc)
                 {
                     update = update.Set(p => p.LastSendDateUtc, item.SendDateUtc);
@@ -565,7 +558,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
                 if (parameters.CreateCategoryIfNotExist)
                 {
-                    update = update.SetOnInsertAllMappedMembers(new SubscriberCategorySettings<ObjectId>()
+                    update = update.SetOnInsertAllMappedMembers(new TCategory()
                     {
                         SubscriberId = item.ReceiverSubscriberId.Value,
                         DeliveryType = item.DeliveryType,
@@ -576,7 +569,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                     });
                 }
 
-                operations.Add(new UpdateOneModel<SubscriberCategorySettings<ObjectId>>(filter, update)
+                operations.Add(new UpdateOneModel<TCategory>(filter, update)
                 {
                     IsUpsert = parameters.CreateCategoryIfNotExist
                 });
@@ -587,8 +580,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult<SubscriberCategorySettings<ObjectId>> response =
-                await _context.SubscriberCategorySettings.BulkWriteAsync(operations, options);
+            BulkWriteResult<TCategory> response =
+                await _collectionFactory.GetCollection<TCategory>().BulkWriteAsync(operations, options);
         }
 
         protected virtual async Task UpdateTopicCounters(UpdateParameters parameters, List<SignalDispatch<ObjectId>> items)
@@ -598,15 +591,15 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 return;
             }
 
-            var operations = new List<WriteModel<SubscriberTopicSettings<ObjectId>>>();
+            var operations = new List<WriteModel<TTopic>>();
             foreach (SignalDispatch<ObjectId> item in items)
             {
-                var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TTopic>.Filter.Where(
                     p => p.SubscriberId == item.ReceiverSubscriberId.Value
                     && p.CategoryId == item.CategoryId
                     && p.TopicId == item.TopicId);
 
-                var update = Builders<SubscriberTopicSettings<ObjectId>>.Update.Combine();
+                var update = Builders<TTopic>.Update.Combine();
                 if (parameters.UpdateDeliveryTypeLastSendDateUtc)
                 {
                     update = update.Set(p => p.LastSendDateUtc, item.SendDateUtc);
@@ -618,7 +611,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
                 if (parameters.CreateCategoryIfNotExist)
                 {
-                    update = update.SetOnInsertAllMappedMembers(new SubscriberTopicSettings<ObjectId>()
+                    update = update.SetOnInsertAllMappedMembers(new TTopic()
                     {
                         SubscriberId = item.ReceiverSubscriberId.Value,
                         CategoryId = item.CategoryId.Value,
@@ -631,7 +624,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                     });
                 }
 
-                operations.Add(new UpdateOneModel<SubscriberTopicSettings<ObjectId>>(filter, update)
+                operations.Add(new UpdateOneModel<TTopic>(filter, update)
                 {
                     IsUpsert = parameters.CreateTopicIfNotExist
                 });
@@ -642,8 +635,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult<SubscriberTopicSettings<ObjectId>> response =
-                await _context.SubscriberTopicSettings.BulkWriteAsync(operations, options);
+            BulkWriteResult<TTopic> response =
+                await _collectionFactory.GetCollection<TTopic>().BulkWriteAsync(operations, options);
         }
+
+
     }
 }

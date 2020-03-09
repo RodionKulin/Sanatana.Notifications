@@ -438,7 +438,7 @@
             Enable removing items from temporary storage while they are successfully flushed to permanent storage.
             </summary>
         </member>
-        <member name="T:Sanatana.Notifications.Monitoring.TraceMonitor`1">
+        <member name="T:Sanatana.Notifications.EventTracking.TraceMonitor`1">
             <summary>
             Writes output to the Immediate Window
             </summary>

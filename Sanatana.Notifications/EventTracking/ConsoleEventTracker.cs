@@ -3,21 +3,15 @@ using Sanatana.Notifications.Dispatching;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sanatana.Notifications.DAL;
-using Sanatana.Notifications;
 using Sanatana.Notifications.Processing;
-using Sanatana.Notifications.Monitoring;
-using Sanatana.Notifications.Dispatching.Channels;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Timers.Switchables;
 
-namespace Sanatana.Notifications.Monitoring
+namespace Sanatana.Notifications.EventTracking
 {
-    public class ConsoleMonitor<TKey> : IMonitor<TKey>
-            where TKey : struct
+    public class ConsoleEventTracker<TKey> : IEventTracker<TKey>
+        where TKey : struct
     {
         //methods
         public void SenderSwitched(SwitchState state)

@@ -9,23 +9,20 @@ using Sanatana.MongoDb;
 using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSignalEventQueries : ISignalEventQueries<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSignalEventQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbSignalEventQueries(ICollectionFactory collectionFactory)
         {
-            
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
@@ -43,7 +40,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            await _context.SignalEvents.InsertManyAsync(items, options);
+            await _collectionFactory
+                .GetCollection<SignalEvent<ObjectId>>()
+                .InsertManyAsync(items, options)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task<List<SignalEvent<ObjectId>>> Find(int count, int maxFailedAttempts)
@@ -56,7 +56,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = true
             };
 
-            List<SignalEvent<ObjectId>> list = await _context.SignalEvents.Find(filter, options)
+            List<SignalEvent<ObjectId>> list = await _collectionFactory
+                .GetCollection<SignalEvent<ObjectId>>()
+                .Find(filter, options)
                 .SortBy(p => p.CreateDateUtc)
                 .Limit(count)
                 .ToListAsync();
@@ -91,7 +93,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.SignalEvents
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<SignalEvent<ObjectId>>()
                 .BulkWriteAsync(requests, options);
         }
 
@@ -102,7 +105,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             var filter = Builders<SignalEvent<ObjectId>>.Filter.Where(
                 p => Ids.Contains(p.SignalEventId));
 
-            DeleteResult response = await _context.SignalEvents.DeleteManyAsync(filter);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<SignalEvent<ObjectId>>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
 

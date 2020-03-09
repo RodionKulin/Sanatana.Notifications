@@ -1,8 +1,5 @@
 ﻿using MongoDB.Bson;
 using NUnit.Framework;
-using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DAL.MongoDb;
-using Sanatana.Notifications.DAL.MongoDb.Queries;
 using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
 using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.DAL.Results;
@@ -11,68 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Sanatana.DataGenerator;
-using Sanatana.DataGenerator.MongoDb;
 using Sanatana.DataGenerator.Storages;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using System.Diagnostics;
-using Sanatana.MongoDb.Extensions;
 
 namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 {
     public class MongoDbSubscriberQueriesSpecs
     {
-        public abstract class base_subscribers_spec : SpecsFor<MongoDbSubscriberQueries>{}
-
-        [TestFixture]
-        public class when_matching_subscribers_by_group_id
-           : base_subscribers_spec, INeedDbContext, INeedSubscriptionsData
-        {
-            private int _deliveryType = 101;
-            private ObjectId _groupId = new ObjectId("5e4041aa2e7e5a38a8ead836");
-            private List<Subscriber<ObjectId>> _actualSubscribers;
-
-            //properties
-            public SenderMongoDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
-
-            protected override void When()
-            {
-                var subscriberParameters = new SubscriptionParameters()
-                {
-                    DeliveryType = _deliveryType,
-                    CheckDeliveryTypeEnabled = false
-                };
-
-                var subscribersRange = new SubscribersRangeParameters<ObjectId>()
-                {
-                    GroupId = _groupId
-                };
-
-                _actualSubscribers = SUT.Select(subscriberParameters, subscribersRange).Result;
-            }
-
-            [Test]
-            public void then_subscribers_include_projected_fields()
-            {
-                _actualSubscribers.ForEach((sub) =>
-                {
-                    sub.SubscriberId.Should().NotBe(ObjectId.Empty);
-                    sub.DeliveryType.Should().Be(_deliveryType);
-                    sub.Address.Should().NotBeEmpty();
-                });
-            }
-            [Test]
-            public void then_subscribers_count_match_subscribers_with_group_id()
-            {
-                _actualSubscribers.Should().NotBeEmpty();
-
-                var subscribersWithGroupId = GeneratedEntities.GetList<SubscriberWithMissingData>()
-                    .Where(x => x.HasGroupId);
-                int subscribersWithGroupIdCount = subscribersWithGroupId.Count();
-                _actualSubscribers.Count.Should().Be(subscribersWithGroupIdCount);
-            }
-        }
+        public abstract class base_subscribers_spec : SpecsFor<SpecsSubscriberQueries>{}
 
         [TestFixture]
         public class when_matching_subscribers_by_subscriber_ids
@@ -83,7 +27,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             private List<Subscriber<ObjectId>> _actualSubscribers;
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void When()
@@ -136,7 +80,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             private List<Subscriber<ObjectId>> _actualSubscribers;
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void When()
@@ -179,12 +123,12 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
         {
             private int _deliveryType = 101;
             private int _categoryId = 201;
-            private string _topicId = "301";
+            private string _topicId = "301a";
             private List<ObjectId> _subscribersWithTopicLastSendDate;
             private List<Subscriber<ObjectId>> _actualSubscribers;
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void When()
@@ -240,7 +184,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             private List<Subscriber<ObjectId>> _actualSubscribers;
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void When()
@@ -307,14 +251,13 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             private List<SubscriberWithMissingData> _expectedSubscribers;
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void Given()
             {
                 _expectedSubscribers = GeneratedEntities.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress && x.HasTopicsSettingsEnabled)
-                    .TakeLast(10)
                     .ToList();
             }
 
@@ -378,7 +321,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void When()
@@ -437,7 +380,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             private List<SubscriberWithMissingData> _expectedSubscribers;
 
             //properties
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
             public InMemoryStorage GeneratedEntities { get; set; }
 
             protected override void When()

@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using Sanatana.Notifications.DAL.MongoDb;
+using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
 using SpecsFor.Core.Configuration;
 using StructureMap.AutoMocking;
@@ -16,7 +17,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
     public class DatabasePurger : Behavior<INeedDbContext>
     {
         //fields
-        private static bool _isInitialized;
+        private bool _isInitialized;
 
 
         //methods
@@ -28,7 +29,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
             }
             _isInitialized = true;
 
-            SenderMongoDbContext dbContext = instance.Mocker.GetServiceInstance<SenderMongoDbContext>();
+            SpecsDbContext dbContext = instance.Mocker.GetServiceInstance<SpecsDbContext>();
             IMongoDatabase db = dbContext.SubscriberDeliveryTypeSettings.Database;
             db.DropCollection(dbContext.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName);
             db.DropCollection(dbContext.SubscriberCategorySettings.CollectionNamespace.CollectionName);

@@ -2,6 +2,7 @@
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Queries;
 using System;

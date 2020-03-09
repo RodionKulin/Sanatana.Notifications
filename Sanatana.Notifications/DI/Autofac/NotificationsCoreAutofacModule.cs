@@ -8,7 +8,7 @@ using Sanatana.Notifications.DAL.Queries;
 using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 using Sanatana.Notifications.Dispatching.Channels;
 using Sanatana.Notifications.Flushing;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Processing.Interfaces;
 using Sanatana.Notifications.Queues;
@@ -35,7 +35,7 @@ namespace Sanatana.Notifications.DI.Autofac
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterInstance(_senderSettings).AsSelf().SingleInstance();
-            builder.RegisterType<ConsoleMonitor<TKey>>().As<IMonitor<TKey>>().SingleInstance();
+            builder.RegisterType<ConsoleEventTracker<TKey>>().As<IEventTracker<TKey>>().SingleInstance();
 
             builder.RegisterInstance(NullLogger.Instance)
                 .IfNotRegistered(typeof(ILogger))
@@ -46,7 +46,7 @@ namespace Sanatana.Notifications.DI.Autofac
             builder.RegisterType<Sender<TKey>>().As<ISender>().SingleInstance();
 
             builder.RegisterType<DirectSignalProvider<TKey>>()
-                .As<IDirectSignalProvider<TKey>>()
+                .As<ISignalProvider<TKey>>()
                 .As<ISignalProviderControl>()
                 .SingleInstance();
             builder.RegisterType<DatabaseDispatchProvider<TKey>>()

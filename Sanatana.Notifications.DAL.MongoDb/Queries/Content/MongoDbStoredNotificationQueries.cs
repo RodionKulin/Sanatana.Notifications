@@ -9,32 +9,35 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using MongoDB.Driver;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbStoredNotificationQueries : IStoredNotificationQueries<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
+
 
         //init
-        public MongoDbStoredNotificationQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbStoredNotificationQueries(ICollectionFactory collectionFactory)
         {
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
         //methods
-        public async Task Insert(List<StoredNotification<ObjectId>> items)
+        public virtual async Task Insert(List<StoredNotification<ObjectId>> items)
         {
             var options = new InsertManyOptions()
             {
                 IsOrdered = true
             };
 
-            await _context.StoredNotifications.InsertManyAsync(items, options).ConfigureAwait(false);
+            await _collectionFactory
+                .GetCollection<StoredNotification<ObjectId>>()
+                .InsertManyAsync(items, options)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         /// <param name="pageSize"></param>
         /// <param name="descending"></param>
         /// <returns></returns>
-        public async Task<TotalResult<List<StoredNotification<ObjectId>>>> Select(
+        public virtual async Task<TotalResult<List<StoredNotification<ObjectId>>>> Select(
             List<ObjectId> subscriberIds, int pageIndex, int pageSize, bool descending)
         {
             int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
@@ -58,8 +61,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = false
             };
 
-            IFindFluent<StoredNotification<ObjectId>, StoredNotification<ObjectId>> fluent 
-                = _context.StoredNotifications.Find(filter, options);
+            IFindFluent<StoredNotification<ObjectId>, StoredNotification<ObjectId>> fluent = _collectionFactory
+                .GetCollection<StoredNotification<ObjectId>>()
+                .Find(filter, options);
 
             if (descending)
             {
@@ -70,7 +74,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 fluent = fluent.SortBy(x => x.CreateDateUtc);
             }
 
-            Task<long> countTask = _context.StoredNotifications.CountDocumentsAsync(filter);
+            Task<long> countTask = _collectionFactory
+                .GetCollection<StoredNotification<ObjectId>>()
+                .CountDocumentsAsync(filter);
             Task<List<StoredNotification<ObjectId>>> listTask = fluent
                 .Skip(skip)
                 .Limit(pageSize)
@@ -82,7 +88,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             return new TotalResult<List<StoredNotification<ObjectId>>>(list, count);
         }
 
-        public async Task Update(List<StoredNotification<ObjectId>> items)
+        public virtual async Task Update(List<StoredNotification<ObjectId>> items)
         {
             var requests = new List<WriteModel<StoredNotification<ObjectId>>>();
 
@@ -105,20 +111,23 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.StoredNotifications
-                .BulkWriteAsync(requests, options);
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<StoredNotification<ObjectId>>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
 
-        public async Task Delete(List<StoredNotification<ObjectId>> items)
+        public virtual async Task Delete(List<StoredNotification<ObjectId>> items)
         {
-            List<ObjectId> ids = items
-                .Select(p => p.StoredNotificationId).ToList();
+            List<ObjectId> ids = items.Select(p => p.StoredNotificationId).ToList();
 
             var filter = Builders<StoredNotification<ObjectId>>.Filter.Where(
                 p => ids.Contains(p.StoredNotificationId));
 
-            DeleteResult response = await _context.StoredNotifications
-                .DeleteManyAsync(filter).ConfigureAwait(false);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<StoredNotification<ObjectId>>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
     }

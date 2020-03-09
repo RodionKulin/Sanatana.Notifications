@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.Dispatching.Channels;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Dispatching;
@@ -22,14 +22,14 @@ namespace Sanatana.Notifications.Processing
     {
         //fields
         protected SenderState<TKey> _hubState;
-        protected IMonitor<TKey> _eventSink;
+        protected IEventTracker<TKey> _eventSink;
         protected IDispatchChannelRegistry<TKey> _channelRegistry;
         protected IDispatchQueue<TKey> _dispatchQueue;
 
 
         //init
         public DispatchingProcessor(SenderState<TKey> hubState, IDispatchQueue<TKey> dispatchQueue
-            , IDispatchChannelRegistry<TKey> channelRegistry, IMonitor<TKey> eventSink
+            , IDispatchChannelRegistry<TKey> channelRegistry, IEventTracker<TKey> eventSink
             , ILogger logger, SenderSettings senderSettings)
             : base(logger)
         {

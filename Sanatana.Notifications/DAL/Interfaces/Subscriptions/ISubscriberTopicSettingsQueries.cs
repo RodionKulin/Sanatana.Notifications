@@ -6,11 +6,12 @@ using Sanatana.Notifications.DAL.Entities;
 
 namespace Sanatana.Notifications.DAL.Interfaces
 {
-    public interface ISubscriberTopicSettingsQueries<TKey>
+    public interface ISubscriberTopicSettingsQueries<TTopic, TKey>
+        where TTopic : SubscriberTopicSettings<TKey>
         where TKey : struct
     {
-        Task Insert(List<SubscriberTopicSettings<TKey>> settings);
-        Task<SubscriberTopicSettings<TKey>> Select(TKey subscriberId, int categoryId, string topicId);
+        Task Insert(List<TTopic> settings);
+        Task<TTopic> Select(TKey subscriberId, int categoryId, string topicId);
         /// <summary>
         /// 
         /// </summary>
@@ -21,12 +22,12 @@ namespace Sanatana.Notifications.DAL.Interfaces
         /// <param name="categoryIds"></param>
         /// <param name="topics"></param>
         /// <returns></returns>
-        Task<TotalResult<List<SubscriberTopicSettings<TKey>>>> SelectPage(int pageIndex, int pageSize,
-             List<TKey> subscriberIds = null,  List<int> deliveryTypeIds = null, List<int> categoryIds = null, List<string> topics = null);
-        Task UpdateIsEnabled(List<SubscriberTopicSettings<TKey>> items);
-        Task UpsertIsEnabled(List<SubscriberTopicSettings<TKey>> items);
-        Task UpdateIsDeleted(SubscriberTopicSettings<TKey> settings);
-        Task Upsert(SubscriberTopicSettings<TKey> settings, bool updateExisting);
+        Task<TotalResult<List<TTopic>>> SelectPage(int pageIndex, int pageSize, List<TKey> subscriberIds = null,
+            List<int> deliveryTypeIds = null, List<int> categoryIds = null, List<string> topics = null);
+        Task UpdateIsEnabled(List<TTopic> items);
+        Task UpsertIsEnabled(List<TTopic> items);
+        Task UpdateIsDeleted(TTopic settings);
+        Task Upsert(TTopic settings, bool updateExisting);
         Task Delete(TKey subscriberId);
         Task Delete(List<TKey> subscriberIds = null, List<int> deliveryTypeIds = null
             , List<int> categoryIds = null, List<string> topicIds = null);

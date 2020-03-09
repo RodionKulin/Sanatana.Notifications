@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Sanatana.EntityFrameworkCore;
 using Sanatana.EntityFrameworkCore.Batch;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore
@@ -28,11 +27,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             builder.HasIndex(t => new { t.FailedAttempts }).IsUnique(false);
             
             // Properties
-            builder.Ignore(t => t.DataKeyValues);
-            builder.Property(r => r.DataKeyValuesSerialized).HasColumnType("xml").HasColumnName("DataKeyValues");
+            builder.Ignore(t => t.TemplateData);
+            builder.Property(r => r.TemplateDataSerialized).HasColumnName("TemplateData");
+
+            builder.Ignore(t => t.SubscriberFiltersData);
+            builder.Property(r => r.SubscriberFiltersDataSerialized).HasColumnName("SubscriberFiltersData");
 
             builder.Ignore(t => t.SubscriberIdFromDeliveryTypesHandled);
-            builder.Property(r => r.SubscriberIdFromDeliveryTypesHandledSerialized).HasColumnType("xml").HasColumnName("SubscriberIdFromDeliveryTypesHandled");
+            builder.Property(r => r.SubscriberIdFromDeliveryTypesHandledSerialized).HasColumnName("SubscriberIdFromDeliveryTypesHandled");
 
             builder.Ignore(t => t.PredefinedAddresses);
             builder.Property(t => t.PredefinedAddressesSerialized).HasColumnName("PredefinedAddresses");

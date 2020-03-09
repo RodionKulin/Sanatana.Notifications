@@ -8,26 +8,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSignalDispatchQueries : ISignalDispatchQueries<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSignalDispatchQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbSignalDispatchQueries(ICollectionFactory collectionFactory)
         {
-            
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
-        
+
 
         //Insert
         public virtual async Task Insert(List<SignalDispatch<ObjectId>> items)
@@ -42,7 +39,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            await _context.SignalDispatches.InsertManyAsync(items, options).ConfigureAwait(false);
+            await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>()
+                .InsertManyAsync(items, options)
+                .ConfigureAwait(false);
         }
 
 
@@ -60,7 +60,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = true
             };
 
-            List<SignalDispatch<ObjectId>> list = await _context.SignalDispatches.Find(filter, options)
+            List<SignalDispatch<ObjectId>> list = await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>()
+                .Find(filter, options)
                 .SortBy(p => p.SendDateUtc)
                 .Limit(count)
                 .ToListAsync()
@@ -85,8 +87,11 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 && p.IsScheduled == true);
             filter = Builders<SignalDispatch<ObjectId>>.Filter.And(filter, categoryFilter);
 
-            List<SignalDispatch<ObjectId>> list = await _context.SignalDispatches.Find(filter)
-                .ToListAsync().ConfigureAwait(false);
+            List<SignalDispatch<ObjectId>> list = await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>()
+                .Find(filter)
+                .ToListAsync()
+                .ConfigureAwait(false);
             return list;
         }
 
@@ -116,7 +121,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.SignalDispatches.BulkWriteAsync(operations, options)
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>()
+                .BulkWriteAsync(operations, options)
                 .ConfigureAwait(false);
         }
 
@@ -125,20 +132,21 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         //Delete
         public virtual async Task Delete(List<SignalDispatch<ObjectId>> items)
         {
-            List<ObjectId> ids = items
-                    .Select(p => p.SignalDispatchId).ToList();
+            List<ObjectId> ids = items.Select(p => p.SignalDispatchId).ToList();
 
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
                 p => ids.Contains(p.SignalDispatchId));
 
-            DeleteResult response = await _context.SignalDispatches.DeleteManyAsync(filter).ConfigureAwait(false);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
         
         //IDisposable
         public virtual void Dispose()
         {
-
         }
     }
 }

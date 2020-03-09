@@ -17,23 +17,25 @@ using Sanatana.DataGenerator.Storages;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using System.Diagnostics;
 using Sanatana.MongoDb.Extensions;
+using SpecsFor.Core;
+using Moq;
 
 namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 {
-    class MongoDbSubscriberFiltersSpecs
+    public class MongoDbSubscriberFiltersSpecs
     {
 
         //filters specs
         [TestFixture]
         public class when_fitlering_delivery_types
-           : SpecsFor<MongoDbSubscriberEmbeddedCategoriesQueries>, INeedDbContext
+           : SpecsFor<SpecsSubscriberQueriesEmbedded>, INeedDbContext
         {
             private int _deliveryType = 101;
             private int _categoryId = 201;
             private string _topicId = "301a";
             private string _actual_json;
 
-            public SenderMongoDbContext DbContext { get; set; }
+            public SpecsDbContext DbContext { get; set; }
 
 
             //methods
@@ -69,4 +71,5 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             }
         }
     }
+
 }

@@ -15,7 +15,7 @@ using Sanatana.EntityFrameworkCore.Batch.Commands;
 using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 using Sanatana.EntityFrameworkCore.Batch;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
     public class SqlStoredNotificationQueries : IStoredNotificationQueries<long>
     {

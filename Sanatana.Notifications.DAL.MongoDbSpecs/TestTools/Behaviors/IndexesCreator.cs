@@ -1,5 +1,6 @@
 ﻿using Sanatana.MongoDb;
 using Sanatana.Notifications.DAL.MongoDb;
+using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
 using SpecsFor.Core;
 using SpecsFor.Core.Configuration;
@@ -12,7 +13,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
     public class IndexesCreator : Behavior<ISpecs>
     {
         //fields
-        private static bool _isInitialized;
+        private bool _isInitialized;
 
 
         //methods
@@ -30,7 +31,8 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
         protected virtual void CreateIndexes(ISpecs instance)
         {
             var connectionSettings = instance.Mocker.GetServiceInstance<MongoDbConnectionSettings>();
-            var indexCreator = new SenderMongoDbInitializer(connectionSettings);
+            var context = new SpecsDbContext(connectionSettings);
+            var indexCreator = new SpecsDbInitializer(context);
             indexCreator.CreateAllIndexes(useGroupId: false);
         }
     }

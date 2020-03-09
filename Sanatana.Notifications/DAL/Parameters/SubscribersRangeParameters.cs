@@ -14,8 +14,8 @@ namespace Sanatana.Notifications.DAL.Parameters
         public TKey? SubscriberIdRangeToIncludingSelf { get; set; }
         public List<int> SubscriberIdFromDeliveryTypesHandled { get; set; }
         public int? Limit { get; set; }
-        public TKey? GroupId { get; set; }
         public string TopicId { get; set; }
+        public Dictionary<string,string> SubscriberFilters { get; set; }
         public virtual bool SelectFromCategories { get; set; }
         public virtual bool SelectFromTopics { get; set; }
     }

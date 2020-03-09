@@ -26,8 +26,8 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
     public class CatCollectionGenerator : Behavior<INeedSubscriptionsData>
     {
         //fields
-        private static bool _isInitialized;
-        private static InMemoryStorage _storage;
+        protected bool _isInitialized;
+        protected InMemoryStorage _storage;
         protected long _flushAfterNumberOfEntities = 50000;
 
 
@@ -41,15 +41,10 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
             }
             _isInitialized = true;
 
-            var dbContext = instance.Mocker.GetServiceInstance<SenderMongoDbContext>();
-            IMongoDatabase db = dbContext.SignalBounces.Database;
-
             var setup = new GeneratorSetup();
-            _storage = new InMemoryStorage();
-            instance.GeneratedEntities = _storage;
-
             RegisterEntities(instance, setup);
             SetDataAmounts(setup);
+            SetMemoryStorage(instance, setup);
 
             setup.ProgressChanged += PrintProgress;
             setup.Generate();
@@ -59,29 +54,25 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
         //register entities
         protected virtual void RegisterEntities(INeedSubscriptionsData instance, GeneratorSetup setup)
         {
-            var dbContext = instance.Mocker.GetServiceInstance<SenderMongoDbContext>();
+            var dbContext = instance.Mocker.GetServiceInstance<SpecsDbContext>();
             IMongoDatabase db = dbContext.SignalBounces.Database;
 
             setup.RegisterEntity<SubscriberWithMissingData>()
                 .SetGenerator(GenerateSubscriber)
-                .SetPersistentStorage(instance.GeneratedEntities)
                 .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
 
-            setup.RegisterEntity<SubscriberDeliveryTypeSettings<ObjectId>>()
+            setup.RegisterEntity<SpecsDeliveryTypeSettings>()
                 .SetMultiGenerator<SubscriberWithMissingData>(GenerateDeliveryTypes)
-                .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName))
-                .SetPersistentStorage(instance.GeneratedEntities);
+                .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName));
 
             setup.RegisterEntity<SubscriberCategorySettings<ObjectId>>()
-                .SetMultiGenerator<SubscriberDeliveryTypeSettings<ObjectId>, SubscriberWithMissingData>(GenerateCategories)
+                .SetMultiGenerator<SpecsDeliveryTypeSettings, SubscriberWithMissingData>(GenerateCategories)
                 .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberCategorySettings.CollectionNamespace.CollectionName))
-                .SetPersistentStorage(instance.GeneratedEntities)
                 .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
 
             setup.RegisterEntity<SubscriberTopicSettings<ObjectId>>()
                 .SetMultiGenerator<SubscriberCategorySettings<ObjectId>, SubscriberWithMissingData>(GenerateTopics)
                 .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberTopicSettings.CollectionNamespace.CollectionName))
-                .SetPersistentStorage(instance.GeneratedEntities)
                 .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
         }
 
@@ -89,12 +80,27 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
         {
             setup.GetEntityDescription<SubscriberWithMissingData>()
                 .SetTargetCount(1000);
-            setup.GetEntityDescription<SubscriberDeliveryTypeSettings<ObjectId>>()
+            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
                 .SetTargetCount(2000);
             setup.GetEntityDescription<SubscriberCategorySettings<ObjectId>>()
                 .SetTargetCount(4000);
             setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
                 .SetTargetCount(8000);
+        }
+
+        protected virtual void SetMemoryStorage(INeedSubscriptionsData instance, GeneratorSetup setup)
+        {
+            _storage = new InMemoryStorage();
+            instance.GeneratedEntities = _storage;
+
+            setup.GetEntityDescription<SubscriberWithMissingData>()
+                .SetPersistentStorage(instance.GeneratedEntities);
+            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
+                .SetPersistentStorage(instance.GeneratedEntities);
+            setup.GetEntityDescription<SubscriberCategorySettings<ObjectId>>()
+                .SetPersistentStorage(instance.GeneratedEntities);
+            setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
+                .SetPersistentStorage(instance.GeneratedEntities);
         }
 
 
@@ -115,20 +121,19 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
                 HasDeliveryTypeSettings = genContext.CurrentCount > 3,
                 HasCategorySettingsEnabled = genContext.CurrentCount > 9,
                 HasTopicsSettingsEnabled = genContext.CurrentCount > 5,
-                HasGroupId = genContext.CurrentCount == 10,
                 HasTopicLastSendDate = new List<long> { 11, 12, 13 }.Contains(genContext.CurrentCount),
                 HasVisitDateFuture = genContext.CurrentCount == 12,
                 HasVisitDatePast = genContext.CurrentCount == 13,
             };
         }
 
-        protected virtual List<SubscriberDeliveryTypeSettings<ObjectId>> GenerateDeliveryTypes(
+        protected virtual List<SpecsDeliveryTypeSettings> GenerateDeliveryTypes(
             GeneratorContext genContext, SubscriberWithMissingData subscriber)
         {
             int[] deliveryTypes = new[] { 101, 102 };
 
             subscriber.DeliveryTypes = deliveryTypes
-                .Select((deliveryType, i) => new SubscriberDeliveryTypeSettings<ObjectId>
+                .Select((deliveryType, i) => new SpecsDeliveryTypeSettings
                 {
                     SubscriberDeliveryTypeSettingsId = ObjectId.GenerateNewId(),
                     SubscriberId = subscriber.SubscriberId,
@@ -137,8 +142,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
                     IsEnabled = subscriber.HasDeliveryTypeSettings,
                     Language = "en",
                     TimeZoneId = "+3",
-                    LastVisitUtc = subscriber.HasVisitDateFuture ? (DateTime?)DateTime.UtcNow : null,
-                    GroupId = subscriber.HasGroupId ? new ObjectId("5e4041aa2e7e5a38a8ead836") : (ObjectId?)null
+                    LastVisitUtc = subscriber.HasVisitDateFuture ? (DateTime?)DateTime.UtcNow : null
                 })
                 .ToList();
 
@@ -151,7 +155,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
         }
 
         protected virtual List<SubscriberCategorySettings<ObjectId>> GenerateCategories(GeneratorContext genContext,
-            SubscriberDeliveryTypeSettings<ObjectId> deliverySettings, SubscriberWithMissingData subscriber)
+            SpecsDeliveryTypeSettings deliverySettings, SubscriberWithMissingData subscriber)
         {
             int[] categories = new[] { 201, 202 };
 

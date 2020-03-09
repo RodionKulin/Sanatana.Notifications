@@ -27,16 +27,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             builder.HasKey(t => t.SubscriberDeliveryTypeSettingsId);
             builder.HasIndex(t => t.SubscriberId).IsUnique(false);
             builder.HasIndex(t => t.Address).IsUnique(false);
-            builder.HasIndex(t => t.GroupId).IsUnique(false);
             
             // Properties
             builder.Property(t => t.Address).IsRequired().HasMaxLength(1000);
             builder.Property(t => t.LastVisitUtc).HasColumnType("datetime2");
             builder.Property(t => t.LastSendDateUtc).HasColumnType("datetime2");
             builder.Property(t => t.NDRBlockResetCodeSendDateUtc).HasColumnType("datetime2");
-
-            //Ignore
-            builder.Ignore(t => t.SubscriberCategorySettings);
 
             // Table 
             builder.ToTable(DefaultTableNameConstants.SubscriberDeliveryTypeSettings, _connectionSettings.Schema);

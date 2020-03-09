@@ -1,4 +1,5 @@
 ﻿using Sanatana.Notifications.DAL.MongoDb;
+using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using SpecsFor;
 using SpecsFor.Core;
 using System;
@@ -11,6 +12,6 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces
 {
     public interface INeedDbContext : ISpecs
     {
-        SenderMongoDbContext DbContext { get; set; }
+        SpecsDbContext DbContext { get; set; }
     }
 }

@@ -11,14 +11,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.Monitoring
+namespace Sanatana.Notifications.EventTracking
 {
     /// <summary>
     /// Writes output to the Immediate Window
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
-    public class TraceMonitor<TKey> : IMonitor<TKey>
-            where TKey : struct
+    public class TraceEventTracker<TKey> : IEventTracker<TKey>
+        where TKey : struct
     {
         //methods
         public void SenderSwitched(SwitchState state)

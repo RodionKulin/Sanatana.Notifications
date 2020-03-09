@@ -18,6 +18,7 @@ using SpecsFor.Core;
 using SpecsFor.StructureMap;
 using StructureMap.AutoMocking;
 using Sanatana.EntityFrameworkCore.Batch;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Providers
 {

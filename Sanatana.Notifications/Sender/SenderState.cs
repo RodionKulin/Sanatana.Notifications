@@ -1,5 +1,5 @@
 ﻿using Sanatana.Timers.Switchables;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace Sanatana.Notifications.Sender
         where TKey : struct
     {
         //fields
-        protected IMonitor<TKey> _eventSink;
+        protected IEventTracker<TKey> _eventSink;
         protected SwitchState _state = SwitchState.Stopped;
 
 
@@ -29,7 +29,7 @@ namespace Sanatana.Notifications.Sender
 
 
         //init
-        public SenderState(IMonitor<TKey> eventSink)
+        public SenderState(IEventTracker<TKey> eventSink)
         {
             _eventSink = eventSink;
         }

@@ -11,53 +11,58 @@ using MongoDB.Driver.Core.Operations;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
-    public class MongoDbSubscriberTopicSettingsQueries : ISubscriberTopicSettingsQueries<ObjectId>
+    public class MongoDbSubscriberTopicSettingsQueries<TTopic> : ISubscriberTopicSettingsQueries<TTopic, ObjectId>
+        where TTopic : SubscriberTopicSettings<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSubscriberTopicSettingsQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbSubscriberTopicSettingsQueries(ICollectionFactory collectionFactory)
         {
-            
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
 
         //methods
-        public virtual async Task Insert(List<SubscriberTopicSettings<ObjectId>> settings)
+        public virtual async Task Insert(List<TTopic> settings)
         {
             var options = new InsertManyOptions()
             {
                 IsOrdered = false
             };
 
-            await _context.SubscriberTopicSettings.InsertManyAsync(settings, options);
+            await _collectionFactory
+                .GetCollection<TTopic>()
+                .InsertManyAsync(settings, options)
+                .ConfigureAwait(false);
         }
 
 
 
-        public virtual async Task<SubscriberTopicSettings<ObjectId>> Select(
+        public virtual async Task<TTopic> Select(
             ObjectId subscriberId, int categoryId, string topicId)
         {
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TTopic>.Filter.Where(
                 p => p.SubscriberId == subscriberId
                 && p.CategoryId == categoryId
                 && p.TopicId == topicId);
 
-            //string explain = _context.SubscriberTopicSettings.ExplainFind<SubscriberTopicSettings<ObjectId>, SubscriberTopicSettings<ObjectId>>
+            //string explain = _collectionFactory.GetCollection<TTopic>().ExplainFind<TTopic, TTopic>
             //    (ExplainVerbosity.QueryPlanner, filter).Data.ToJsonIntended();
 
-            SubscriberTopicSettings<ObjectId> item = await _context.SubscriberTopicSettings.Find(filter).FirstOrDefaultAsync();
-            
+            TTopic item = await _collectionFactory
+                .GetCollection<TTopic>()
+                .Find(filter)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
             return item;
         }
 
@@ -71,71 +76,74 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         /// <param name="categoryIds"></param>
         /// <param name="topicIds"></param>
         /// <returns></returns>
-        public virtual async Task<TotalResult<List<SubscriberTopicSettings<ObjectId>>>> SelectPage(int pageIndex, int pageSize
+        public virtual async Task<TotalResult<List<TTopic>>> SelectPage(int pageIndex, int pageSize
             , List<ObjectId> subscriberIds = null, List<int> deliveryTypeIds = null, List<int> categoryIds = null
             , List<string> topicIds = null)
         {
             int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
 
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => p.IsDeleted == false);
+            var filter = Builders<TTopic>.Filter.Where(p => p.IsDeleted == false);
 
             if (subscriberIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => subscriberIds.Contains(p.SubscriberId)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => subscriberIds.Contains(p.SubscriberId)));
             }
             if (deliveryTypeIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => deliveryTypeIds.Contains(p.DeliveryType)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => deliveryTypeIds.Contains(p.DeliveryType)));
             }
             if (categoryIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => categoryIds.Contains(p.CategoryId)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => categoryIds.Contains(p.CategoryId)));
             }
             if (topicIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => topicIds.Contains(p.TopicId)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => topicIds.Contains(p.TopicId)));
             }
 
-            Task<List<SubscriberTopicSettings<ObjectId>>> listTask = _context.SubscriberTopicSettings.Find(filter)
+            Task<List<TTopic>> listTask = _collectionFactory.GetCollection<TTopic>().Find(filter)
                 .Skip(skip)
                 .Limit(pageSize)
                 .ToListAsync();
 
-            Task<long> countTask = _context.SubscriberTopicSettings.CountDocumentsAsync(filter);
+            Task<long> countTask = _collectionFactory.GetCollection<TTopic>().CountDocumentsAsync(filter);
 
-            List<SubscriberTopicSettings<ObjectId>> list = await listTask;
-            long total = await countTask;
-            
-            return new TotalResult<List<SubscriberTopicSettings<ObjectId>>>(list, total);
+            List<TTopic> list = await listTask.ConfigureAwait(false);
+            long total = await countTask.ConfigureAwait(false);
+
+            return new TotalResult<List<TTopic>>(list, total);
         }
 
 
 
-        public virtual async Task UpdateIsDeleted(SubscriberTopicSettings<ObjectId> settings)
+        public virtual async Task UpdateIsDeleted(TTopic settings)
         {
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TTopic>.Filter.Where(
                      p => p.SubscriberId == settings.SubscriberId
                      && p.CategoryId == settings.CategoryId
                      && p.TopicId == settings.TopicId);
 
-            var update = Builders<SubscriberTopicSettings<ObjectId>>.Update
+            var update = Builders<TTopic>.Update
                 .Set(p => p.IsDeleted, settings.IsDeleted);
 
-            UpdateResult response = await _context.SubscriberTopicSettings.UpdateOneAsync(filter, update);
+            UpdateResult response = await _collectionFactory
+                .GetCollection<TTopic>()
+                .UpdateOneAsync(filter, update)
+                .ConfigureAwait(false);
         }
 
-        public virtual async Task Upsert(SubscriberTopicSettings<ObjectId> settings, bool updateExisting)
+        public virtual async Task Upsert(TTopic settings, bool updateExisting)
         {
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TTopic>.Filter.Where(
                     p => p.SubscriberId == settings.SubscriberId
                     && p.CategoryId == settings.CategoryId
                     && p.TopicId == settings.TopicId);
 
-            var update = Builders<SubscriberTopicSettings<ObjectId>>.Update
+            var update = Builders<TTopic>.Update
                 .Combine()
                 .SetOnInsertAllMappedMembers(settings);
 
@@ -150,63 +158,72 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsUpsert = true
             };
 
-            UpdateResult response = await _context.SubscriberTopicSettings.UpdateOneAsync(filter, update, options);
+            UpdateResult response = await _collectionFactory
+                .GetCollection<TTopic>()
+                .UpdateOneAsync(filter, update, options)
+                .ConfigureAwait(false);
         }
 
 
 
         public virtual async Task Delete(ObjectId subscriberId)
         {
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TTopic>.Filter.Where(
                     p => p.SubscriberId == subscriberId);
 
-            DeleteResult response = await _context.SubscriberTopicSettings.DeleteManyAsync(filter);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<TTopic>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task Delete(List<ObjectId> subscriberIds = null, List<int> deliveryTypeIds = null
             , List<int> categoryIds = null, List<string> topicIds = null)
         {
-            var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => true);
+            var filter = Builders<TTopic>.Filter.Where(p => true);
 
             if (subscriberIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => subscriberIds.Contains(p.SubscriberId)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => subscriberIds.Contains(p.SubscriberId)));
             }
             if (deliveryTypeIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => deliveryTypeIds.Contains(p.DeliveryType)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => deliveryTypeIds.Contains(p.DeliveryType)));
             }
             if (categoryIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => categoryIds.Contains(p.CategoryId)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => categoryIds.Contains(p.CategoryId)));
             }
             if (topicIds != null)
             {
-                filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(p => topicIds.Contains(p.TopicId)));
+                filter = Builders<TTopic>.Filter.And(filter,
+                    Builders<TTopic>.Filter.Where(p => topicIds.Contains(p.TopicId)));
             }
             
-            DeleteResult response = await _context.SubscriberTopicSettings.DeleteManyAsync(filter);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<TTopic>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
 
 
-        public virtual async Task UpdateIsEnabled(List<SubscriberTopicSettings<ObjectId>> items)
+        public virtual async Task UpdateIsEnabled(List<TTopic> items)
         {
-            var requests = new List<WriteModel<SubscriberTopicSettings<ObjectId>>>();
+            var requests = new List<WriteModel<TTopic>>();
 
-            foreach (SubscriberTopicSettings<ObjectId> item in items)
+            foreach (TTopic item in items)
             {
-                var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TTopic>.Filter.Where(
                     p => p.SubscriberTopicSettingsId == item.SubscriberTopicSettingsId);
 
-                var update = Builders<SubscriberTopicSettings<ObjectId>>.Update
+                var update = Builders<TTopic>.Update
                     .Set(p => p.IsEnabled, item.IsEnabled);
 
-                requests.Add(new UpdateOneModel<SubscriberTopicSettings<ObjectId>>(filter, update)
+                requests.Add(new UpdateOneModel<TTopic>(filter, update)
                 {
                     IsUpsert = false
                 });
@@ -217,31 +234,32 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.SubscriberTopicSettings
-                .BulkWriteAsync(requests, options);
+            BulkWriteResult response = await _collectionFactory.GetCollection<TTopic>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
 
-        public virtual async Task UpsertIsEnabled(List<SubscriberTopicSettings<ObjectId>> items)
+        public virtual async Task UpsertIsEnabled(List<TTopic> items)
         {
-            var requests = new List<WriteModel<SubscriberTopicSettings<ObjectId>>>();
+            var requests = new List<WriteModel<TTopic>>();
 
-            foreach (SubscriberTopicSettings<ObjectId> item in items)
+            foreach (TTopic item in items)
             {
-                var filter = Builders<SubscriberTopicSettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TTopic>.Filter.Where(
                     p => p.SubscriberTopicSettingsId == item.SubscriberTopicSettingsId);
 
                 if (item.IsEnabled)
                 {
-                    var update = Builders<SubscriberTopicSettings<ObjectId>>.Update
+                    var update = Builders<TTopic>.Update
                         .Set(p => p.IsEnabled, item.IsEnabled);
-                    requests.Add(new UpdateOneModel<SubscriberTopicSettings<ObjectId>>(filter, update)
+                    requests.Add(new UpdateOneModel<TTopic>(filter, update)
                     {
                         IsUpsert = true
                     });
                 }
                 else
                 {
-                    requests.Add(new DeleteOneModel<SubscriberTopicSettings<ObjectId>>(filter));
+                    requests.Add(new DeleteOneModel<TTopic>(filter));
                 }
             }
 
@@ -250,8 +268,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.SubscriberTopicSettings
-                .BulkWriteAsync(requests, options);
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<TTopic>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
     }
 }

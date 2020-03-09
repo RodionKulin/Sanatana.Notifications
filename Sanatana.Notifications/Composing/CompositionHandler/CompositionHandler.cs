@@ -137,7 +137,7 @@ namespace Sanatana.Notifications.Composing
         protected virtual void SetCurrentProgress(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
             if (subscribers.Count > 0 
-                && signalEvent.AddresseeType == AddresseeType.AllSubscsribers)
+                && signalEvent.AddresseeType == AddresseeType.SubscriptionParameters)
             {
                 subscribers = subscribers.OrderByDescending(x => x.SubscriberId).ToList();    //assume that SubscriberIds are ordered in storage
                 TKey latestSubscriberId = subscribers.First().SubscriberId;

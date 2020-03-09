@@ -2,7 +2,7 @@
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.Dispatching.Channels;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.Interfaces;
@@ -22,7 +22,7 @@ namespace Sanatana.Notifications.SignalProviders
         protected List<int> _lastQueryKeys;
         protected DateTime _lastQueryTimeUtc;
         protected bool _isLastQueryMaxItemsReceived;
-        protected IMonitor<TKey> _eventSink;
+        protected IEventTracker<TKey> _eventSink;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected IChangeNotifier<SignalDispatch<TKey>> _changeNotifier;
         protected IDispatchChannelRegistry<TKey> _dispatcherRegistry;
@@ -48,7 +48,7 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //init
-        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink, SenderSettings senderSettings
+        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueue, IEventTracker<TKey> eventSink, SenderSettings senderSettings
             , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries)
         {
             _dispatchQueue = dispatchQueue;
@@ -61,7 +61,7 @@ namespace Sanatana.Notifications.SignalProviders
             MaxFailedAttempts = senderSettings.DatabaseSignalProviderItemsMaxFailedAttempts;
         }
 
-        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings
+        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueues, IEventTracker<TKey> eventSink, SenderSettings senderSettings
             , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries
             , IChangeNotifier<SignalDispatch<TKey>> changeNotifier)
             : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries)

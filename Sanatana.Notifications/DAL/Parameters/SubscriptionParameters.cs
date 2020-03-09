@@ -8,7 +8,7 @@ namespace Sanatana.Notifications.DAL.Parameters
 {
     public class SubscriptionParameters
     {
-        //match
+        //Match id
         /// <summary>
         /// Find subscriber settings with matching DeliveryType
         /// </summary>
@@ -22,7 +22,7 @@ namespace Sanatana.Notifications.DAL.Parameters
         /// </summary>
         public string TopicId { get; set; }
 
-        //latest delivery is lower than visit time
+        //Latest delivery is lower than visit time
         /// <summary>
         /// Match subscribers that have delivery last send date lower than latest visit time or delivery last send date is empty.
         /// </summary>
@@ -36,7 +36,7 @@ namespace Sanatana.Notifications.DAL.Parameters
         /// </summary>
         public bool CheckTopicLastSendDate { get; set; }
         
-        //enabled
+        //Is enabled
         /// <summary>
         /// Match subscribers that have delivery type enabled.
         /// </summary>
@@ -50,7 +50,7 @@ namespace Sanatana.Notifications.DAL.Parameters
         /// </summary>
         public bool CheckTopicEnabled { get; set; }
 
-        //limits on number of signals
+        //Limits on number of signals
         /// <summary>
         /// Match subscribers that have delivery type dispatches sent lower or equal to parameter.
         /// </summary>
@@ -64,10 +64,16 @@ namespace Sanatana.Notifications.DAL.Parameters
         /// </summary>
         public int? CheckTopicSendCountNotGreater { get; set; }
 
-        //is blocked
+        //Is blocked
         /// <summary>
         /// Match subscribers that have delivery type not blocked because of NDR incoming.
         /// </summary>
         public bool CheckIsNDRBlocked { get; set; }
+
+        //Custom filter values
+        /// <summary>
+        /// Filters data that can be handled in custom code subscriber filtering code. Override ISubscriberQueries methods to use.
+        /// </summary>
+        public Dictionary<string, string> SubscriberFiltersData { get; set; }
     }
 }

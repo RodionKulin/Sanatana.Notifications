@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.Composing;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Dispatching;
 using System;
@@ -23,7 +23,7 @@ namespace Sanatana.Notifications.Processing
     {
         //fields
         protected SenderState<TKey> _hubState;
-        protected IMonitor<TKey> _eventSink;
+        protected IEventTracker<TKey> _eventSink;
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected ICompositionHandlerRegistry<TKey> _handlerRegistry;
@@ -31,7 +31,7 @@ namespace Sanatana.Notifications.Processing
 
 
         //init
-        public CompositionProcessor(SenderState<TKey> hubState, IMonitor<TKey> eventSink
+        public CompositionProcessor(SenderState<TKey> hubState, IEventTracker<TKey> eventSink
             , ILogger logger, SenderSettings senderSettings
             , IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue
             , ICompositionHandlerRegistry<TKey> handlerRegistry, IEventSettingsQueries<TKey> eventSettingsQueries)

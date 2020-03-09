@@ -19,7 +19,7 @@ using Sanatana.EntityFrameworkCore.Batch.Commands;
 using Microsoft.Data.SqlClient;
 using Sanatana.EntityFrameworkCore.Batch;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
     public class SqlSubscriberScheduleSettingsQueries : ISubscriberScheduleSettingsQueries<long>
     {

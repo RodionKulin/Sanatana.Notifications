@@ -29,7 +29,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Slack
         public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
-            TemplateData templateData = new TemplateData(signalEvent.DataKeyValues);
+            TemplateData templateData = new TemplateData(signalEvent.TemplateData);
             var templateDataList = new List<TemplateData>() { templateData };
 
             string content = null;

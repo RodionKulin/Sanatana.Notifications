@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sanatana.Notifications.Monitoring
+namespace Sanatana.Notifications.EventTracking
 {
     public class StubLogger : ILogger
     {

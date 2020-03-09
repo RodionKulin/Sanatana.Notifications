@@ -44,7 +44,7 @@ namespace Sanatana.Notifications.Composing.Tests
             var settings = new EventSettings<long>();
             var signalEvent = new SignalEvent<long>()
             {
-                DataKeyValues = replaceModel
+                TemplateData = replaceModel
             };
 
             //test

@@ -10,28 +10,26 @@ using Sanatana.Notifications.Composing;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbEventSettingsQueries : IEventSettingsQueries<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbEventSettingsQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbEventSettingsQueries(ICollectionFactory collectionFactory)
         {
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
 
         //methods
-        public virtual async Task Insert(List<EventSettings<ObjectId>> items)
+        public virtual Task Insert(List<EventSettings<ObjectId>> items)
         {
             foreach (EventSettings<ObjectId> item in items)
             {
@@ -43,7 +41,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            await _context.EventSettings.InsertManyAsync(items, options).ConfigureAwait(false);
+            return _collectionFactory.GetCollection<EventSettings<ObjectId>>()
+                .InsertManyAsync(items, options);
         }
 
         /// <summary>
@@ -57,12 +56,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
             var filter = Builders<EventSettings<ObjectId>>.Filter.Where(p => true);
 
-            Task<List<EventSettings<ObjectId>>> listTask = _context.EventSettings
+            IMongoCollection<EventSettings<ObjectId>> eventSettings = _collectionFactory.GetCollection<EventSettings<ObjectId>>();
+
+            Task<List<EventSettings<ObjectId>>> listTask = eventSettings
                 .Find(filter)
                 .Skip(skip)
                 .Limit(pageSize)
                 .ToListAsync();
-            Task<long> countTask = _context.EventSettings.EstimatedDocumentCountAsync();
+            Task<long> countTask = eventSettings.EstimatedDocumentCountAsync();
 
             long count = await countTask.ConfigureAwait(false);
             List<EventSettings<ObjectId>> list = await listTask.ConfigureAwait(false);
@@ -75,8 +76,11 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             var filter = Builders<EventSettings<ObjectId>>.Filter.Where(
                 p => p.EventSettingsId == eventSettingsId);
 
-            EventSettings<ObjectId> item = await _context.EventSettings.Find(filter)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+            EventSettings<ObjectId> item = await _collectionFactory
+                .GetCollection<EventSettings<ObjectId>>()
+                .Find(filter)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
 
             return item;
         }
@@ -86,8 +90,11 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             var filter = Builders<EventSettings<ObjectId>>.Filter.Where(
                 p => p.CategoryId == category);
 
-            List<EventSettings<ObjectId>> list = await _context.EventSettings.Find(filter)
-                .ToListAsync().ConfigureAwait(false);
+            List<EventSettings<ObjectId>> list = await _collectionFactory
+                .GetCollection<EventSettings<ObjectId>>()
+                .Find(filter)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
             return list;
         }
@@ -117,8 +124,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.EventSettings
-                .BulkWriteAsync(requests, options).ConfigureAwait(false);
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<EventSettings<ObjectId>>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task Delete(List<EventSettings<ObjectId>> items)
@@ -128,7 +137,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             var filter = Builders<EventSettings<ObjectId>>.Filter.Where(
                 p => Ids.Contains(p.EventSettingsId));
 
-            DeleteResult response = await _context.EventSettings.DeleteManyAsync(filter)
+            DeleteResult response = await _collectionFactory
+                .GetCollection<EventSettings<ObjectId>>()
+                .DeleteManyAsync(filter)
                 .ConfigureAwait(false);
         }
 

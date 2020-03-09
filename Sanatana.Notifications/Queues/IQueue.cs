@@ -1,5 +1,5 @@
 ﻿using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Dispatching;
 using System;

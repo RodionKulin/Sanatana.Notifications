@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using SpecsFor.StructureMap;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -20,7 +21,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
         public class when_topic_settings_insert_using_ef
            : SpecsFor<SqlSubscriberTopicSettingsQueries>, INeedDbContext
         {
-            private List<SubscriberTopicSettings<long>> _insertedData;
+            private List<SubscriberTopicSettingsLong> _insertedData;
             private long _subscriberId;
             public SenderDbContext DbContext { get; set; }
             
@@ -28,9 +29,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             protected override void When()
             {
                 _subscriberId = 12;
-                _insertedData = new List<SubscriberTopicSettings<long>>
+                _insertedData = new List<SubscriberTopicSettingsLong>
                 {
-                    new SubscriberTopicSettings<long>()
+                    new SubscriberTopicSettingsLong()
                     {
                         TopicId = DateTime.UtcNow.ToString(),
                         CategoryId = 1,
@@ -58,7 +59,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
                     SubscriberTopicSettingsLong actualItem = actual[i];
-                    SubscriberTopicSettings<long> expectedItem = _insertedData[i];
+                    SubscriberTopicSettingsLong expectedItem = _insertedData[i];
 
                     expectedItem.SubscriberTopicSettingsId = actualItem.SubscriberTopicSettingsId;
                     actualItem.Should().BeEquivalentTo(expectedItem);
@@ -72,7 +73,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
         public class when_topic_settings_upnsert_isenabled_using_ef
            : SpecsFor<SqlSubscriberTopicSettingsQueries>, INeedDbContext
         {
-            private List<SubscriberTopicSettings<long>> _insertedData;
+            private List<SubscriberTopicSettingsLong> _insertedData;
             private long _subscriberId;
             public SenderDbContext DbContext { get; set; }
 
@@ -80,9 +81,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             protected override void When()
             {
                 _subscriberId = 13;
-                _insertedData = new List<SubscriberTopicSettings<long>>
+                _insertedData = new List<SubscriberTopicSettingsLong>
                 {
-                    new SubscriberTopicSettings<long>()
+                    new SubscriberTopicSettingsLong()
                     {
                         TopicId = DateTime.UtcNow.ToString(),
                         CategoryId = 1,
@@ -91,7 +92,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         AddDateUtc = DateTime.UtcNow,
                         SubscriberId = _subscriberId
                     },
-                    new SubscriberTopicSettings<long>()
+                    new SubscriberTopicSettingsLong()
                     {
                         TopicId = DateTime.UtcNow.ToString(),
                         CategoryId = 1,
@@ -119,7 +120,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 for (int i = 0; i < _insertedData.Count; i++)
                 {
                     SubscriberTopicSettingsLong actualItem = actual[i];
-                    SubscriberTopicSettings<long> expectedItem = _insertedData[i];
+                    SubscriberTopicSettingsLong expectedItem = _insertedData[i];
 
                     expectedItem.SubscriberTopicSettingsId = actualItem.SubscriberTopicSettingsId;
                     actualItem.Should().BeEquivalentTo(expectedItem);

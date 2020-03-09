@@ -4,51 +4,39 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
-using Sanatana.EntityFrameworkCore;
-using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 using Sanatana.EntityFrameworkCore.Batch.Commands;
 using Sanatana.EntityFrameworkCore.Batch;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
-    public class SqlSubscriberDeliveryTypeSettingsQueries : ISubscriberDeliveryTypeSettingsQueries<long>
+    public class SqlSubscriberDeliveryTypeSettingsQueries : ISubscriberDeliveryTypeSettingsQueries<SubscriberDeliveryTypeSettingsLong, long>
     {
         //fields        
         protected SqlConnectionSettings _connectionSettings;
         protected ISenderDbContextFactory _dbContextFactory;
-        protected IMapper _mapper;
 
 
         //init
         public SqlSubscriberDeliveryTypeSettingsQueries(SqlConnectionSettings connectionSettings, 
-            ISenderDbContextFactory dbContextFactory, INotificationsMapperFactory mapperFactory)
+            ISenderDbContextFactory dbContextFactory)
         {
             _connectionSettings = connectionSettings;
             _dbContextFactory = dbContextFactory;
-            _mapper = mapperFactory.GetMapper();
         }
 
 
         //insert
-        public virtual async Task Insert(List<SubscriberDeliveryTypeSettings<long>> items)
+        public virtual async Task Insert(List<SubscriberDeliveryTypeSettingsLong> items)
         {
-            List<SubscriberDeliveryTypeSettingsLong> mappedList = items
-                .Select(_mapper.Map<SubscriberDeliveryTypeSettingsLong>)
-                .ToList();
-            
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 InsertCommand<SubscriberDeliveryTypeSettingsLong> command = repository.Insert<SubscriberDeliveryTypeSettingsLong>();
                 command.Insert.ExcludeProperty(x => x.SubscriberDeliveryTypeSettingsId);
-                int changes = await command.ExecuteAsync(mappedList).ConfigureAwait(false);
+                int changes = await command.ExecuteAsync(items).ConfigureAwait(false);
             }
         }
 
@@ -68,7 +56,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             return Task.FromResult(exist);
         }
 
-        public virtual async Task<List<SubscriberDeliveryTypeSettings<long>>> Select(long subscriberId)
+        public virtual async Task<List<SubscriberDeliveryTypeSettingsLong>> Select(long subscriberId)
         {
             List<SubscriberDeliveryTypeSettingsLong> list = null;
             
@@ -80,12 +68,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     .ConfigureAwait(false);
             }
             
-            return list.Cast<SubscriberDeliveryTypeSettings<long>>().ToList();
+            return list.ToList();
         }
 
-        public virtual async Task<SubscriberDeliveryTypeSettings<long>> Select(long subscriberId, int deliveryType)
+        public virtual async Task<SubscriberDeliveryTypeSettingsLong> Select(long subscriberId, int deliveryType)
         {
-            SubscriberDeliveryTypeSettings<long> item = null;
+            SubscriberDeliveryTypeSettingsLong item = null;
             
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
@@ -106,7 +94,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         /// <param name="pageIndex">0-based page index</param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public virtual async Task<TotalResult<List<SubscriberDeliveryTypeSettings<long>>>> SelectPage(
+        public virtual async Task<TotalResult<List<SubscriberDeliveryTypeSettingsLong>>> SelectPage(
             List<int> deliveryTypes, int pageIndex, int pageSize)
         {
             RepositoryResult<SubscriberDeliveryTypeSettingsLong> result;
@@ -121,10 +109,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     .ConfigureAwait(false);
             }
 
-            return result.ToTotalResult<SubscriberDeliveryTypeSettingsLong, SubscriberDeliveryTypeSettings<long>>();
+            return result.ToTotalResult();
         }
 
-        public virtual async Task<List<SubscriberDeliveryTypeSettings<long>>> Select(
+        public virtual async Task<List<SubscriberDeliveryTypeSettingsLong>> Select(
             int deliveryType, List<string> addresses)
         {
             List<SubscriberDeliveryTypeSettingsLong> list = null;
@@ -138,20 +126,18 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     .ConfigureAwait(false);
             }
             
-            return list.Cast<SubscriberDeliveryTypeSettings<long>>().ToList();
+            return list.Cast<SubscriberDeliveryTypeSettingsLong>().ToList();
         }
 
 
 
         //update
-        public virtual async Task Update(SubscriberDeliveryTypeSettings<long> item)
+        public virtual async Task Update(SubscriberDeliveryTypeSettingsLong item)
         {
-            SubscriberDeliveryTypeSettingsLong mappedItem = _mapper.Map<SubscriberDeliveryTypeSettingsLong>(item);
-           
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
-                context.SubscriberDeliveryTypeSettings.Attach(mappedItem);
-                context.Entry(mappedItem).State = EntityState.Modified;
+                context.SubscriberDeliveryTypeSettings.Attach(item);
+                context.Entry(item).State = EntityState.Modified;
                 int changes = await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
@@ -172,7 +158,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
         {
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
-                UpdateCommand<SubscriberDeliveryTypeSettingsLong> updateCommand = repository.UpdateMany<SubscriberDeliveryTypeSettingsLong>(
+                UpdateCommand<SubscriberDeliveryTypeSettingsLong> updateCommand = repository
+                    .UpdateMany<SubscriberDeliveryTypeSettingsLong>(
                     x => x.SubscriberId == subscriberId);
                 updateCommand.Assign(x => x.LastVisitUtc, x => DateTime.UtcNow);
                 int changes = await updateCommand.ExecuteAsync().ConfigureAwait(false);
@@ -229,16 +216,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             }
         }
 
-        public virtual async Task UpdateNDRSettings(List<SubscriberDeliveryTypeSettings<long>> items)
+        public virtual async Task UpdateNDRSettings(List<SubscriberDeliveryTypeSettingsLong> items)
         {
-            List<SubscriberDeliveryTypeSettingsLong> mappedList = items
-                .Select(_mapper.Map<SubscriberDeliveryTypeSettingsLong>)
-                .ToList();
-            
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 string tvpName = TableValuedParameters.GetFullTVPName(_connectionSettings.Schema, TableValuedParameters.SUBSCRIBER_NDR_SETTINGS_TYPE);
-                MergeCommand<SubscriberDeliveryTypeSettingsLong> merge = repository.MergeTVP(mappedList, tvpName);
+                MergeCommand<SubscriberDeliveryTypeSettingsLong> merge = repository.MergeTVP(items, tvpName);
                 merge.Source
                     .IncludeProperty(p => p.SubscriberId)
                     .IncludeProperty(p => p.DeliveryType)

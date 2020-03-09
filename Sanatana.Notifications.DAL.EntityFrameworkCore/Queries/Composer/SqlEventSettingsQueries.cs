@@ -16,7 +16,7 @@ using Microsoft.Data.SqlClient;
 using Sanatana.EntityFrameworkCore.Batch.Commands;
 using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
     public class SqlEventSettingsQueries : IEventSettingsQueries<long>
     {

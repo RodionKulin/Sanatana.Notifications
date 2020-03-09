@@ -12,7 +12,7 @@ using Autofac;
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.Notifications.Demo.Sender.Model;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.DeliveryTypes.Email;
 using Sanatana.Notifications.DeliveryTypes.Trace;
 using Sanatana.Notifications.DAL.Entities;
@@ -97,11 +97,11 @@ namespace Sanatana.Notifications.Demo.Sender
             }
 
             contextFactory.InitializeDatabase();
-            
-            var deliveryTypeQueries = container.Resolve<ISubscriberDeliveryTypeSettingsQueries<long>>();
-            deliveryTypeQueries.Insert(new List<SubscriberDeliveryTypeSettings<long>>
+
+            var deliveryTypeQueries = container.Resolve<ISubscriberDeliveryTypeSettingsQueries<SubscriberDeliveryTypeSettingsLong, long >>();
+            deliveryTypeQueries.Insert(new List<SubscriberDeliveryTypeSettingsLong>
             {
-                new SubscriberDeliveryTypeSettings<long>
+                new SubscriberDeliveryTypeSettingsLong
                 {
                     SubscriberId = 1,
                     DeliveryType = (int)Model.DeliveryTypes.Email,
@@ -109,8 +109,8 @@ namespace Sanatana.Notifications.Demo.Sender
                     IsEnabled = true
                 }
             }).Wait();
-            
-            var categoryQueries = container.Resolve<ISubscriberCategorySettingsQueries<long>>();
+
+            var categoryQueries = container.Resolve<ISubscriberCategorySettingsQueries<SubscriberCategorySettings<long>, long>>();
             categoryQueries.Insert(new List<SubscriberCategorySettings<long>>
             {
                 new SubscriberCategorySettings<long>
@@ -153,7 +153,7 @@ namespace Sanatana.Notifications.Demo.Sender
                 }
             };
         }
-        
+
     }
 
 }

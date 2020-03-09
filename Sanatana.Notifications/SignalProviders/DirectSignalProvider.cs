@@ -1,4 +1,4 @@
-﻿using Sanatana.Notifications.Monitoring;
+﻿using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Queues;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using Sanatana.Notifications.SignalProviders.Interfaces;
 
 namespace Sanatana.Notifications.SignalProviders
 {
-    public class DirectSignalProvider<TKey> : BaseSignalProvider<TKey>, ISignalProviderControl, IDirectSignalProvider<TKey>
+    public class DirectSignalProvider<TKey> : BaseSignalProvider<TKey>, ISignalProviderControl, ISignalProvider<TKey>
         where TKey : struct
     {
         //fields
@@ -21,8 +21,7 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //init
-        public DirectSignalProvider(IEventQueue<TKey> eventQueues
-            , IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink)
+        public DirectSignalProvider(IEventQueue<TKey> eventQueues, IDispatchQueue<TKey> dispatchQueues, IEventTracker<TKey> eventSink)
             : base(eventQueues, dispatchQueues, eventSink)
         {
             _isStarted = false;
@@ -41,7 +40,7 @@ namespace Sanatana.Notifications.SignalProviders
         }
 
 
-        //data transfer
+        //templateData transfer
         protected virtual void ThrowStoppedInstanceError()
         {
             string message = string.Format(SenderInternalMessages.InMemorySignalProvider_InvokeMethodInStoppedState
@@ -49,44 +48,47 @@ namespace Sanatana.Notifications.SignalProviders
             throw new InvalidOperationException(message);
         }
 
-        public override void RaiseEventAndMatchSubscribers(Dictionary<string, string> data, int categoryId, string topicId = null, TKey? subscribersGroupId = null)
+        public override void EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
+            Dictionary<string, string> subscriberFiltersData = null, string topicId = null)
         {
             if (_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.RaiseEventAndMatchSubscribers(data, categoryId, topicId, subscribersGroupId);
+            base.EnqueueMatchSubscribersEvent(templateData, categoryId, subscriberFiltersData, topicId);
         }
 
-        public override void RaiseEventForSubscribersDirectly(List<TKey> subscriberIds, Dictionary<string, string> data, int categoryId, string topicId = null)
+        public override void EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
+            List<TKey> subscriberIds, string topicId = null)
         {
             if (_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.RaiseEventForSubscribersDirectly(subscriberIds, data, categoryId, topicId);
+            base.EnqueueDirectSubscriberIdsEvent(templateData, categoryId, subscriberIds, topicId);
         }
 
-        public override void RaiseEventForAddressesDirectly(List<DeliveryAddress> deliveryAddresses, Dictionary<string, string> data, int categoryId)
+        public override void EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId,
+            List<DeliveryAddress> deliveryAddresses)
         {
             if (_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.RaiseEventForAddressesDirectly(deliveryAddresses, data, categoryId);
+            base.EnqueueDirectAddressesEvent(templateData, categoryId, deliveryAddresses);
         }
 
-        public override void SendDispatch(SignalDispatch<TKey> dispatch)
+        public override void EnqueueDispatch(SignalDispatch<TKey> dispatch)
         {
             if(_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.SendDispatch(dispatch);
+            base.EnqueueDispatch(dispatch);
         }
     }
 }

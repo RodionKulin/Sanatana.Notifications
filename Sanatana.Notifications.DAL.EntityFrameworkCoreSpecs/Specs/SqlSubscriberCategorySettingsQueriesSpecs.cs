@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 using FluentAssertions;
 using SpecsFor.StructureMap;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {
@@ -22,23 +23,23 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
         public class when_inserting_categories_using_ef 
             : SpecsFor<SqlSubscriberCategorySettingsQueries>, INeedDbContext
         {
-            private List<SubscriberCategorySettings<long>> _insertedData;
+            private List<SubscriberCategorySettingsLong> _insertedData;
             public SenderDbContext DbContext { get; set; }
 
 
             
             protected override void When()
             {
-                _insertedData = new List<SubscriberCategorySettings<long>>
+                _insertedData = new List<SubscriberCategorySettingsLong>
                 {
-                    new SubscriberCategorySettings<long>()
+                    new SubscriberCategorySettingsLong()
                     {
                         CategoryId = 1,
                         DeliveryType = 4,
                         IsEnabled = true,
                         SubscriberId = 10
                     },
-                    new SubscriberCategorySettings<long>()
+                    new SubscriberCategorySettingsLong()
                     {
                         CategoryId = 1,
                         DeliveryType = 2,

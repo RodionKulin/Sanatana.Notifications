@@ -41,7 +41,7 @@ namespace Sanatana.Notifications.Composing
                 }
 
                 List<Subscriber<TKey>> templateSubscribers = delivTypeSubscribers[template.DeliveryType];
-                List<SignalDispatch<TKey>> templateDispatches = Build(settings, signalEvent, template, templateSubscribers);
+                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers);
                 dispatches.AddRange(templateDispatches);
             }
 
@@ -53,7 +53,7 @@ namespace Sanatana.Notifications.Composing
             };
         }
 
-        protected virtual List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
+        protected virtual List<SignalDispatch<TKey>> BuildTemplate(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
             , DispatchTemplate<TKey> template , List<Subscriber<TKey>> templateSubscribers)
         {
             return template.Build(settings, signalEvent, templateSubscribers);

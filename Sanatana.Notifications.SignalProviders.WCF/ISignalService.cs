@@ -15,16 +15,16 @@ namespace Sanatana.Notifications.SignalProviders.WCF
         where TKey : struct
     {
         [OperationContract]
-        void RaiseEventAndMatchSubscribers(Dictionary<string, string> data, int categoryId, string topicId = null, TKey? subscribersGroupId = null);
+        void EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId, Dictionary<string, string> subscriberFilters = null, string topicId = null);
 
         [OperationContract]
-        void RaiseEventForSubscribersDirectly(List<TKey> subscriberIds, Dictionary<string, string> data, int categoryId, string topicId = null);
+        void EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, List<TKey> subscriberIds, string topicId = null);
 
         [OperationContract]
-        void RaiseEventForAddressesDirectly(List<DeliveryAddress> deliveryAddresses, Dictionary<string, string> data, int categoryId);
+        void EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, List<DeliveryAddress> deliveryAddresses);
 
         [OperationContract]
-        void SendDispatch(SignalDispatch<TKey> dispatch);
+        void EnqueueDispatch(SignalDispatch<TKey> dispatch);
     }
     
 }

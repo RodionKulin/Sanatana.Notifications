@@ -107,6 +107,9 @@ namespace Sanatana.Notifications.Sender
 
 
         //WcfSignalProvider
+        /// <summary>
+        /// Register derived types that should be accepted by WcfSignalProvider
+        /// </summary>
         public static List<Type> KnownWCFServiceTypes { get; set; }
 
 

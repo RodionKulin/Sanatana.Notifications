@@ -17,6 +17,7 @@ using Should.Core;
 using SpecsFor.StructureMap;
 using SpecsFor.Core;
 using Moq;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {

@@ -10,45 +10,50 @@ using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
-    public class MongoDbSubscriberCategorySettingsQueries : ISubscriberCategorySettingsQueries<ObjectId>
+    public class MongoDbSubscriberCategorySettingsQueries<TCategory> :
+        ISubscriberCategorySettingsQueries<TCategory, ObjectId>
+        where TCategory : SubscriberCategorySettings<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSubscriberCategorySettingsQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbSubscriberCategorySettingsQueries(ICollectionFactory collectionFactory)
         {
-            
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
 
         //methods
-        public virtual async Task Insert(List<SubscriberCategorySettings<ObjectId>> settings)
+        public virtual Task Insert(List<TCategory> settings)
         {
             var options = new InsertManyOptions()
             {
                 IsOrdered = false
             };
 
-            await _context.SubscriberCategorySettings.InsertManyAsync(settings, options);
+            return _collectionFactory
+                .GetCollection<TCategory>()
+                .InsertManyAsync(settings, options);
         }
 
-        public virtual async Task<List<SubscriberCategorySettings<ObjectId>>> Select(List<ObjectId> subscriberIds, int categoryId)
+        public virtual async Task<List<TCategory>> Select(List<ObjectId> subscriberIds, int categoryId)
         {
-            var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TCategory>.Filter.Where(
                    p => subscriberIds.Contains(p.SubscriberId)
                    && p.CategoryId == categoryId);
 
-            List<SubscriberCategorySettings<ObjectId>> list = await _context.SubscriberCategorySettings.Find(filter).ToListAsync();
+            List<TCategory> list = await _collectionFactory
+                .GetCollection<TCategory>()
+                .Find(filter)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
             return list;
         }
@@ -60,37 +65,40 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         /// <param name="pageSize"></param>
         /// <param name="descending"></param>
         /// <returns></returns>
-        public async Task<TotalResult<List<SubscriberCategorySettings<ObjectId>>>> Find(int pageIndex, int pageSize, bool descending)
+        public async Task<TotalResult<List<TCategory>>> Find(int pageIndex, int pageSize, bool descending)
         {
             int skip = MongoDbPageNumbers.ToSkipNumber(pageIndex, pageSize);
-            var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(x => true);
+            var filter = Builders<TCategory>.Filter.Where(x => true);
 
-            Task<List<SubscriberCategorySettings<ObjectId>>> listTask = _context
-                .SubscriberCategorySettings.Find(filter)
+            Task<List<TCategory>> listTask = _collectionFactory
+                .GetCollection<TCategory>()
+                .Find(filter)
                 .Skip(skip)
                 .Limit(pageSize)
                 .ToListAsync();
-            Task<long> totalCountTask = _context.SubscriberCategorySettings.EstimatedDocumentCountAsync();
+            Task<long> totalCountTask = _collectionFactory
+                .GetCollection<TCategory>()
+                .EstimatedDocumentCountAsync();
 
-            List<SubscriberCategorySettings<ObjectId>> list = await listTask;
+            List<TCategory> list = await listTask;
             long totalCount = await totalCountTask;
 
-            return new TotalResult<List<SubscriberCategorySettings<ObjectId>>>(list, totalCount);
+            return new TotalResult<List<TCategory>>(list, totalCount);
         }
 
-        public virtual async Task UpdateIsEnabled(List<SubscriberCategorySettings<ObjectId>> items)
+        public virtual async Task UpdateIsEnabled(List<TCategory> items)
         {
-            var requests = new List<WriteModel<SubscriberCategorySettings<ObjectId>>>();
+            var requests = new List<WriteModel<TCategory>>();
 
-            foreach (SubscriberCategorySettings<ObjectId> item in items)
+            foreach (TCategory item in items)
             {
-                var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TCategory>.Filter.Where(
                     p => p.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
 
-                var update = Builders<SubscriberCategorySettings<ObjectId>>.Update
+                var update = Builders<TCategory>.Update
                     .Set(p => p.IsEnabled, item.IsEnabled);
 
-                requests.Add(new UpdateOneModel<SubscriberCategorySettings<ObjectId>>(filter, update)
+                requests.Add(new UpdateOneModel<TCategory>(filter, update)
                 {
                     IsUpsert = false
                 });
@@ -101,31 +109,33 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.SubscriberCategorySettings
-                .BulkWriteAsync(requests, options);
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<TCategory>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
 
-        public async Task UpsertIsEnabled(List<SubscriberCategorySettings<ObjectId>> items)
+        public async Task UpsertIsEnabled(List<TCategory> items)
         {
-            var requests = new List<WriteModel<SubscriberCategorySettings<ObjectId>>>();
+            var requests = new List<WriteModel<TCategory>>();
 
-            foreach (SubscriberCategorySettings<ObjectId> item in items)
+            foreach (TCategory item in items)
             {
-                var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TCategory>.Filter.Where(
                     p => p.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
 
                 if (item.IsEnabled)
                 {
-                    var update = Builders<SubscriberCategorySettings<ObjectId>>.Update
+                    var update = Builders<TCategory>.Update
                         .Set(p => p.IsEnabled, item.IsEnabled);
-                    requests.Add(new UpdateOneModel<SubscriberCategorySettings<ObjectId>>(filter, update)
+                    requests.Add(new UpdateOneModel<TCategory>(filter, update)
                     {
                         IsUpsert = true
                     });
                 }
                 else
                 {
-                    requests.Add(new DeleteOneModel<SubscriberCategorySettings<ObjectId>>(filter));
+                    requests.Add(new DeleteOneModel<TCategory>(filter));
                 }
             }
 
@@ -134,24 +144,32 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.SubscriberCategorySettings
-                .BulkWriteAsync(requests, options);
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<TCategory>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task Delete(ObjectId subscriberId)
         {
-            var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TCategory>.Filter.Where(
                 p => p.SubscriberId == subscriberId);
 
-            DeleteResult response = await _context.SubscriberCategorySettings.DeleteManyAsync(filter);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<TCategory>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
-        public virtual async Task Delete(SubscriberCategorySettings<ObjectId> item)
+        public virtual async Task Delete(TCategory item)
         {
-            var filter = Builders<SubscriberCategorySettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TCategory>.Filter.Where(
                     p => p.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
 
-            DeleteResult response = await _context.SubscriberCategorySettings.DeleteOneAsync(filter);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<TCategory>()
+                .DeleteOneAsync(filter)
+                .ConfigureAwait(false);
         }
 
 

@@ -25,6 +25,7 @@ using StructureMap;
 using Sanatana.Notifications.DAL.Interfaces;
 using StructureMap.AutoMocking;
 using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
 {

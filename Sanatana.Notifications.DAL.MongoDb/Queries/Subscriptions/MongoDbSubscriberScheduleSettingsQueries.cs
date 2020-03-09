@@ -9,23 +9,20 @@ using Sanatana.MongoDb;
 using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSubscriberScheduleSettingsQueries : ISubscriberScheduleSettingsQueries<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSubscriberScheduleSettingsQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbSubscriberScheduleSettingsQueries(ICollectionFactory collectionFactory)
         {
-            
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
@@ -38,23 +35,29 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            await _context.SubscriberReceivePeriods.InsertManyAsync(periods, options);
+            await _collectionFactory
+                .GetCollection<SubscriberScheduleSettings<ObjectId>>()
+                .InsertManyAsync(periods, options)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task<List<SubscriberScheduleSettings<ObjectId>>> Select(
             List<ObjectId> subscriberIds, List<int> receivePeriodSets = null)
         {
             var filter = Builders<SubscriberScheduleSettings<ObjectId>>.Filter.Where(
-                    p => subscriberIds.Contains(p.SubscriberId));
+                p => subscriberIds.Contains(p.SubscriberId));
 
             if (receivePeriodSets != null)
             {
-                filter = Builders<SubscriberScheduleSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberScheduleSettings<ObjectId>>.Filter.Where(
-                        p => receivePeriodSets.Contains(p.Set)));
+                filter &= Builders<SubscriberScheduleSettings<ObjectId>>.Filter.Where(
+                    p => receivePeriodSets.Contains(p.Set));
             }
 
-            List<SubscriberScheduleSettings<ObjectId>> list = await _context.SubscriberReceivePeriods.Find(filter).ToListAsync();
+            List<SubscriberScheduleSettings<ObjectId>> list = await _collectionFactory
+                .GetCollection<SubscriberScheduleSettings<ObjectId>>()
+                .Find(filter)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
             return list;
         }
@@ -63,9 +66,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             , List<SubscriberScheduleSettings<ObjectId>> periods)
         {
             List<int> receivePeriodSets = periods
-                    .Select(x => x.Set)
-                    .Distinct()
-                    .ToList();
+                .Select(x => x.Set)
+                .Distinct()
+                .ToList();
 
             var requests = new List<WriteModel<SubscriberScheduleSettings<ObjectId>>>();
 
@@ -84,7 +87,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = true
             };
 
-            BulkWriteResult response = await _context.SubscriberReceivePeriods.BulkWriteAsync(requests, options);
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<SubscriberScheduleSettings<ObjectId>>()
+                .BulkWriteAsync(requests, options)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task Delete(List<ObjectId> subscriberIds, List<int> receivePeriodSets = null)
@@ -94,12 +100,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
             if (receivePeriodSets != null)
             {
-                filter = Builders<SubscriberScheduleSettings<ObjectId>>.Filter.And(filter,
-                    Builders<SubscriberScheduleSettings<ObjectId>>.Filter.Where(
-                        p => receivePeriodSets.Contains(p.Set)));
+                filter &= Builders<SubscriberScheduleSettings<ObjectId>>.Filter.Where(
+                    p => receivePeriodSets.Contains(p.Set));
             }
 
-            DeleteResult response = await _context.SubscriberReceivePeriods.DeleteManyAsync(filter);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<SubscriberScheduleSettings<ObjectId>>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
 

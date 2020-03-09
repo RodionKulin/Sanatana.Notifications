@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Sanatana.Notifications;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Flushing;
 using Sanatana.Notifications.Dispatching.Channels;

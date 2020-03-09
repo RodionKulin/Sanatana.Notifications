@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.SignalProviders;
 using System;
@@ -15,58 +15,60 @@ namespace Sanatana.Notifications.SignalProviders
         //fields
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
-        protected IMonitor<TKey> _eventSink;
+        protected IEventTracker<TKey> _eventSink;
 
         
         //init
-        public BaseSignalProvider(IEventQueue<TKey> eventQueue
-            , IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink)
+        public BaseSignalProvider(IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue, IEventTracker<TKey> eventSink)
         {
             _eventQueue = eventQueue;
             _dispatchQueue = dispatchQueue;
             _eventSink = eventSink;
         }
-        
+
 
         //methods
-        public virtual void RaiseEventAndMatchSubscribers(Dictionary<string, string> data, int categoryId, string topicId = null, TKey? subscribersGroupId = null)
+        public virtual void EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
+            Dictionary<string, string> subscriberFilters = null, string topicId = null)
         {
             var keyValueEvent = new SignalEvent<TKey>()
             {
-                AddresseeType = AddresseeType.AllSubscsribers,
+                AddresseeType = AddresseeType.SubscriptionParameters,
                 CreateDateUtc = DateTime.UtcNow,
                 CategoryId = categoryId,
                 TopicId = topicId,
-                DataKeyValues = data,
-                GroupId = subscribersGroupId
+                TemplateData = templateData,
+                SubscriberFiltersData = subscriberFilters
             };
 
             EnqueueSignalEvent(keyValueEvent);
         }
 
-        public virtual void RaiseEventForSubscribersDirectly(List<TKey> subscriberIds, Dictionary<string, string> data, int categoryId, string topicId = null)
+        public virtual void EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
+            List<TKey> subscriberIds, string topicId = null)
         {
             var keyValueEvent = new SignalEvent<TKey>()
             {
-                AddresseeType = AddresseeType.SpecifiedSubscribersById,
+                AddresseeType = AddresseeType.SubscriberIds,
                 CreateDateUtc = DateTime.UtcNow,
                 CategoryId = categoryId,
                 TopicId = topicId,
-                DataKeyValues = data,
+                TemplateData = templateData,
                 PredefinedSubscriberIds = subscriberIds
             };
 
             EnqueueSignalEvent(keyValueEvent);
         }
 
-        public virtual void RaiseEventForAddressesDirectly(List<DeliveryAddress> deliveryAddresses, Dictionary<string, string> data, int categoryId)
+        public virtual void EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, 
+            List<DeliveryAddress> deliveryAddresses)
         {
             var keyValueEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.DirectAddresses,
                 CreateDateUtc = DateTime.UtcNow,
                 CategoryId = categoryId,
-                DataKeyValues = data,
+                TemplateData = templateData,
                 PredefinedAddresses = deliveryAddresses
             };
             
@@ -82,7 +84,7 @@ namespace Sanatana.Notifications.SignalProviders
             _eventSink.EventTransferred(keyValueEvent);
         }
 
-        public virtual void SendDispatch(SignalDispatch<TKey> dispatch)
+        public virtual void EnqueueDispatch(SignalDispatch<TKey> dispatch)
         {
             var signalWrapper = new SignalWrapper<SignalDispatch<TKey>>(dispatch, false);
 

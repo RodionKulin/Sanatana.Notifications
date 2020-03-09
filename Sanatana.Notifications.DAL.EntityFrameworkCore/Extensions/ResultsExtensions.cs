@@ -16,6 +16,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             var data = result.Data.Cast<TTarget>().ToList();
             return new TotalResult<List<TTarget>>(data, result.TotalRows);
         }
-        
+
+        public static TotalResult<List<T>> ToTotalResult<T>(this RepositoryResult<T> result)
+        {
+            return new TotalResult<List<T>>(result.Data, result.TotalRows);
+        }
+
     }
 }

@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using Sanatana.MongoDb;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 using Sanatana.Notifications.DAL.Results;
 using System;
 using System.Collections.Generic;
@@ -14,27 +15,27 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
     public class MongoDbDispatchTemplateQueries : IDispatchTemplateQueries<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbDispatchTemplateQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbDispatchTemplateQueries(ICollectionFactory collectionFactory)
         {
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
         //methods
-        public async Task Insert(List<DispatchTemplate<ObjectId>> items)
+        public Task Insert(List<DispatchTemplate<ObjectId>> items)
         {
             var options = new InsertManyOptions()
             {
                 IsOrdered = true
             };
 
-            await _context.DispatchTemplates.InsertManyAsync(items, options).ConfigureAwait(false);
+            return _collectionFactory
+                .GetCollection<DispatchTemplate<ObjectId>>()
+                .InsertManyAsync(items, options);
         }
 
         /// <summary>
@@ -53,8 +54,11 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = false
             };
 
-            Task<long> countTask = _context.DispatchTemplates.EstimatedDocumentCountAsync();
-            Task<List<DispatchTemplate<ObjectId>>> listTask = _context.DispatchTemplates.Find(filter, options)
+            IMongoCollection<DispatchTemplate<ObjectId>> dispatchTemplates = 
+                _collectionFactory.GetCollection<DispatchTemplate<ObjectId>>();
+
+            Task<long> countTask = dispatchTemplates.EstimatedDocumentCountAsync();
+            Task<List<DispatchTemplate<ObjectId>>> listTask = dispatchTemplates.Find(filter, options)
                 .SortByDescending(x => x.DispatchTemplateId)
                 .Skip(skip)
                 .Limit(pageSize)
@@ -76,7 +80,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = false
             };
 
-            DispatchTemplate<ObjectId> dispatchTemplate = await _context.DispatchTemplates.Find(filter, options)
+            DispatchTemplate<ObjectId> dispatchTemplate = await _collectionFactory
+                .GetCollection<DispatchTemplate<ObjectId>>()
+                .Find(filter, options)
                 .FirstOrDefaultAsync()
                 .ConfigureAwait(false);
 
@@ -93,7 +99,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = false
             };
 
-            List<DispatchTemplate<ObjectId>> list = await _context.DispatchTemplates.Find(filter, options)
+            List<DispatchTemplate<ObjectId>> list = await _collectionFactory
+                .GetCollection<DispatchTemplate<ObjectId>>()
+                .Find(filter, options)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -123,20 +131,22 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            BulkWriteResult response = await _context.DispatchTemplates
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<DispatchTemplate<ObjectId>>()
                 .BulkWriteAsync(requests, options);
         }
 
         public async Task Delete(List<DispatchTemplate<ObjectId>> items)
         {
-            List<ObjectId> ids = items
-                .Select(p => p.DispatchTemplateId).ToList();
+            List<ObjectId> ids = items.Select(p => p.DispatchTemplateId).ToList();
 
-            var filter = Builders<StoredNotification<ObjectId>>.Filter.Where(
-                p => ids.Contains(p.StoredNotificationId));
+            var filter = Builders<DispatchTemplate<ObjectId>>.Filter.Where(
+                p => ids.Contains(p.DispatchTemplateId));
 
-            DeleteResult response = await _context.StoredNotifications
-                .DeleteManyAsync(filter).ConfigureAwait(false);
+            DeleteResult response = await _collectionFactory
+                .GetCollection<DispatchTemplate<ObjectId>>()
+                .DeleteManyAsync(filter)
+                .ConfigureAwait(false);
         }
 
     }

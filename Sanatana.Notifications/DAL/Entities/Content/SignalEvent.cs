@@ -13,7 +13,7 @@ namespace Sanatana.Notifications.DAL.Entities
         where TKey : struct
     {
         public TKey SignalEventId { get; set; }
-        public Dictionary<string, string> DataKeyValues { get; set; }
+        public Dictionary<string, string> TemplateData { get; set; }
         public DateTime CreateDateUtc { get; set; }
         public int CategoryId { get; set; }
         public string TopicId { get; set; }
@@ -23,7 +23,7 @@ namespace Sanatana.Notifications.DAL.Entities
 
 
         //AddresseeType.AllSubscsribers - Fetching subscribers and previous progress fetching subscriber ids.
-        public TKey? GroupId { get; set; }
+        public Dictionary<string, string> SubscriberFiltersData { get; set; }
         public TKey? SubscriberIdRangeFrom { get; set; }
         public TKey? SubscriberIdRangeTo { get; set; }
         public List<int> SubscriberIdFromDeliveryTypesHandled { get; set; }

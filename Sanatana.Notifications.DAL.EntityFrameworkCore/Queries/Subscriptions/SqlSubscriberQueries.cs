@@ -16,7 +16,7 @@ using Microsoft.Data.SqlClient;
 using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
 
-namespace Sanatana.Notifications.DAL.EntityFrameworkCore
+namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
     public class SqlSubscriberQueries : ISubscriberQueries<long>
     {
@@ -122,11 +122,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                 query = query.Where(p => p.DeliveryType == parameters.DeliveryType.Value);
             }
 
-            if (subscribersRange.GroupId != null)
-            {
-                query = query.Where(p => p.GroupId == subscribersRange.GroupId.Value);
-            }
-
             if (parameters.CheckDeliveryTypeEnabled)
             {
                 query = query.Where(p => p.IsEnabled == true);
@@ -166,12 +161,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 query = query.Where(p => p.DeliveryType == parameters.DeliveryType.Value);
             }
-
-            if (subscribersRange.GroupId != null)
-            {
-                query = query.Where(p => p.GroupId == subscribersRange.GroupId.Value);
-            }
-
+            
             if (subscribersRange.FromSubscriberIds != null)
             {
                 query = query.Where(p => subscribersRange.FromSubscriberIds.Contains(p.SubscriberId));

@@ -4,6 +4,7 @@ using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
+using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Queries;
 using System;
@@ -41,10 +42,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
             builder.RegisterType<SqlStoredNotificationQueries>().As<IStoredNotificationQueries<long>>().SingleInstance();
 
             builder.RegisterType<SqlSubscriberQueries>().As<ISubscriberQueries<long>>().SingleInstance();
-            builder.RegisterType<SqlSubscriberCategorySettingsQueries>().As<ISubscriberCategorySettingsQueries<long>>().SingleInstance();
-            builder.RegisterType<SqlSubscriberDeliveryTypeSettingsQueries>().As<ISubscriberDeliveryTypeSettingsQueries<long>>().SingleInstance();
+            builder.RegisterType<SqlSubscriberCategorySettingsQueries>().As<ISubscriberCategorySettingsQueries<SubscriberCategorySettingsLong, long>>().SingleInstance();
+            builder.RegisterType<SqlSubscriberDeliveryTypeSettingsQueries>().As<ISubscriberDeliveryTypeSettingsQueries<SubscriberDeliveryTypeSettingsLong, long>>().SingleInstance();
+            builder.RegisterType<SqlSubscriberTopicSettingsQueries>().As<ISubscriberTopicSettingsQueries<SubscriberTopicSettingsLong, long>>().SingleInstance();
             builder.RegisterType<SqlSubscriberScheduleSettingsQueries>().As<ISubscriberScheduleSettingsQueries<long>>().SingleInstance();
-            builder.RegisterType<SqlSubscriberTopicSettingsQueries>().As<ISubscriberTopicSettingsQueries<long>>().SingleInstance();
 
         }
     }

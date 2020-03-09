@@ -10,29 +10,29 @@ using MongoDB.Driver;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.Notifications.DAL.MongoDb.Entities;
+using Sanatana.Notifications.DAL.MongoDb.Context;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
-    public class MongoDbSubscriberCategorySettingsEmbeddedQueries : ISubscriberCategorySettingsQueries<ObjectId>
+    public class MongoDbSubscriberCategorySettingsEmbeddedQueries<TCategory, TDeliveryType> : ISubscriberCategorySettingsQueries<TCategory, ObjectId>
+        where TDeliveryType : MongoDbSubscriberDeliveryTypeSettings<TCategory>
+        where TCategory : SubscriberCategorySettings<ObjectId>
     {
         //fields
-        protected MongoDbConnectionSettings _settings;
-
-        protected SenderMongoDbContext _context;
+        protected ICollectionFactory _collectionFactory;
 
 
         //init
-        public MongoDbSubscriberCategorySettingsEmbeddedQueries(MongoDbConnectionSettings connectionSettings)
+        public MongoDbSubscriberCategorySettingsEmbeddedQueries(ICollectionFactory collectionFactory)
         {
-
-            _settings = connectionSettings;
-            _context = new SenderMongoDbContext(connectionSettings);
+            _collectionFactory = collectionFactory;
         }
 
 
 
         //methods
-        public virtual Task Insert(List<SubscriberCategorySettings<ObjectId>> settings)
+        public virtual Task Insert(List<TCategory> settings)
         {
             if (settings == null || settings.Count == 0)
             {
@@ -47,42 +47,44 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             var deliveryTypeGroups = settings
                 .GroupBy(x => new { x.SubscriberId, x.DeliveryType });
 
-            var writeOperations = new List<WriteModel<SubscriberDeliveryTypeSettings<ObjectId>>>();
+            var writeOperations = new List<WriteModel<TDeliveryType>>();
             foreach (var deliveryTypeGroup in deliveryTypeGroups)
             {
-                var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TDeliveryType>.Filter.Where(
                     p => p.SubscriberId == deliveryTypeGroup.Key.SubscriberId
                     && p.DeliveryType == deliveryTypeGroup.Key.DeliveryType);
 
-                var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update
+                var update = Builders<TDeliveryType>.Update
                     .AddToSetEach(x => x.SubscriberCategorySettings, deliveryTypeGroup);
 
-                var updateModel = new UpdateOneModel<SubscriberDeliveryTypeSettings<ObjectId>>(filter, update); ;
+                var updateModel = new UpdateOneModel<TDeliveryType>(filter, update); ;
                 writeOperations.Add(updateModel);
             }
 
-           return _context.SubscriberDeliveryTypeSettings
+           return _collectionFactory
+                .GetCollection<TDeliveryType>()
                 .BulkWriteAsync(writeOperations, new BulkWriteOptions
                 {
                     IsOrdered = false
                 });
         }
 
-        public virtual async Task<List<SubscriberCategorySettings<ObjectId>>> Select(
-            List<ObjectId> subscriberIds, int categoryId)
+        public virtual async Task<List<TCategory>> Select(List<ObjectId> subscriberIds, int categoryId)
         {
-            var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TDeliveryType>.Filter.Where(
                    p => subscriberIds.Contains(p.SubscriberId));
 
-            var projection = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Projection
+            var projection = Builders<TDeliveryType>.Projection
                 .Include(x => x.SubscriberCategorySettings);
 
-            List<SubscriberDeliveryTypeSettings<ObjectId>> deliveryTypes = await _context.SubscriberDeliveryTypeSettings
+            List<TDeliveryType> deliveryTypes = await _collectionFactory
+                .GetCollection<TDeliveryType>()
                 .Find(filter)
-                .Project<SubscriberDeliveryTypeSettings<ObjectId>>(projection)
-                .ToListAsync();
+                .Project<TDeliveryType>(projection)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
-            List<SubscriberCategorySettings<ObjectId>> categorySettings = deliveryTypes
+            List<TCategory> categorySettings = deliveryTypes
                 .SelectMany(x => x.SubscriberCategorySettings)
                 .Where(x => x.CategoryId == categoryId)
                 .ToList();
@@ -97,26 +99,26 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         /// <param name="pageSize"></param>
         /// <param name="descending"></param>
         /// <returns></returns>
-        public virtual async Task<TotalResult<List<SubscriberCategorySettings<ObjectId>>>> Find(
+        public virtual async Task<TotalResult<List<TCategory>>> Find(
             int pageIndex, int pageSize, bool descending)
         {
             //select categories
-            var pipeline = new EmptyPipelineDefinition<SubscriberDeliveryTypeSettings<ObjectId>>();
+            var pipeline = new EmptyPipelineDefinition<TDeliveryType>();
 
             var pipeline2 = pipeline.Unwind(x => x.SubscriberCategorySettings)
-                .As<SubscriberDeliveryTypeSettings<ObjectId>, BsonDocument, SubscriberDeliveryTypeSettings<ObjectId>>();
+                .As<TDeliveryType, BsonDocument, TDeliveryType>();
 
             var pipeline3 = pipeline2.ReplaceRoot(x => x.SubscriberCategorySettings)
-                .As<SubscriberDeliveryTypeSettings<ObjectId>, List<SubscriberCategorySettings<ObjectId>>, SubscriberCategorySettings<ObjectId>>();
+                .As<TDeliveryType, List<TCategory>, TCategory>();
 
             //count total categories
-            var countPipeline = new EmptyPipelineDefinition<SubscriberCategorySettings<ObjectId>>().Count();
+            var countPipeline = new EmptyPipelineDefinition<TCategory>().Count();
             var countFacetStage = AggregateFacet.Create("count", countPipeline);
 
             //limit page of categories
-            var limitPipeline = new EmptyPipelineDefinition<SubscriberCategorySettings<ObjectId>>()
-                .As<SubscriberCategorySettings<ObjectId>, SubscriberCategorySettings<ObjectId>, SubscriberCategorySettings<ObjectId>>();
-            var sort = Builders<SubscriberCategorySettings<ObjectId>>.Sort.Combine();
+            var limitPipeline = new EmptyPipelineDefinition<TCategory>()
+                .As<TCategory, TCategory, TCategory>();
+            var sort = Builders<TCategory>.Sort.Combine();
             sort = descending
                 ? sort.Descending(x => x.SubscriberCategorySettingsId)
                 : sort.Ascending(x => x.SubscriberCategorySettingsId);
@@ -128,13 +130,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             var dataFacetStage = AggregateFacet.Create("data", limitPipeline);
 
             //combine facets
-            var pipeline4 = pipeline3.Facet(new AggregateFacet<SubscriberCategorySettings<ObjectId>>[] {
+            var pipeline4 = pipeline3.Facet(new AggregateFacet<TCategory>[] {
                 countFacetStage,
                 dataFacetStage
             });
 
             //query
-            IAsyncCursor<AggregateFacetResults> categorySettings = await _context.SubscriberDeliveryTypeSettings
+            IAsyncCursor<AggregateFacetResults> categorySettings = await _collectionFactory
+                .GetCollection<TDeliveryType>()
                 .AggregateAsync(pipeline4, new AggregateOptions())
                 .ConfigureAwait(false);
 
@@ -148,30 +151,30 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .First(x => x.Name == "data");
 
             var count = countFacetResult.Output<AggregateCountResult>();
-            var categories = dataFacetResult.Output<SubscriberCategorySettings<ObjectId>>();
+            var categories = dataFacetResult.Output<TCategory>();
 
-            return new TotalResult<List<SubscriberCategorySettings<ObjectId>>>(
+            return new TotalResult<List<TCategory>>(
                 categories.ToList(),
                 count.Count);
         }
 
-        public virtual Task UpdateIsEnabled(List<SubscriberCategorySettings<ObjectId>> items)
+        public virtual Task UpdateIsEnabled(List<TCategory> items)
         {
-            var requests = new List<WriteModel<SubscriberDeliveryTypeSettings<ObjectId>>>();
+            var requests = new List<WriteModel<TDeliveryType>>();
 
-            foreach (SubscriberCategorySettings<ObjectId> item in items)
+            foreach (TCategory item in items)
             {
-                var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter
+                var filter = Builders<TDeliveryType>.Filter
                     .Where(p => p.SubscriberId == item.SubscriberId
                     && p.DeliveryType == item.DeliveryType);
-                filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter
+                filter &= Builders<TDeliveryType>.Filter
                     .ElemMatch(x => x.SubscriberCategorySettings,
                     cat => cat.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
 
-                var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update
+                var update = Builders<TDeliveryType>.Update
                     .Set(p => p.SubscriberCategorySettings[-1].IsEnabled, item.IsEnabled);
 
-                requests.Add(new UpdateOneModel<SubscriberDeliveryTypeSettings<ObjectId>>(filter, update)
+                requests.Add(new UpdateOneModel<TDeliveryType>(filter, update)
                 {
                     IsUpsert = false
                 });
@@ -182,87 +185,95 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 IsOrdered = false
             };
 
-            return _context.SubscriberDeliveryTypeSettings.BulkWriteAsync(requests, options);
+            return _collectionFactory
+                .GetCollection<TDeliveryType>()
+                .BulkWriteAsync(requests, options);
         }
 
-        public virtual Task UpsertIsEnabled(List<SubscriberCategorySettings<ObjectId>> items)
+        public virtual Task UpsertIsEnabled(List<TCategory> items)
         {
-            var requests = new List<WriteModel<SubscriberDeliveryTypeSettings<ObjectId>>>();
+            var requests = new List<WriteModel<TDeliveryType>>();
 
-            foreach (SubscriberCategorySettings<ObjectId> item in items)
+            foreach (TCategory item in items)
             {
-                var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+                var filter = Builders<TDeliveryType>.Filter.Where(
                     p => p.SubscriberId == item.SubscriberId
                     && p.DeliveryType == item.DeliveryType);
 
                 if (item.IsEnabled)
                 {
-                    filter &= Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.ElemMatch(
+                    filter &= Builders<TDeliveryType>.Filter.ElemMatch(
                         x => x.SubscriberCategorySettings,
                         cat => cat.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
-                    var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update
+                    var update = Builders<TDeliveryType>.Update
                         .Set(p => p.SubscriberCategorySettings[-1].IsEnabled, item.IsEnabled);
-                    requests.Add(new UpdateOneModel<SubscriberDeliveryTypeSettings<ObjectId>>(filter, update)
+                    requests.Add(new UpdateOneModel<TDeliveryType>(filter, update)
                     {
                         IsUpsert = true
                     });
                 }
                 else
                 {
-                    var pullFilter = Builders<SubscriberCategorySettings<ObjectId>>.Filter
+                    var pullFilter = Builders<TCategory>.Filter
                         .Where(cat => cat.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
-                    var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update
+                    var update = Builders<TDeliveryType>.Update
                         .PullFilter(x => x.SubscriberCategorySettings, pullFilter);
-                    requests.Add(new UpdateOneModel<SubscriberDeliveryTypeSettings<ObjectId>>(filter, update)
+                    requests.Add(new UpdateOneModel<TDeliveryType>(filter, update)
                     {
                         IsUpsert = false
                     });
                 }
             }
 
-            return _context.SubscriberDeliveryTypeSettings.BulkWriteAsync(requests, new BulkWriteOptions
-            {
-                IsOrdered = false
-            });
+            return _collectionFactory
+                .GetCollection<TDeliveryType>()
+                .BulkWriteAsync(requests, new BulkWriteOptions
+                {
+                    IsOrdered = false
+                });
         }
 
         public virtual Task Delete(ObjectId subscriberId)
         {
-            var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TDeliveryType>.Filter.Where(
                 p => p.SubscriberId == subscriberId);
 
-            var pullFilter = Builders<SubscriberCategorySettings<ObjectId>>.Filter
+            var pullFilter = Builders<TCategory>.Filter
                 .Where(cat => true);
-            var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update
+            var update = Builders<TDeliveryType>.Update
                 .PullFilter(x => x.SubscriberCategorySettings, pullFilter);
 
-            return _context.SubscriberDeliveryTypeSettings.UpdateManyAsync(filter, update, new UpdateOptions
-            {
-                IsUpsert = false,
-            });
+            return _collectionFactory
+                .GetCollection<TDeliveryType>()
+                .UpdateManyAsync(filter, update, new UpdateOptions
+                {
+                    IsUpsert = false,
+                });
         }
 
-        public virtual Task Delete(SubscriberCategorySettings<ObjectId> item)
+        public virtual Task Delete(TCategory item)
         {
-            var requests = new List<WriteModel<SubscriberDeliveryTypeSettings<ObjectId>>>();
+            var requests = new List<WriteModel<TDeliveryType>>();
 
-            var filter = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Filter.Where(
+            var filter = Builders<TDeliveryType>.Filter.Where(
                 p => p.SubscriberId == item.SubscriberId
                 && p.DeliveryType == item.DeliveryType);
 
-            var pullFilter = Builders<SubscriberCategorySettings<ObjectId>>.Filter
+            var pullFilter = Builders<TCategory>.Filter
                 .Where(cat => cat.SubscriberCategorySettingsId == item.SubscriberCategorySettingsId);
-            var update = Builders<SubscriberDeliveryTypeSettings<ObjectId>>.Update
+            var update = Builders<TDeliveryType>.Update
                 .PullFilter(x => x.SubscriberCategorySettings, pullFilter);
-            requests.Add(new UpdateOneModel<SubscriberDeliveryTypeSettings<ObjectId>>(filter, update)
+            requests.Add(new UpdateOneModel<TDeliveryType>(filter, update)
             {
                 IsUpsert = false
             });
 
-            return _context.SubscriberDeliveryTypeSettings.BulkWriteAsync(requests, new BulkWriteOptions
-            {
-                IsOrdered = false
-            });
+            return _collectionFactory
+                .GetCollection<TDeliveryType>()
+                .BulkWriteAsync(requests, new BulkWriteOptions
+                {
+                    IsOrdered = false
+                });
         }
 
 

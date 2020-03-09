@@ -5,6 +5,7 @@ using Sanatana.DataGenerator.Generators;
 using Sanatana.DataGenerator.Internals;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
+using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +14,26 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehavi
 {
     public class CatEmbeddedLoadTestGenerator : CatEmbeddedGenerator
     {
-        //data ammount
+        //register entities
         protected override void SetDataAmounts(GeneratorSetup setup)
         {
             setup.GetEntityDescription<SubscriberWithMissingData>()
-                .SetTargetCount(50000000);
-            setup.GetEntityDescription<SubscriberDeliveryTypeSettings<ObjectId>>()
-                .SetTargetCount(100000000);
+                .SetTargetCount(5000000);
+            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
+                .SetTargetCount(10000000);
             setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
-                .SetTargetCount(400000000);
+                .SetTargetCount(40000000);
+        }
+
+        protected override void SetMemoryStorage(INeedSubscriptionsData instance, GeneratorSetup setup)
+        {
+            //do not store all entities in memory
         }
 
 
         //generators
         protected override List<SubscriberTopicSettings<ObjectId>> GenerateTopicsForDeliveryTypeSettings(GeneratorContext genContext,
-            SubscriberDeliveryTypeSettings<ObjectId> dt, SubscriberWithMissingData subscriber)
+            SpecsDeliveryTypeSettings dt, SubscriberWithMissingData subscriber)
         {
             EntityContext subscriberContext = genContext.EntityContexts[typeof(SubscriberWithMissingData)];
             long subscriberNumber = subscriberContext.EntityProgress.CurrentCount;

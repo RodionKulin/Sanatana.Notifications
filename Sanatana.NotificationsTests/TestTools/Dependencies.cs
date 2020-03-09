@@ -7,7 +7,7 @@ using Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac;
 using Sanatana.Notifications.DeliveryTypes.Trace;
 using Sanatana.Notifications.DI.Autofac;
 using Sanatana.Notifications.Dispatching.Channels;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -49,7 +49,7 @@ namespace Sanatana.NotificationsTests.TestTools
                 Dispatcher = new TraceDispatcher<long>(),
                 DeliveryType = (int)TestDeliveryTypes.Trace
             }).AsSelf().SingleInstance();
-            builder.RegisterType<TraceMonitor<long>>().As<IMonitor<long>>().SingleInstance();
+            builder.RegisterType<TraceEventTracker<long>>().As<IEventTracker<long>>().SingleInstance();
 
             ILogger logger = new ConsoleLogger("TestLogger", (input, level) => true, true);
             builder.RegisterInstance(logger).As<ILogger>().SingleInstance();

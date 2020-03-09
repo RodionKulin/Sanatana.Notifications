@@ -12,35 +12,46 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 {
     public class SignalEventLong : SignalEvent<long>
     {
-        //serialization properties
-        public string DataKeyValuesSerialized
+        //serialized properties
+        public string TemplateDataSerialized
         {
             get
             {
-                if(DataKeyValues == null || DataKeyValues.Count == 0)
+                if (TemplateData == null || TemplateData.Count == 0)
                 {
                     return null;
                 }
-
-                var xList = DataKeyValues.Select(
-                    x => new XElement("item"
-                    , new XAttribute("key", x.Key)
-                    , new XAttribute("value", x.Value ?? "")));
-                var xElem = new XElement("items", xList);
-                return xElem.ToString();
+                return JsonConvert.SerializeObject(TemplateData);
             }
             set
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    DataKeyValues = new Dictionary<string, string>();
+                    TemplateData = null;
                     return;
                 }
+                TemplateData = JsonConvert.DeserializeObject<Dictionary<string, string>>(value);
+            }
+        }
 
-                var xElem = XElement.Parse(value);
-                DataKeyValues = xElem.Descendants("item").ToDictionary(
-                    x => (string)x.Attribute("key"),
-                    x => (string)x.Attribute("value"));
+        public string SubscriberFiltersDataSerialized
+        {
+            get
+            {
+                if (SubscriberFiltersData == null || SubscriberFiltersData.Count == 0)
+                {
+                    return null;
+                }
+                return JsonConvert.SerializeObject(SubscriberFiltersData);
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    SubscriberFiltersData = null;
+                    return;
+                }
+                SubscriberFiltersData = JsonConvert.DeserializeObject<Dictionary<string, string>>(value);
             }
         }
 
@@ -53,23 +64,17 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
                     return null;
                 }
 
-                var xElem = new XElement("items", SubscriberIdFromDeliveryTypesHandled.Select(
-                    x => new XElement("item", x)
-                 ));
-                return xElem.ToString();
+                return JsonConvert.SerializeObject(SubscriberIdFromDeliveryTypesHandled);
             }
             set
             {
                 if(value == null)
                 {
-                    SubscriberIdFromDeliveryTypesHandled = new List<int>();
+                    SubscriberIdFromDeliveryTypesHandled = null;
                     return;
                 }
 
-                var xElem = XElement.Parse(value);
-                SubscriberIdFromDeliveryTypesHandled = xElem.Descendants("item")
-                    .Select(x => int.Parse(x.Value))
-                    .ToList();
+                SubscriberIdFromDeliveryTypesHandled = JsonConvert.DeserializeObject<List<int>>(value);
             }
         }
 
@@ -87,6 +92,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 if (string.IsNullOrEmpty(value))
                 {
+                    PredefinedSubscriberIds = null;
                     return;
                 }
                 PredefinedSubscriberIds = JsonConvert.DeserializeObject<List<long>>(value);
@@ -107,6 +113,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             {
                 if (string.IsNullOrEmpty(value))
                 {
+                    PredefinedAddresses = null;
                     return;
                 }
                 PredefinedAddresses = JsonConvert.DeserializeObject<List<DeliveryAddress>>(value);

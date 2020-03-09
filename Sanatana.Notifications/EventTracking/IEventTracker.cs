@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Timers.Switchables;
 
-namespace Sanatana.Notifications.Monitoring
+namespace Sanatana.Notifications.EventTracking
 {
-    public interface IMonitor<TKey>
+    public interface IEventTracker<TKey>
         where TKey : struct
     {
         void SenderSwitched(SwitchState state);

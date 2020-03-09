@@ -2,7 +2,7 @@
 using Sanatana.Notifications.Flushing;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Dispatching;
-using Sanatana.Notifications.Monitoring;
+using Sanatana.Notifications.EventTracking;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
