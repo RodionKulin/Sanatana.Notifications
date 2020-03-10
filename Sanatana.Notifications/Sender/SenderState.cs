@@ -12,7 +12,7 @@ namespace Sanatana.Notifications.Sender
         where TKey : struct
     {
         //fields
-        protected IMonitor<TKey> _eventSink;
+        protected IMonitor<TKey> _monitor;
         protected SwitchState _state = SwitchState.Stopped;
 
 
@@ -22,7 +22,7 @@ namespace Sanatana.Notifications.Sender
             get { return _state; }
             set
             {
-                _eventSink.SenderSwitched(value);
+                _monitor.SenderSwitched(value);
                 _state = value;
             }
         }
@@ -31,7 +31,7 @@ namespace Sanatana.Notifications.Sender
         //init
         public SenderState(IMonitor<TKey> eventSink)
         {
-            _eventSink = eventSink;
+            _monitor = eventSink;
         }
     }
 }

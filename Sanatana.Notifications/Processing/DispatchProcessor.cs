@@ -22,7 +22,7 @@ namespace Sanatana.Notifications.Processing
     {
         //fields
         protected SenderState<TKey> _hubState;
-        protected IMonitor<TKey> _eventSink;
+        protected IMonitor<TKey> _monitor;
         protected IDispatchChannelRegistry<TKey> _channelRegistry;
         protected IDispatchQueue<TKey> _dispatchQueue;
 
@@ -36,7 +36,7 @@ namespace Sanatana.Notifications.Processing
             _hubState = hubState;
             _dispatchQueue = dispatchQueue;
             _channelRegistry = channelRegistry;
-            _eventSink = eventSink;
+            _monitor = eventSink;
 
             MaxParallelItems = senderSettings.MaxParallelDispatchesProcessed;
         }
@@ -134,7 +134,7 @@ namespace Sanatana.Notifications.Processing
             }
 
             queue.ApplyResult(item, sendResult);
-            _eventSink.DispatchSent(item.Signal, sendDuration, sendResult, dispatcherAvailability);
+            _monitor.DispatchSent(item.Signal, sendDuration, sendResult, dispatcherAvailability);
         }
 
 

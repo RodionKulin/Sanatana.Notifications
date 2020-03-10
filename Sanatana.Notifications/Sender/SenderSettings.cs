@@ -41,11 +41,12 @@ namespace Sanatana.Notifications.Sender
         /// </summary>
         public bool SignalQueueIsTemporaryStorageEnabled { get; set; } = NotificationsConstants.SIGNAL_QUEUE_IS_TEMPORARY_STORAGE_ENABLED;
         /// <summary>
-        /// Items number limit when exceeded starts flushing queue items to permanent storage.
+        /// Start flushing queue items to permanent storage after exceeding this limit.
         /// </summary>
         public int SignalQueuePersistBeginOnItemsCount { get; set; } = NotificationsConstants.SIGNAL_QUEUE_PERSIST_BEGIN_ON_ITEMS_COUNT;
         /// <summary>
-        /// Target number of queue items when when flishing to permanent storage stops. 
+        /// Will flush to permanent storage until reached SignalQueuePersistEndOnItemsCount number.
+        /// Total number of items to be flushed is SignalQueuePersistBeginOnItemsCount minus SignalQueuePersistEndOnItemsCount.
         /// </summary>
         public int SignalQueuePersistEndOnItemsCount { get; set; } = NotificationsConstants.QUEUE_TARGET_PERSIST_END_ON_ITEMS_COUNT;
 
@@ -113,6 +114,16 @@ namespace Sanatana.Notifications.Sender
         public static List<Type> KnownWCFServiceTypes { get; set; }
 
 
+        //Other network SignalProviders
+        /// <summary>
+        /// Default write concern for network listening SignalProviders. 
+        /// If SignalWriteConcern is not provided by caller, then SenderSettings.DefaultWriteConcern is used.
+        /// If SenderSettings.DefaultWriteConcern is not specified, then MemoryOnly is used.
+        /// TemporaryStorage is only set globally by SignalQueueIsTemporaryStorageEnabled and can is not controlled for individual Signal.
+        /// </summary>
+        public SignalWriteConcern DefaultWriteConcern { get; set; }
+
+
         //init
         public SenderSettings()
         {
@@ -125,6 +136,21 @@ namespace Sanatana.Notifications.Sender
         public static IEnumerable<Type> GetKnownServiceTypes(ICustomAttributeProvider provider)
         {
             return KnownWCFServiceTypes ?? new List<Type>();
+        }
+
+        public virtual SignalWriteConcern GetWriteConcernOrDefault(SignalWriteConcern writeConcern)
+        {
+            if(writeConcern != SignalWriteConcern.Default)
+            {
+                return writeConcern;
+            }
+
+            if (DefaultWriteConcern != SignalWriteConcern.Default)
+            {
+                return DefaultWriteConcern;
+            }
+
+            return SignalWriteConcern.MemoryOnly;
         }
     }
 }

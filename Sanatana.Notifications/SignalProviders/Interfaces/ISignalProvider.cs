@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.SignalProviders.Interfaces
 {
     public interface ISignalProvider<TKey>
         where TKey : struct
     {
-        void EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId, Dictionary<string, string> subscriberFiltersData = null, string topicId = null);
-        void EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, List<TKey> subscriberIds, string topicId = null);
-        void EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, List<DeliveryAddress> deliveryAddresses);
-        void EnqueueDispatch(SignalDispatch<TKey> dispatch);
+        Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId, Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task EnqueueDispatch(SignalDispatch<TKey> dispatch, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
     }
 }

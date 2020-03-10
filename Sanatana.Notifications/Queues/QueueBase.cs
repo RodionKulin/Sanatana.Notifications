@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Parameters;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
 [assembly: InternalsVisibleTo("Sanatana.NotificationsTests")]
 namespace Sanatana.Notifications.Queues
@@ -140,12 +141,10 @@ namespace Sanatana.Notifications.Queues
             lock (_queueLock)
             {
                 int currentItemsCount = _itemsQueue.Sum(p => p.Value.Count);
-                bool isLimitExceeded = currentItemsCount > PersistBeginOnItemsCount;
-
                 int targetItemsCount = PersistEndOnItemsCount;
                 int extraItems = currentItemsCount - targetItemsCount;
 
-                if (isLimitExceeded && extraItems > 0)
+                if (extraItems > 0)
                 {
                     if(activeKeys == null)
                     {

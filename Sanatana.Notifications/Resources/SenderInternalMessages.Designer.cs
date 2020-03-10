@@ -19,7 +19,7 @@ namespace Sanatana.Notifications.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class SenderInternalMessages {
@@ -88,6 +88,24 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database exceptioption when selecting SignalDispatches..
+        /// </summary>
+        public static string DatabaseDispatchProvider_DatabaseError {
+            get {
+                return ResourceManager.GetString("DatabaseDispatchProvider_DatabaseError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database exceptioption when selecting SignalEvents..
+        /// </summary>
+        public static string DatabaseEventProvider_DatabaseError {
+            get {
+                return ResourceManager.GetString("DatabaseEventProvider_DatabaseError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No template delivery type matched subscriber delivery type(s) {0}..
         /// </summary>
         public static string DispatchBuilder_NoTemplateMatched {
@@ -115,6 +133,24 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No handler found for SignalDispatch with deliveryType [{0}]. SignalDispatch will be deleted..
+        /// </summary>
+        public static string DispatchQueue_HandlerNotFound {
+            get {
+                return ResourceManager.GetString("DispatchQueue_HandlerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No handler found for SignalEvent with EventKey [{0}]. SignalEvent will be deleted..
+        /// </summary>
+        public static string EventQueue_HandlerNotFound {
+            get {
+                return ResourceManager.GetString("EventQueue_HandlerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Temp storage file {0} is corrupted..
         /// </summary>
         public static string Filerepository_CorruptedFile {
@@ -124,7 +160,7 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Temp storage file {0} is not a valid Guid..
+        ///   Looks up a localized string similar to Temp storage file {0} has not a valid Guid name..
         /// </summary>
         public static string Filerepository_InvalidGuidName {
             get {

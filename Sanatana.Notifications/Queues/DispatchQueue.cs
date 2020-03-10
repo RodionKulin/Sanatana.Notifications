@@ -17,6 +17,8 @@ using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.Sender;
+using Microsoft.Extensions.Logging;
+using Sanatana.Notifications.Resources;
 
 namespace Sanatana.Notifications.Queues
 {
@@ -27,6 +29,7 @@ namespace Sanatana.Notifications.Queues
         //fields
         protected IDispatchChannelRegistry<TKey> _dispatcherRegistry;
         protected ISignalFlushJob<SignalDispatch<TKey>> _signalFlushJob;
+        protected ILogger _logger;
 
 
         //properties
@@ -38,11 +41,13 @@ namespace Sanatana.Notifications.Queues
 
         //init
         public DispatchQueue(SenderSettings senderSettings, ITemporaryStorage<SignalDispatch<TKey>> temporaryStorage
-            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalFlushJob<SignalDispatch<TKey>> signalFlushJob)
+            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalFlushJob<SignalDispatch<TKey>> signalFlushJob 
+            , ILogger logger)
             : base(temporaryStorage)
         {
             _dispatcherRegistry = dispatcherRegistry;
             _signalFlushJob = signalFlushJob;
+            _logger = logger;
 
             FailedAttemptRetryPeriod = senderSettings.SignalQueueOnFailedAttemptRetryPeriod;
             PersistBeginOnItemsCount = senderSettings.SignalQueuePersistBeginOnItemsCount;
@@ -132,6 +137,7 @@ namespace Sanatana.Notifications.Queues
             }
             else if (result == ProcessingResult.NoHandlerFound)
             {
+                _logger.LogError(SenderInternalMessages.DispatchQueue_HandlerNotFound, item.Signal.DeliveryType);
                 _signalFlushJob.Delete(item);
             }
             else if (result == ProcessingResult.ReturnToStorage)

@@ -1,11 +1,14 @@
 ﻿using Sanatana.Notifications;
 using Sanatana.Notifications.DAL.Entities;
+using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
+using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.SignalProviders
 {
@@ -15,39 +18,46 @@ namespace Sanatana.Notifications.SignalProviders
         //fields
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
-        protected IMonitor<TKey> _eventSink;
+        protected IMonitor<TKey> _monitor;
+        protected ISignalEventQueries<TKey> _eventQueries;
+        protected ISignalDispatchQueries<TKey> _dispatchQueries;
+        protected SenderSettings _senderSettings;
 
-        
+
         //init
-        public BaseSignalProvider(IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink)
+        public BaseSignalProvider(IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink,
+            ISignalEventQueries<TKey> eventQueries, ISignalDispatchQueries<TKey> dispatchQueries, SenderSettings senderSettings)
         {
             _eventQueue = eventQueue;
             _dispatchQueue = dispatchQueue;
-            _eventSink = eventSink;
+            _monitor = eventSink;
+            _eventQueries = eventQueries;
+            _dispatchQueries = dispatchQueries;
+            _senderSettings = senderSettings;
         }
 
 
         //methods
-        public virtual void EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
-            Dictionary<string, string> subscriberFilters = null, string topicId = null)
+        public virtual Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
+            Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
-            var keyValueEvent = new SignalEvent<TKey>()
+            var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.SubscriptionParameters,
                 CreateDateUtc = DateTime.UtcNow,
                 CategoryId = categoryId,
                 TopicId = topicId,
                 TemplateData = templateData,
-                SubscriberFiltersData = subscriberFilters
+                SubscriberFiltersData = subscriberFiltersData
             };
 
-            EnqueueSignalEvent(keyValueEvent);
+            return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        public virtual void EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
-            List<TKey> subscriberIds, string topicId = null)
+        public virtual Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
+            List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
-            var keyValueEvent = new SignalEvent<TKey>()
+            var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.SubscriberIds,
                 CreateDateUtc = DateTime.UtcNow,
@@ -57,13 +67,13 @@ namespace Sanatana.Notifications.SignalProviders
                 PredefinedSubscriberIds = subscriberIds
             };
 
-            EnqueueSignalEvent(keyValueEvent);
+            return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        public virtual void EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, 
-            List<DeliveryAddress> deliveryAddresses)
+        public virtual Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, 
+            List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
-            var keyValueEvent = new SignalEvent<TKey>()
+            var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.DirectAddresses,
                 CreateDateUtc = DateTime.UtcNow,
@@ -72,25 +82,39 @@ namespace Sanatana.Notifications.SignalProviders
                 PredefinedAddresses = deliveryAddresses
             };
             
-            EnqueueSignalEvent(keyValueEvent);
+            return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        protected virtual void EnqueueSignalEvent(SignalEvent<TKey> keyValueEvent)
+        protected virtual async Task EnqueueSignalEvent(SignalEvent<TKey> signalEvent, SignalWriteConcern writeConcern)
         {
-            var signalWrapper = new SignalWrapper<SignalEvent<TKey>>(keyValueEvent, false);
+            writeConcern = _senderSettings.GetWriteConcernOrDefault(writeConcern);
+            bool ensurePersisted = writeConcern == SignalWriteConcern.PermanentStorage;
+            if (ensurePersisted)
+            {
+                await _eventQueries.Insert(new List<SignalEvent<TKey>> { signalEvent })
+                    .ConfigureAwait(false);
+            }
 
+            var signalWrapper = new SignalWrapper<SignalEvent<TKey>>(signalEvent, ensurePersisted);
             _eventQueue.Append(signalWrapper);
            
-            _eventSink.EventTransferred(keyValueEvent);
+            _monitor.EventTransferred(signalEvent);
         }
 
-        public virtual void EnqueueDispatch(SignalDispatch<TKey> dispatch)
+        public virtual async Task EnqueueDispatch(SignalDispatch<TKey> signalDispatch, SignalWriteConcern writeConcern)
         {
-            var signalWrapper = new SignalWrapper<SignalDispatch<TKey>>(dispatch, false);
+            writeConcern = _senderSettings.GetWriteConcernOrDefault(writeConcern);
+            bool ensurePersisted = writeConcern == SignalWriteConcern.PermanentStorage;
+            if (ensurePersisted)
+            {
+                await _dispatchQueries.Insert(new List<SignalDispatch<TKey>> { signalDispatch })
+                    .ConfigureAwait(false);
+            }
 
+            var signalWrapper = new SignalWrapper<SignalDispatch<TKey>>(signalDispatch, ensurePersisted);
             _dispatchQueue.Append(signalWrapper);
             
-            _eventSink.DispatchTransferred(dispatch);
+            _monitor.DispatchTransferred(signalDispatch);
         }
 
     }

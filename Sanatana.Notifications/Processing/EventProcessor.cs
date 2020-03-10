@@ -23,7 +23,7 @@ namespace Sanatana.Notifications.Processing
     {
         //fields
         protected SenderState<TKey> _hubState;
-        protected IMonitor<TKey> _eventSink;
+        protected IMonitor<TKey> _monitor;
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected ICompositionHandlerRegistry<TKey> _handlerRegistry;
@@ -38,7 +38,7 @@ namespace Sanatana.Notifications.Processing
             : base(logger)
         {
             _hubState = hubState;
-            _eventSink = eventSink;
+            _monitor = eventSink;
             _eventQueue = eventQueue;
             _dispatchQueue = dispatchQueue;
             _handlerRegistry = handlerRegistry;
@@ -154,7 +154,7 @@ namespace Sanatana.Notifications.Processing
             eventQueue.ApplyResult(item, composeResult.Result);
 
             TimeSpan composeDuration = composeTimer.Elapsed;
-            _eventSink.DispatchesComposed(
+            _monitor.DispatchesComposed(
                 item.Signal, composeDuration, composeResult.Result, composeResult.Items);
         }
 

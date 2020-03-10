@@ -1,9 +1,11 @@
-﻿using Sanatana.Notifications.DAL;
+﻿using Microsoft.Extensions.Logging;
+using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
+using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.Interfaces;
 using System;
@@ -22,7 +24,8 @@ namespace Sanatana.Notifications.SignalProviders
         protected List<int> _lastQueryKeys;
         protected DateTime _lastQueryTimeUtc;
         protected bool _isLastQueryMaxItemsReceived;
-        protected IMonitor<TKey> _eventSink;
+        protected IMonitor<TKey> _monitor;
+        protected ILogger _logger;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected IChangeNotifier<SignalDispatch<TKey>> _changeNotifier;
         protected IDispatchChannelRegistry<TKey> _dispatcherRegistry;
@@ -49,12 +52,13 @@ namespace Sanatana.Notifications.SignalProviders
 
         //init
         public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink, SenderSettings senderSettings
-            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries)
+            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries, ILogger logger)
         {
             _dispatchQueue = dispatchQueue;
-            _eventSink = eventSink;
+            _monitor = eventSink;
             _dispatcherRegistry = dispatcherRegistry;
             _dispatchQueries = dispatchQueries;
+            _logger = logger;
 
             QueryPeriod = senderSettings.DatabaseSignalProviderQueryPeriod;
             ItemsQueryCount = senderSettings.DatabaseSignalProviderItemsQueryCount;
@@ -63,8 +67,8 @@ namespace Sanatana.Notifications.SignalProviders
 
         public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings
             , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries
-            , IChangeNotifier<SignalDispatch<TKey>> changeNotifier)
-            : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries)
+            , ILogger logger, IChangeNotifier<SignalDispatch<TKey>> changeNotifier)
+            : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries, logger)
         {
             _changeNotifier = changeNotifier;
         }
@@ -90,9 +94,12 @@ namespace Sanatana.Notifications.SignalProviders
         protected virtual bool CheckIsQueryRequired(List<int> activeDeliveryTypes)
         {
             bool isEmpty = _dispatchQueue.CheckIsEmpty(activeDeliveryTypes);
+            if (!isEmpty)
+            {
+                return false;
+            }
 
-            bool storageUpdated = _changeNotifier != null
-                && _changeNotifier.HasUpdates;
+            bool storageUpdated = _changeNotifier != null && _changeNotifier.HasUpdates;
 
             DateTime nextQueryTimeUtc = _lastQueryTimeUtc + QueryPeriod;
             bool doScheduledQuery = nextQueryTimeUtc <= DateTime.UtcNow;
@@ -100,8 +107,7 @@ namespace Sanatana.Notifications.SignalProviders
             bool hasUnqueriedKeys = _lastQueryKeys == null
                || activeDeliveryTypes.Except(_lastQueryKeys).Count() > 0;
 
-            return isEmpty &&
-                (storageUpdated || doScheduledQuery || hasUnqueriedKeys || _isLastQueryMaxItemsReceived);
+            return storageUpdated || doScheduledQuery || hasUnqueriedKeys || _isLastQueryMaxItemsReceived;
         }
 
         protected virtual void QueryStorage(List<int> activeDeliveryTypes)
@@ -112,11 +118,20 @@ namespace Sanatana.Notifications.SignalProviders
 
             Stopwatch storageQueryTimer = Stopwatch.StartNew();
 
-            List<SignalDispatch<TKey>> items =
-                _dispatchQueries.Select(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts)
-                .Result;
+            List<SignalDispatch<TKey>> items = null;
+            try
+            {
+                items = _dispatchQueries
+                    .Select(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts)
+                    .Result;
+            }
+            catch (Exception ex)
+            {
+                items = new List<SignalDispatch<TKey>>();
+                _logger.LogError(ex, SenderInternalMessages.DatabaseDispatchProvider_DatabaseError);
+            }
 
-            _eventSink.DispatchPersistentStorageQueried(storageQueryTimer.Elapsed, items);
+            _monitor.DispatchPersistentStorageQueried(storageQueryTimer.Elapsed, items);
             
             _isLastQueryMaxItemsReceived = items.Count == ItemsQueryCount;
             if (_changeNotifier != null && _isLastQueryMaxItemsReceived == false)

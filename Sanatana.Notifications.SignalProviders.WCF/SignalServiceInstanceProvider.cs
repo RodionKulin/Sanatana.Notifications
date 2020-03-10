@@ -10,6 +10,8 @@ using System.Web;
 using System.Collections.ObjectModel;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.DAL;
+using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.Sender;
 
 namespace Sanatana.Notifications.SignalProviders.WCF
 {
@@ -18,18 +20,27 @@ namespace Sanatana.Notifications.SignalProviders.WCF
     {
         private IEventQueue<TKey> _eventQueues;
         private IDispatchQueue<TKey> _dispatchQueues;
-        private IMonitor<TKey> _eventSink;
+        private IMonitor<TKey> _monitor;
+        private ISignalEventQueries<TKey> _eventQueries;
+        private ISignalDispatchQueries<TKey> _dispatchQueries;
+        private SenderSettings _senderSettings;
 
 
         //init
-        public SignalServiceInstanceProvider(IEventQueue<TKey> eventQueues
-            , IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink)
+        public SignalServiceInstanceProvider(IEventQueue<TKey> eventQueues, IDispatchQueue<TKey> dispatchQueues, 
+            IMonitor<TKey> eventSink, ISignalEventQueries<TKey> eventQueries,
+            ISignalDispatchQueries<TKey> dispatchQueries, SenderSettings senderSettings)
         {
             _eventQueues = eventQueues;
             _dispatchQueues = dispatchQueues;
-            _eventSink = eventSink;
+            _monitor = eventSink;
+            _eventQueries = eventQueries;
+            _dispatchQueries = dispatchQueries;
+            _senderSettings = senderSettings;
         }
 
+
+        //methods
         public object GetInstance(InstanceContext instanceContext, Message message)
         {
             return this.GetInstance(instanceContext);
@@ -37,7 +48,8 @@ namespace Sanatana.Notifications.SignalProviders.WCF
 
         public object GetInstance(InstanceContext instanceContext)
         {
-            return new SignalService<TKey>(_eventQueues, _dispatchQueues, _eventSink);
+            return new SignalService<TKey>(_eventQueues, _dispatchQueues, _monitor,
+               _eventQueries, _dispatchQueries, _senderSettings);
         }
 
         public void ReleaseInstance(InstanceContext instanceContext, object instance)

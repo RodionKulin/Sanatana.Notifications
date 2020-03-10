@@ -1,9 +1,11 @@
-﻿using Sanatana.Notifications.DAL;
+﻿using Microsoft.Extensions.Logging;
+using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
+using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.Interfaces;
 using System;
@@ -21,7 +23,8 @@ namespace Sanatana.Notifications.SignalProviders
         //fields
         protected DateTime _lastQueryTimeUtc;
         protected bool _isLastQueryMaxItemsReceived;
-        protected IMonitor<TKey> _eventSink;
+        protected IMonitor<TKey> _monitor;
+        protected ILogger _logger;
         protected IEventQueue<TKey> _eventQueue;
         protected IChangeNotifier<SignalDispatch<TKey>> _changeNotifier;
         protected ISignalEventQueries<TKey> _eventQueries;
@@ -46,11 +49,12 @@ namespace Sanatana.Notifications.SignalProviders
 
         //init
         public DatabaseEventProvider(IEventQueue<TKey> eventQueue, IMonitor<TKey> eventSink
-            , SenderSettings senderSettings, ISignalEventQueries<TKey> eventQueries)
+            , SenderSettings senderSettings, ISignalEventQueries<TKey> eventQueries, ILogger logger)
         {
             _eventQueue = eventQueue;
-            _eventSink = eventSink;
+            _monitor = eventSink;
             _eventQueries = eventQueries;
+            _logger = logger;
 
             QueryPeriod = senderSettings.DatabaseSignalProviderQueryPeriod;
             ItemsQueryCount = senderSettings.DatabaseSignalProviderItemsQueryCount;
@@ -58,8 +62,8 @@ namespace Sanatana.Notifications.SignalProviders
         }
 
         public DatabaseEventProvider(IEventQueue<TKey> eventQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings
-            , ISignalEventQueries<TKey> eventQueries, IChangeNotifier<SignalDispatch<TKey>> changeNotifier)
-            : this(eventQueues, eventSink, senderSettings, eventQueries)
+            , ISignalEventQueries<TKey> eventQueries, IChangeNotifier<SignalDispatch<TKey>> changeNotifier, ILogger logger)
+            : this(eventQueues, eventSink, senderSettings, eventQueries, logger)
         {
             _changeNotifier = changeNotifier;
         }
@@ -77,12 +81,15 @@ namespace Sanatana.Notifications.SignalProviders
 
         public virtual void Flush()
         {
-
         }
 
         protected virtual bool CheckIsQueryRequired()
         {
             bool isEmpty = _eventQueue.CountQueueItems() == 0;
+            if (!isEmpty)
+            {
+                return false;
+            }
 
             bool storageUpdated = _changeNotifier != null
                 && _changeNotifier.HasUpdates;
@@ -90,8 +97,7 @@ namespace Sanatana.Notifications.SignalProviders
             DateTime nextQueryTimeUtc = _lastQueryTimeUtc + QueryPeriod;
             bool doScheduledQuery = nextQueryTimeUtc <= DateTime.UtcNow;
 
-            return isEmpty &&
-                (storageUpdated || doScheduledQuery || _isLastQueryMaxItemsReceived);
+            return storageUpdated || doScheduledQuery || _isLastQueryMaxItemsReceived;
         }
 
         protected virtual void QueryStorage()
@@ -101,10 +107,20 @@ namespace Sanatana.Notifications.SignalProviders
 
             Stopwatch storageQueryTimer = Stopwatch.StartNew();
 
-            List<SignalEvent<TKey>> items = _eventQueries.Find(ItemsQueryCount, MaxFailedAttempts)
-                .Result;
+            List<SignalEvent<TKey>> items = null;
+            try
+            {
+                items = _eventQueries
+                    .Find(ItemsQueryCount, MaxFailedAttempts)
+                    .Result;
+            }
+            catch (Exception ex)
+            {
+                items = new List<SignalEvent<TKey>>();
+                _logger.LogError(ex, SenderInternalMessages.DatabaseEventProvider_DatabaseError);
+            }
 
-            _eventSink.EventPersistentStorageQueried(storageQueryTimer.Elapsed, items);
+            _monitor.EventPersistentStorageQueried(storageQueryTimer.Elapsed, items);
             
             _isLastQueryMaxItemsReceived = items.Count == ItemsQueryCount;
             if (_changeNotifier != null && _isLastQueryMaxItemsReceived == false)

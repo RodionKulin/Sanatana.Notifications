@@ -69,14 +69,18 @@ namespace Sanatana.Notifications.Flushing
         //other methods
         protected virtual bool CheckIsFlushRequired()
         {
+            bool hasItems = _flushQueues.Any(p => p.Value.Queue.Count > 0);
+            if (!hasItems)
+            {
+                return false;
+            }
+
             DateTime nextFlushTimeUtc = _lastFlushTimeUtc + FlushPeriod;
             bool doScheduledQuery = nextFlushTimeUtc <= DateTime.UtcNow;
 
-            bool hasItems = _flushQueues.Any(p => p.Value.Queue.Count > 0);
-
             bool hasMaxItems = _flushQueues.Sum(p => p.Value.Queue.Count) > QueueLimit;
 
-            return hasItems && (doScheduledQuery || hasMaxItems);
+            return doScheduledQuery || hasMaxItems;
         }
 
         protected virtual void FlushQueues()

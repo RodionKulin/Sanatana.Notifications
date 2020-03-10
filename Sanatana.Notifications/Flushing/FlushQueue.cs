@@ -35,7 +35,7 @@ namespace Sanatana.Notifications.Flushing
             }
             else
             {
-                FlushTask = Task.FromResult(0);
+                FlushTask = Task.CompletedTask;
             }
         }
 

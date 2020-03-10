@@ -10,6 +10,7 @@ using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.Interfaces;
+using Sanatana.Notifications.DAL.Interfaces;
 
 namespace Sanatana.Notifications.SignalProviders
 {
@@ -21,14 +22,16 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //init
-        public DirectSignalProvider(IEventQueue<TKey> eventQueues, IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink)
-            : base(eventQueues, dispatchQueues, eventSink)
+        public DirectSignalProvider(IEventQueue<TKey> eventQueues, IDispatchQueue<TKey> dispatchQueues, 
+            IMonitor<TKey> eventSink, ISignalEventQueries<TKey> eventQueries, 
+            ISignalDispatchQueries<TKey> dispatchQueries, SenderSettings senderSettings)
+            : base(eventQueues, dispatchQueues, eventSink, eventQueries, dispatchQueries, senderSettings)
         {
             _isStarted = false;
         }
 
 
-        //control
+        //ISignalProviderControl
         public virtual void Start()
         {
             _isStarted = true;
@@ -40,7 +43,7 @@ namespace Sanatana.Notifications.SignalProviders
         }
 
 
-        //templateData transfer
+        //ISignalProvider
         protected virtual void ThrowStoppedInstanceError()
         {
             string message = string.Format(SenderInternalMessages.InMemorySignalProvider_InvokeMethodInStoppedState
@@ -48,47 +51,48 @@ namespace Sanatana.Notifications.SignalProviders
             throw new InvalidOperationException(message);
         }
 
-        public override void EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
-            Dictionary<string, string> subscriberFiltersData = null, string topicId = null)
+        public override Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
+            Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if (_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.EnqueueMatchSubscribersEvent(templateData, categoryId, subscriberFiltersData, topicId);
+            return base.EnqueueMatchSubscribersEvent(templateData, categoryId, subscriberFiltersData, topicId, writeConcern);
         }
 
-        public override void EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
-            List<TKey> subscriberIds, string topicId = null)
+        public override Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
+            List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if (_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.EnqueueDirectSubscriberIdsEvent(templateData, categoryId, subscriberIds, topicId);
+            return base.EnqueueDirectSubscriberIdsEvent(templateData, categoryId, subscriberIds, topicId, writeConcern);
         }
 
-        public override void EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId,
-            List<DeliveryAddress> deliveryAddresses)
+        public override Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId,
+            List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if (_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.EnqueueDirectAddressesEvent(templateData, categoryId, deliveryAddresses);
+            return base.EnqueueDirectAddressesEvent(templateData, categoryId, deliveryAddresses, writeConcern);
         }
 
-        public override void EnqueueDispatch(SignalDispatch<TKey> dispatch)
+        public override Task EnqueueDispatch(SignalDispatch<TKey> dispatch, 
+            SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if(_isStarted == false)
             {
                 ThrowStoppedInstanceError();
             }
 
-            base.EnqueueDispatch(dispatch);
+            return base.EnqueueDispatch(dispatch, writeConcern);
         }
     }
 }

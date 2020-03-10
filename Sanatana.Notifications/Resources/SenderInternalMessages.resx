@@ -126,6 +126,12 @@
   <data name="CompositionHandlerFactory_NotFound" xml:space="preserve">
     <value>No {0} registered with {1} of \"{2}\".</value>
   </data>
+  <data name="DatabaseDispatchProvider_DatabaseError" xml:space="preserve">
+    <value>Database exceptioption when selecting SignalDispatches.</value>
+  </data>
+  <data name="DatabaseEventProvider_DatabaseError" xml:space="preserve">
+    <value>Database exceptioption when selecting SignalEvents.</value>
+  </data>
   <data name="DispatchBuilder_NoTemplateMatched" xml:space="preserve">
     <value>No template delivery type matched subscriber delivery type(s) {0}.</value>
   </data>
@@ -135,11 +141,17 @@
   <data name="Dispatcher_WrongInputType" xml:space="preserve">
     <value>Signal type {0} can not be sended with {1}. Expected type {2}.</value>
   </data>
+  <data name="DispatchQueue_HandlerNotFound" xml:space="preserve">
+    <value>No handler found for SignalDispatch with deliveryType [{0}]. SignalDispatch will be deleted.</value>
+  </data>
+  <data name="EventQueue_HandlerNotFound" xml:space="preserve">
+    <value>No handler found for SignalEvent with EventKey [{0}]. SignalEvent will be deleted.</value>
+  </data>
   <data name="Filerepository_CorruptedFile" xml:space="preserve">
     <value>Temp storage file {0} is corrupted.</value>
   </data>
   <data name="Filerepository_InvalidGuidName" xml:space="preserve">
-    <value>Temp storage file {0} is not a valid Guid.</value>
+    <value>Temp storage file {0} has not a valid Guid name.</value>
   </data>
   <data name="InMemorySignalProvider_InvokeMethodInStoppedState" xml:space="preserve">
     <value>Can not invoke method on stopped instance of {0}. Need to Start {1} first.</value>

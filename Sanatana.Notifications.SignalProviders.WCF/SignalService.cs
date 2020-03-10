@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using Sanatana.Notifications.Sender;
+using Sanatana.Notifications.DAL.Interfaces;
 
 namespace Sanatana.Notifications.SignalProviders.WCF
 {
@@ -18,9 +19,9 @@ namespace Sanatana.Notifications.SignalProviders.WCF
     public class SignalService<TKey> : BaseSignalProvider<TKey>, ISignalService<TKey>
         where TKey : struct
     {
-        public SignalService(IEventQueue<TKey> eventQueue
-            , IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink)
-            : base(eventQueue, dispatchQueue, eventSink)
+        public SignalService(IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink,
+            ISignalEventQueries<TKey> eventQueries, ISignalDispatchQueries<TKey> dispatchQueries, SenderSettings senderSettings)
+            : base(eventQueue, dispatchQueue, eventSink, eventQueries, dispatchQueries, senderSettings)
         {
         }
     }
