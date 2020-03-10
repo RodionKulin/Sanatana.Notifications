@@ -2,7 +2,7 @@
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Queries;
-using Sanatana.Notifications.Dispatching.Channels;
+using Sanatana.Notifications.DispatchHandling.Channels;
 using System;
 using System.Collections.Generic;
 using System.Text;

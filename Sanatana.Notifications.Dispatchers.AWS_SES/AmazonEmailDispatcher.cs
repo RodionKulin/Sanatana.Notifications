@@ -9,13 +9,14 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.Dispatching;
+using Sanatana.Notifications.DispatchHandling;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DeliveryTypes.Email;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
 using Amazon;
 using Sanatana.Notifications.Resources;
 using Microsoft.Extensions.Logging;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes;
 
 namespace Sanatana.Notifications.Dispatchers.AWS_SES
 {

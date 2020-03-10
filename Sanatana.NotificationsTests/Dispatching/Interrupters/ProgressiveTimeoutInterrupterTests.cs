@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sanatana.Notifications.Dispatching.Interrupters;
+using Sanatana.Notifications.DispatchHandling.Interrupters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Shouldly;
 
-namespace Sanatana.Notifications.Dispatching.Interrupters.Tests
+namespace Sanatana.Notifications.DispatchHandling.Interrupters.Tests
 {
     [TestClass()]
     public class ProgressiveTimeoutInterrupterTests

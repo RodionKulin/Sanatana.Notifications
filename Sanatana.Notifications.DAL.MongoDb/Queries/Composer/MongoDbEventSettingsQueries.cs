@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Sanatana.MongoDb;
 using MongoDB.Driver;
-using Sanatana.Notifications.Composing;
+using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;

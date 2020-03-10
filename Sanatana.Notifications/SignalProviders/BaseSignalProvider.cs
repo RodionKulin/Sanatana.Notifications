@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.SignalProviders;
 using System;
@@ -15,11 +15,11 @@ namespace Sanatana.Notifications.SignalProviders
         //fields
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
-        protected IEventTracker<TKey> _eventSink;
+        protected IMonitor<TKey> _eventSink;
 
         
         //init
-        public BaseSignalProvider(IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue, IEventTracker<TKey> eventSink)
+        public BaseSignalProvider(IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink)
         {
             _eventQueue = eventQueue;
             _dispatchQueue = dispatchQueue;

@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications.DAL.Results;
-using Sanatana.Notifications.Composing;
-using Sanatana.Notifications.Composing.Templates;
+using Sanatana.Notifications.EventsHandling;
+using Sanatana.Notifications.EventsHandling.Templates;
 using Sanatana.Notifications.DAL.Entities;
 using System;
 using System.Collections.Generic;

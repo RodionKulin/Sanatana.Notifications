@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging.Console;
 using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac;
-using Sanatana.Notifications.DeliveryTypes.Trace;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Trace;
 using Sanatana.Notifications.DI.Autofac;
-using Sanatana.Notifications.Dispatching.Channels;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.DispatchHandling.Channels;
+using Sanatana.Notifications.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -49,7 +49,7 @@ namespace Sanatana.NotificationsTests.TestTools
                 Dispatcher = new TraceDispatcher<long>(),
                 DeliveryType = (int)TestDeliveryTypes.Trace
             }).AsSelf().SingleInstance();
-            builder.RegisterType<TraceEventTracker<long>>().As<IEventTracker<long>>().SingleInstance();
+            builder.RegisterType<TraceMonitor<long>>().As<IMonitor<long>>().SingleInstance();
 
             ILogger logger = new ConsoleLogger("TestLogger", (input, level) => true, true);
             builder.RegisterInstance(logger).As<ILogger>().SingleInstance();

@@ -13,14 +13,14 @@ using System.Xml.Serialization;
 using TemplatesExample;
 using System.Diagnostics;
 using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.Composing;
-using Sanatana.Notifications.Composing.Templates;
-using Sanatana.Notifications.DeliveryTypes.Email;
+using Sanatana.Notifications.EventsHandling;
+using Sanatana.Notifications.EventsHandling.Templates;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.NotificationsTests.Resource;
 
-namespace Sanatana.Notifications.Composing.Tests
+namespace Sanatana.Notifications.EventsHandling.Tests
 {
     [TestClass()]
     public class SubjectDispatchTemplateTests

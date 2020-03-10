@@ -1,4 +1,4 @@
-﻿using Sanatana.Notifications.EventTracking;
+﻿using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //init
-        public DirectSignalProvider(IEventQueue<TKey> eventQueues, IDispatchQueue<TKey> dispatchQueues, IEventTracker<TKey> eventSink)
+        public DirectSignalProvider(IEventQueue<TKey> eventQueues, IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink)
             : base(eventQueues, dispatchQueues, eventSink)
         {
             _isStarted = false;

@@ -1,7 +1,7 @@
 ﻿using Sanatana.Timers;
 using Sanatana.Timers.Switchables;
 using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.SignalProviders;
 using System;

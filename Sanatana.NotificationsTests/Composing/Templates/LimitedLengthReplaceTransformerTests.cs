@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text.RegularExpressions;
-using Sanatana.Notifications.Composing.Templates;
+using Sanatana.Notifications.EventsHandling.Templates;
 
-namespace Sanatana.Notifications.Composing.Tests
+namespace Sanatana.Notifications.EventsHandling.Tests
 {
     [TestClass()]
     public class LimitedLengthReplaceTransformerTests

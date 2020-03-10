@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
-using Sanatana.Notifications.Composing.Templates;
+using Sanatana.Notifications.EventsHandling.Templates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.Composing;
+using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 

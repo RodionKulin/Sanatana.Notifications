@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.Composing;
+using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;

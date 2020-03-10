@@ -1,5 +1,5 @@
 ﻿using Sanatana.Notifications.Queues;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,8 +1,8 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.Flushing;
 using Sanatana.Notifications.Processing;
-using Sanatana.Notifications.Dispatching;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.DispatchHandling;
+using Sanatana.Notifications.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

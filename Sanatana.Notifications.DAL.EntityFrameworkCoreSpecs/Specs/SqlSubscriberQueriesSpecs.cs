@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.DAL.Results;
-using Sanatana.Notifications.DeliveryTypes.Email;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
 using Should.Core;
 using SpecsFor.StructureMap;
 using SpecsFor.Core;

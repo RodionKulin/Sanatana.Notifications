@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Sanatana.Notifications.Composing;
-using Sanatana.Notifications.Composing.Templates;
+using Sanatana.Notifications.EventsHandling;
+using Sanatana.Notifications.EventsHandling.Templates;
 using Sanatana.Notifications.DAL;
 using System;
 using System.Collections.Generic;

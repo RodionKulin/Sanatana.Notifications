@@ -1,14 +1,14 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Sanatana.Notifications.Composing;
+using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Queries;
-using Sanatana.Notifications.DeliveryTypes.StoredNotification;
-using Sanatana.Notifications.Dispatching.Channels;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification;
+using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.Flushing;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Processing.Interfaces;
 using Sanatana.Notifications.Queues;
@@ -35,7 +35,7 @@ namespace Sanatana.Notifications.DI.Autofac
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterInstance(_senderSettings).AsSelf().SingleInstance();
-            builder.RegisterType<ConsoleEventTracker<TKey>>().As<IEventTracker<TKey>>().SingleInstance();
+            builder.RegisterType<ConsoleMonitor<TKey>>().As<IMonitor<TKey>>().SingleInstance();
 
             builder.RegisterInstance(NullLogger.Instance)
                 .IfNotRegistered(typeof(ILogger))
@@ -86,12 +86,12 @@ namespace Sanatana.Notifications.DI.Autofac
                 .IfNotRegistered(typeof(IStoredNotificationFlushJob<TKey>))
                 .SingleInstance();
 
-            builder.RegisterType<CompositionProcessor<TKey>>()
+            builder.RegisterType<EventProcessor<TKey>>()
                 .As<ICompositionProcessor>()
                 .As<IRegularJob>()
                 .IfNotRegistered(typeof(ICompositionProcessor))
                 .SingleInstance();
-            builder.RegisterType<DispatchingProcessor<TKey>>()
+            builder.RegisterType<DispatchProcessor<TKey>>()
                 .As<IDispatchingProcessor>()
                 .As<IRegularJob>()
                 .IfNotRegistered(typeof(IDispatchingProcessor))

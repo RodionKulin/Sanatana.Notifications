@@ -1,7 +1,7 @@
 ﻿using Sanatana.MongoDb;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Sanatana.Notifications.Composing;
+using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using System;
 using System.Collections.Generic;

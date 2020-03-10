@@ -8,7 +8,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Web;
 using System.Collections.ObjectModel;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.DAL;
 
 namespace Sanatana.Notifications.SignalProviders.WCF
@@ -18,12 +18,12 @@ namespace Sanatana.Notifications.SignalProviders.WCF
     {
         private IEventQueue<TKey> _eventQueues;
         private IDispatchQueue<TKey> _dispatchQueues;
-        private IEventTracker<TKey> _eventSink;
+        private IMonitor<TKey> _eventSink;
 
 
         //init
         public SignalServiceInstanceProvider(IEventQueue<TKey> eventQueues
-            , IDispatchQueue<TKey> dispatchQueues, IEventTracker<TKey> eventSink)
+            , IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink)
         {
             _eventQueues = eventQueues;
             _dispatchQueues = dispatchQueues;

@@ -1,5 +1,5 @@
 ﻿using Sanatana.Notifications.Queues;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,7 +19,7 @@ namespace Sanatana.Notifications.SignalProviders.WCF
         where TKey : struct
     {
         public SignalService(IEventQueue<TKey> eventQueue
-            , IDispatchQueue<TKey> dispatchQueue, IEventTracker<TKey> eventSink)
+            , IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink)
             : base(eventQueue, dispatchQueue, eventSink)
         {
         }

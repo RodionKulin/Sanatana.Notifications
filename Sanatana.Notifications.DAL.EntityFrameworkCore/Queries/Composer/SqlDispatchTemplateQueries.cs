@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.Composing.Templates;
+using Sanatana.Notifications.EventsHandling.Templates;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Sanatana.Notifications.DAL;

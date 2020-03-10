@@ -2,11 +2,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Sanatana.Notifications.Dispatching.Limits;
-using Sanatana.Notifications.Dispatching.Limits.JournalStorage;
+using Sanatana.Notifications.DispatchHandling.Limits;
+using Sanatana.Notifications.DispatchHandling.Limits.JournalStorage;
 using Shouldly;
 
-namespace Sanatana.Notifications.Dispatching.LimitsTests
+namespace Sanatana.Notifications.DispatchHandling.LimitsTests
 {
 
     [TestClass()]

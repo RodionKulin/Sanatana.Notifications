@@ -1,4 +1,4 @@
-﻿using Sanatana.Notifications.Composing.Templates;
+﻿using Sanatana.Notifications.EventsHandling.Templates;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Parameters;
 using System;

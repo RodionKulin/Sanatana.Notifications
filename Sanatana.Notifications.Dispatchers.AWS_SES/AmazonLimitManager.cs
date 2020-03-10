@@ -7,8 +7,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.Dispatching.Limits;
-using Sanatana.Notifications.Dispatching.Limits.JournalStorage;
+using Sanatana.Notifications.DispatchHandling.Limits;
+using Sanatana.Notifications.DispatchHandling.Limits.JournalStorage;
 using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.Dispatchers.AWS_SES

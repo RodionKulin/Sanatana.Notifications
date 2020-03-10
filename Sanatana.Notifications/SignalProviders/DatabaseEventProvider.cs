@@ -1,8 +1,8 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
-using Sanatana.Notifications.Dispatching.Channels;
-using Sanatana.Notifications.EventTracking;
+using Sanatana.Notifications.DispatchHandling.Channels;
+using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.Interfaces;
@@ -21,7 +21,7 @@ namespace Sanatana.Notifications.SignalProviders
         //fields
         protected DateTime _lastQueryTimeUtc;
         protected bool _isLastQueryMaxItemsReceived;
-        protected IEventTracker<TKey> _eventSink;
+        protected IMonitor<TKey> _eventSink;
         protected IEventQueue<TKey> _eventQueue;
         protected IChangeNotifier<SignalDispatch<TKey>> _changeNotifier;
         protected ISignalEventQueries<TKey> _eventQueries;
@@ -45,7 +45,7 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //init
-        public DatabaseEventProvider(IEventQueue<TKey> eventQueue, IEventTracker<TKey> eventSink
+        public DatabaseEventProvider(IEventQueue<TKey> eventQueue, IMonitor<TKey> eventSink
             , SenderSettings senderSettings, ISignalEventQueries<TKey> eventQueries)
         {
             _eventQueue = eventQueue;
@@ -57,7 +57,7 @@ namespace Sanatana.Notifications.SignalProviders
             MaxFailedAttempts = senderSettings.DatabaseSignalProviderItemsMaxFailedAttempts;
         }
 
-        public DatabaseEventProvider(IEventQueue<TKey> eventQueues, IEventTracker<TKey> eventSink, SenderSettings senderSettings
+        public DatabaseEventProvider(IEventQueue<TKey> eventQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings
             , ISignalEventQueries<TKey> eventQueries, IChangeNotifier<SignalDispatch<TKey>> changeNotifier)
             : this(eventQueues, eventSink, senderSettings, eventQueries)
         {

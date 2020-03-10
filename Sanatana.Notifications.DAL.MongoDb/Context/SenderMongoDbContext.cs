@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using Sanatana.Notifications.Composing;
+using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Parameters;
 using System;
@@ -13,10 +13,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.DeliveryTypes.Email;
-using Sanatana.Notifications.DeliveryTypes.Http;
-using Sanatana.Notifications.DeliveryTypes.StoredNotification;
-using Sanatana.Notifications.DeliveryTypes.Slack;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Http;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Slack;
 using Sanatana.Notifications.DAL.MongoDb.Entities;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Context

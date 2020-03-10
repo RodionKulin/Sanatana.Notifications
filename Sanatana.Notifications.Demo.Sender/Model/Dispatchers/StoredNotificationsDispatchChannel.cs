@@ -1,7 +1,7 @@
-﻿using Sanatana.Notifications.DeliveryTypes.StoredNotification;
-using Sanatana.Notifications.Dispatching.Channels;
-using Sanatana.Notifications.Dispatching.Limits;
-using Sanatana.Notifications.Dispatching.Interrupters;
+﻿using Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification;
+using Sanatana.Notifications.DispatchHandling.Channels;
+using Sanatana.Notifications.DispatchHandling.Limits;
+using Sanatana.Notifications.DispatchHandling.Interrupters;
 using System;
 using System.Collections.Generic;
 using System.Linq;

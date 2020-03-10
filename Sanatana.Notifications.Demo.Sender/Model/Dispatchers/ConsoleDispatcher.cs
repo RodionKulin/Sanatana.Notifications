@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.Dispatching;
+using Sanatana.Notifications.DispatchHandling;
 using Sanatana.Notifications.Processing;
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using Sanatana.Notifications.DispatchHandling.DeliveryTypes;
 
 namespace Sanatana.Notifications.Demo.Sender.Model
 {
