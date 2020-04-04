@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications.DAL.Entities;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification
+namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
     public interface IStoredNotificationFlushJob<TKey> 
         where TKey : struct

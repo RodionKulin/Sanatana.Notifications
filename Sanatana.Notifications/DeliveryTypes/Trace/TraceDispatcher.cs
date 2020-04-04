@@ -13,7 +13,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Trace
+namespace Sanatana.Notifications.DeliveryTypes.Trace
 {
     /// <summary>
     /// Writes output to the Visual Studio Output Window or Immediate Window.

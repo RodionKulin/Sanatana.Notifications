@@ -1,5 +1,6 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
+using Sanatana.Notifications.DispatchHandling;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Queues;
 using System;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes
+namespace Sanatana.Notifications.DeliveryTypes
 {
     public interface IDispatcher<TKey> : IDisposable
         where TKey : struct

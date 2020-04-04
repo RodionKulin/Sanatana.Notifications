@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
+using Sanatana.Notifications.DeliveryTypes.Email;
 using Sanatana.Notifications.DispatchHandling;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Resources;
@@ -12,7 +12,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Http
+namespace Sanatana.Notifications.DeliveryTypes.Http
 {
     public class HttpDispatcher<TKey> : IDispatcher<TKey>
         where TKey : struct

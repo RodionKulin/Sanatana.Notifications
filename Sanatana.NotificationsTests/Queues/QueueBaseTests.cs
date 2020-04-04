@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
+using Sanatana.Notifications.DeliveryTypes.Email;
 using Sanatana.NotificationsTests.TestTools;
 
 namespace Sanatana.Notifications.Queue.Tests

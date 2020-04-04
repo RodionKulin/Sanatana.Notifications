@@ -46,10 +46,14 @@ namespace Sanatana.Notifications.DAL.Entities
         protected virtual List<string> FillTemplates(ITemplateProvider provider, ITemplateTransformer transformer,
             List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
         {
-            Dictionary<TemplateData, string> filledTemplates = provider == null || transformer == null
-                ? new Dictionary<TemplateData, string>()
-                : transformer.Transform(provider, cultureAndData);
+            if(provider == null || transformer == null)
+            {
+                return subscribers
+                    .Select(x => string.Empty)
+                    .ToList();
+            }
 
+            Dictionary<TemplateData, string> filledTemplates = transformer.Transform(provider, cultureAndData);
             return subscribers
                 .Select(subscriber => filledTemplates.First(x => x.Key.Language == subscriber.Language).Value)
                 .ToList();

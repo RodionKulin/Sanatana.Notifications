@@ -72,7 +72,7 @@ namespace Sanatana.Notifications.DAL.Parameters
 
         //Custom filter values
         /// <summary>
-        /// Filters data that can be handled in custom code subscriber filtering code. Override ISubscriberQueries methods to use.
+        /// Filters data that can be used in custom subscriber filtering code. Override ISubscriberQueries methods to use.
         /// </summary>
         public Dictionary<string, string> SubscriberFiltersData { get; set; }
     }

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification
+namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
     public class StoredNotificationFlushJob<TKey> : IRegularJob, IStoredNotificationFlushJob<TKey> 
         where TKey : struct

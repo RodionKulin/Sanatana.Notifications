@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes;
+using Sanatana.Notifications.DeliveryTypes;
 
 namespace Sanatana.Notifications.Demo.Sender.Model
 {

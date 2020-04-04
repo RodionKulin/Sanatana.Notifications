@@ -7,7 +7,7 @@ using System.Net.Http;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Http
+namespace Sanatana.Notifications.DeliveryTypes.Http
 {
     public class HttpDispatchTemplate<TKey> : DispatchTemplate<TKey>
         where TKey : struct

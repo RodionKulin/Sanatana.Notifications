@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Slack
+namespace Sanatana.Notifications.DeliveryTypes.Slack
 {
     public class SlackDispatchTemplate<TKey> : DispatchTemplate<TKey>
         where TKey : struct

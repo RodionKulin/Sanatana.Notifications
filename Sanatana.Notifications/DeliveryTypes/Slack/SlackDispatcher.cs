@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Slack
+namespace Sanatana.Notifications.DeliveryTypes.Slack
 {
     public class SlackDispatcher<TKey> : IDispatcher<TKey>
         where TKey : struct

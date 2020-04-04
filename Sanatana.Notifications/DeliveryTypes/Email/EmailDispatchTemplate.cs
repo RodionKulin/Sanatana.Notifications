@@ -7,7 +7,7 @@ using Sanatana.Notifications.EventsHandling.Templates;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email
+namespace Sanatana.Notifications.DeliveryTypes.Email
 {
     public class EmailDispatchTemplate<TKey> : DispatchTemplate<TKey>
         where TKey : struct

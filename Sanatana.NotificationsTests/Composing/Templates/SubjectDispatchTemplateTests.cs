@@ -15,7 +15,7 @@ using System.Diagnostics;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.EventsHandling.Templates;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
+using Sanatana.Notifications.DeliveryTypes.Email;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.NotificationsTests.Resource;
@@ -28,8 +28,8 @@ namespace Sanatana.Notifications.EventsHandling.Tests
         [TestMethod()]
         public void SubjectDispatchTemplate_ProvideContentTest()
         {
-            //parameters
-            var builder = new EmailDispatchTemplate<long>()
+            //prepare
+            var emailTemplate = new EmailDispatchTemplate<long>()
             {
                 BodyProvider = new ResourceTemplate(typeof(ContentRes), "ContentKey"),
                 BodyTransformer = new ReplaceTransformer()
@@ -39,17 +39,23 @@ namespace Sanatana.Notifications.EventsHandling.Tests
             {
                 { "key", "value" }
             };
-            var subscriber = new Subscriber<long>(){ SubscriberId = 2 };
-            var subscriberList = new List<Subscriber<long>>() { subscriber };
             var settings = new EventSettings<long>();
             var signalEvent = new SignalEvent<long>()
             {
                 TemplateData = replaceModel
             };
+            var subscriber = new Subscriber<long>() { SubscriberId = 2 };
+            var subscriberList = new List<Subscriber<long>>() { subscriber };
+            var templateData = new List<TemplateData>()
+            {
+                new TemplateData(replaceModel)
+            };
 
-            //test
-            List<SignalDispatch<long>> items = builder.Build(settings, signalEvent, subscriberList);
-            EmailDispatch<long> item = (EmailDispatch<long>)items.First();
+            //invoke
+            List<SignalDispatch<long>> actual = emailTemplate.Build(settings, signalEvent, subscriberList, templateData);
+
+            //assert
+            EmailDispatch<long> item = (EmailDispatch<long>)actual.First();
             Assert.AreEqual(ContentRes.ContentKey, item.MessageBody);
         }
         

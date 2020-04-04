@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Slack
+namespace Sanatana.Notifications.DeliveryTypes.Slack
 {
     public class SlackPayload
     {

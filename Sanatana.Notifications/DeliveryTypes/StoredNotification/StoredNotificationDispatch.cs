@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification
+namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
     [Serializable]
     public class StoredNotificationDispatch<TKey> : SignalDispatch<TKey>

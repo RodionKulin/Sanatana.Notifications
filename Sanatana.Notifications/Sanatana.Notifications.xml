@@ -226,42 +226,42 @@
             <param name="guid"></param>
             <returns></returns>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpEmailDispatcher`1.AvailabilityCheckEmailAddress">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpEmailDispatcher`1.AvailabilityCheckEmailAddress">
             <summary>
             Address that will be used to check email channel availability. Sample email will be forwarded on check.
             </summary>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpSettings.Server">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.Server">
             <summary>
             Host of SMTP server that will be forwarding email to receiver
             </summary>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpSettings.Port">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.Port">
             <summary>
             SMTP server port
             </summary>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpSettings.EnableSsl">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.EnableSsl">
             <summary>
             SMTP host secure connection usage
             </summary>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpSettings.Credentials">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.Credentials">
             <summary>
             Login and password used to authenticate in SMTP server
             </summary>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpSettings.SenderAddress">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.SenderAddress">
             <summary>
             Required email address that will be shown to receiver in from field. Usually same as credentials login.
             </summary>
         </member>
-        <member name="P:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email.SmtpSettings.SenderDisplayName">
+        <member name="P:Sanatana.Notifications.DeliveryTypes.Email.SmtpSettings.SenderDisplayName">
             <summary>
             Optional display name from your email that will send email.
             </summary>
         </member>
-        <member name="T:Sanatana.Notifications.DispatchHandling.DeliveryTypes.Trace.TraceDispatcher`1">
+        <member name="T:Sanatana.Notifications.DeliveryTypes.Trace.TraceDispatcher`1">
             <summary>
             Writes output to the Visual Studio Output Window or Immediate Window.
             Depends if checked Options > Debugging > General > Redirect all Output Window text to the Immediate Window.

@@ -9,10 +9,10 @@ using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification;
+using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 using Microsoft.Extensions.Logging;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification
+namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
     public class StoredNotificationDispatcher<TKey> : IDispatcher<TKey>, IStoredNotificationDispatcher<TKey>
         where TKey : struct

@@ -1,6 +1,6 @@
 ﻿using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
+using Sanatana.Notifications.DeliveryTypes.Email;
 using System;
 using System.Collections.Generic;
 using System.Linq;

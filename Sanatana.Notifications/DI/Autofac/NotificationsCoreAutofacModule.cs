@@ -5,7 +5,7 @@ using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Queries;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification;
+using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.Flushing;
 using Sanatana.Notifications.Monitoring;

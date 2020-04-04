@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email
+namespace Sanatana.Notifications.DeliveryTypes.Email
 {
     public class SmtpSettings
     {

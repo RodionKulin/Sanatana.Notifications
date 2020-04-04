@@ -1,4 +1,4 @@
-﻿using Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification;
+﻿using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.DispatchHandling.Limits;
 using Sanatana.Notifications.DispatchHandling.Interrupters;

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotification
+namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {
     public class StoredNotificationTemplate<TKey> : DispatchTemplate<TKey>
         where TKey : struct

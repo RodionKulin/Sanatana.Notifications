@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Http
+namespace Sanatana.Notifications.DeliveryTypes.Http
 {
     [Serializable]
     public class HttpDispatch<TKey> : SignalDispatch<TKey>

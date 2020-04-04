@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 using Sanatana.Notifications.DispatchHandling;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email;
+using Sanatana.Notifications.DeliveryTypes.Email;
 using Amazon;
 using Sanatana.Notifications.Resources;
 using Microsoft.Extensions.Logging;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes;
+using Sanatana.Notifications.DeliveryTypes;
 
 namespace Sanatana.Notifications.Dispatchers.AWS_SES
 {

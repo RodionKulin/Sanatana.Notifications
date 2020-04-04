@@ -7,7 +7,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email
+namespace Sanatana.Notifications.DeliveryTypes.Email
 {
     [Serializable]
     public class EmailDispatch<TKey> : SignalDispatch<TKey>

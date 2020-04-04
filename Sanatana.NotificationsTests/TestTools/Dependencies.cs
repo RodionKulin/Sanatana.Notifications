@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging.Console;
 using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac;
-using Sanatana.Notifications.DispatchHandling.DeliveryTypes.Trace;
+using Sanatana.Notifications.DeliveryTypes.Trace;
 using Sanatana.Notifications.DI.Autofac;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.Monitoring;

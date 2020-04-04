@@ -15,7 +15,7 @@ using Sanatana.Notifications.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
 
-namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email
+namespace Sanatana.Notifications.DeliveryTypes.Email
 {
     public class SmtpEmailDispatcher<TKey> : IDispatcher<TKey>
         where TKey : struct
