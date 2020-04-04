@@ -18,6 +18,7 @@ using Sanatana.Notifications.DeliveryTypes.Http;
 using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 using Sanatana.Notifications.DeliveryTypes.Slack;
 using Sanatana.Notifications.DAL.MongoDb.Entities;
+using Sanatana.Notifications.EventsHandling.Templates;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Context
 {
@@ -292,8 +293,39 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 cm.UnmapProperty(p => p.UpdateTopic);
                 cm.UnmapProperty(p => p.UpdateAnything);
             });
-        }
 
+            BsonClassMap.RegisterClassMap<DispatchTemplate<ObjectId>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap(m => m.DispatchTemplateId));
+                cm.AddKnownType(typeof(EmailDispatchTemplate<ObjectId>));
+                cm.AddKnownType(typeof(HttpDispatchTemplate<ObjectId>));
+                cm.AddKnownType(typeof(SlackDispatchTemplate<ObjectId>));
+                cm.AddKnownType(typeof(StoredNotificationTemplate<ObjectId>));
+            });
+
+            BsonClassMap.RegisterClassMap<ReplyToAddress>(cm =>
+            {
+                cm.AutoMap();
+            });
+
+            BsonClassMap.RegisterClassMap<ITemplateTransformer>(cm =>
+            {
+                cm.AutoMap();
+                cm.AddKnownType(typeof(LimitedLengthReplaceTransformer));
+                cm.AddKnownType(typeof(RazorTransformer));
+                cm.AddKnownType(typeof(ReplaceTransformer));
+                cm.AddKnownType(typeof(XsltTransformer));
+            });
+
+            BsonClassMap.RegisterClassMap<ITemplateProvider>(cm =>
+            {
+                cm.AutoMap();
+                cm.AddKnownType(typeof(FileTemplate));
+                cm.AddKnownType(typeof(ResourceTemplate));
+                cm.AddKnownType(typeof(StringTemplate));
+            });
+        }
 
 
         //ICollectionFactory

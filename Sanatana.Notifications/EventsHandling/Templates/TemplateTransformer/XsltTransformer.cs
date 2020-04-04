@@ -13,22 +13,6 @@ namespace Sanatana.Notifications.EventsHandling.Templates
     public class XsltTransformer : ITemplateTransformer
     {
         //methods
-        public virtual string Transform(string template, TemplateData data)
-        {
-            XslCompiledTransform transform = ConstructXslTransform(template);
-
-            if (data.ObjectModel != null)
-            {
-                return ApplyTransform(transform, data.ObjectModel);
-            }
-            else
-            {
-                var replaceModel = data.KeyValueModel ?? new Dictionary<string, string>();
-                XsltArgumentList argList = ConstructArgumentList(replaceModel);
-                return ApplyTransform(transform, argList);
-            }
-        }
-
         public virtual Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
         {
             if (templateProvider == null)
@@ -36,63 +20,38 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 return new Dictionary<TemplateData, string>();
             }
 
-            var filledTemplates = new Dictionary<TemplateData, string>();
             TemplateCache templateCache = new TemplateCache(templateProvider);
             return templateData.ToDictionary(data => data, data =>
             {
-                string template = templateCache.GetOrCreateTemplate(data.Culture);
-                return ReplacePlaceholders(data, templateProvider, templateCache);
+                XslCompiledTransform transform = ConstructXslTransform(templateProvider, templateCache, data);
+                return data.ObjectModel == null
+                    ? ApplyXslt(transform, data.KeyValueModel)
+                    : ApplyXslt(transform, data.ObjectModel);
             });
         }
 
-        protected virtual string ReplacePlaceholders(TemplateData data, ITemplateProvider templateProvider, TemplateCache templateCache)
+        protected virtual XslCompiledTransform ConstructXslTransform(ITemplateProvider templateProvider, TemplateCache templateCache, TemplateData data)
         {
             var transform = (XslCompiledTransform)templateCache.GetItem(data.Culture);
-            if (transform == null)
+            if (transform != null)
             {
-                string template = templateProvider.ProvideTemplate(data.Culture);
-                transform = ConstructXslTransform(template);
-                templateCache.InsertItem(transform, data.Culture);
+                return transform;
             }
 
-            if (data.ObjectModel != null)
-            {
-                return ApplyTransform(transform, data.ObjectModel);
-            }
-            else
-            {
-                var replaceModel = data.KeyValueModel ?? new Dictionary<string, string>();
-                XsltArgumentList argList = ConstructArgumentList(replaceModel);
-                return ApplyTransform(transform, argList);
-            }
-        }
+            string template = templateProvider.ProvideTemplate(data.Culture);
 
-        protected virtual XsltArgumentList ConstructArgumentList(Dictionary<string, string> parameters)
-        {
-            XsltArgumentList arguments = new XsltArgumentList();
-
-            foreach (string key in parameters.Keys)
-            {
-                arguments.AddParam(key, "", parameters[key]);
-            }
-
-            return arguments;
-        }
-
-        protected virtual XslCompiledTransform ConstructXslTransform(string template)
-        {
-            XslCompiledTransform xslTransformer = new XslCompiledTransform();
-
+            transform = new XslCompiledTransform();
             using (TextReader textReader = new StringReader(template))
             using (XmlReader styleSheetReader = XmlReader.Create(textReader))
             {                
-                xslTransformer.Load(styleSheetReader);
+                transform.Load(styleSheetReader);
             }
 
-            return xslTransformer;
+            templateCache.InsertItem(transform, data.Culture);
+            return transform;
         }
 
-        protected virtual string ApplyTransform(XslCompiledTransform xslTransformer, object objectModel)
+        protected virtual string ApplyXslt(XslCompiledTransform xslTransformer, object objectModel)
         {
             StringBuilder outputString = new StringBuilder();
 
@@ -119,8 +78,11 @@ namespace Sanatana.Notifications.EventsHandling.Templates
             return outputString.ToString();
         }
 
-        protected virtual string ApplyTransform(XslCompiledTransform xslTransformer, XsltArgumentList argList)
+        protected virtual string ApplyXslt(XslCompiledTransform xslTransformer, Dictionary<string, string> keyValues)
         {
+            keyValues = keyValues ?? new Dictionary<string, string>();
+            XsltArgumentList argList = ConstructArgumentList(keyValues);
+
             string emptyXml = "<root></root>";
             StringBuilder outputString = new StringBuilder();
 
@@ -141,8 +103,16 @@ namespace Sanatana.Notifications.EventsHandling.Templates
             return outputString.ToString();
         }
 
+        protected virtual XsltArgumentList ConstructArgumentList(Dictionary<string, string> parameters)
+        {
+            XsltArgumentList arguments = new XsltArgumentList();
+            foreach (string key in parameters.Keys)
+            {
+                arguments.AddParam(key, "", parameters[key]);
+            }
 
-
+            return arguments;
+        }
 
     }
 }
