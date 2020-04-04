@@ -38,14 +38,14 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //methods
-        public virtual Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
+        public virtual Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int eventKey,
             Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.SubscriptionParameters,
                 CreateDateUtc = DateTime.UtcNow,
-                CategoryId = categoryId,
+                EventKey = eventKey,
                 TopicId = topicId,
                 TemplateData = templateData,
                 SubscriberFiltersData = subscriberFiltersData
@@ -54,14 +54,14 @@ namespace Sanatana.Notifications.SignalProviders
             return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        public virtual Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
+        public virtual Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int eventKey, 
             List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.SubscriberIds,
                 CreateDateUtc = DateTime.UtcNow,
-                CategoryId = categoryId,
+                EventKey = eventKey,
                 TopicId = topicId,
                 TemplateData = templateData,
                 PredefinedSubscriberIds = subscriberIds
@@ -70,14 +70,14 @@ namespace Sanatana.Notifications.SignalProviders
             return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        public virtual Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, 
+        public virtual Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int eventKey, 
             List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.DirectAddresses,
                 CreateDateUtc = DateTime.UtcNow,
-                CategoryId = categoryId,
+                EventKey = eventKey,
                 TemplateData = templateData,
                 PredefinedAddresses = deliveryAddresses
             };
@@ -98,7 +98,7 @@ namespace Sanatana.Notifications.SignalProviders
             var signalWrapper = new SignalWrapper<SignalEvent<TKey>>(signalEvent, ensurePersisted);
             _eventQueue.Append(signalWrapper);
            
-            _monitor.EventTransferred(signalEvent);
+            _monitor.EventReceived(signalEvent);
         }
 
         public virtual async Task EnqueueDispatch(SignalDispatch<TKey> signalDispatch, SignalWriteConcern writeConcern)

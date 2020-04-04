@@ -62,8 +62,9 @@ namespace Sanatana.Notifications.DAL.Entities
         protected virtual void SetBaseProperties(SignalDispatch<TKey> dispatch, EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber)
         {
+            dispatch.EventKey = settings.EventKey;
             dispatch.DeliveryType = DeliveryType;
-            dispatch.CategoryId = settings.CategoryId;
+            dispatch.CategoryId = settings.Subscription.CategoryId;
             dispatch.TopicId = signalEvent.TopicId;
 
             dispatch.ReceiverSubscriberId = subscriber.SubscriberId;

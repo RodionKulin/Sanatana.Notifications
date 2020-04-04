@@ -43,10 +43,10 @@ namespace Sanatana.Notifications.DAL.Queries
             return Task.FromResult(item);
         }
 
-        public virtual Task<List<EventSettings<TKey>>> Select(int category)
+        public virtual Task<List<EventSettings<TKey>>> SelectByKey(int eventKey)
         {
             List<EventSettings<TKey>> items = _items
-                .Where(p => p.CategoryId == category)
+                .Where(p => p.EventKey == eventKey)
                 .ToList();
 
             return Task.FromResult(items);

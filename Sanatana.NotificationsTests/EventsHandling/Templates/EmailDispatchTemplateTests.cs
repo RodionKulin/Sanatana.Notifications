@@ -24,20 +24,24 @@ namespace Sanatana.Notifications.EventsHandling.Tests
                 BodyTransformer = new ReplaceTransformer()
             };
 
-            var replaceModel = new Dictionary<string, string>()
+            var settings = new EventSettings<long>()
             {
-                { "key", "value" }
+                Subscription = new DAL.Parameters.SubscriptionParameters
+                {
+                    CategoryId = 1
+                }
             };
-            var settings = new EventSettings<long>();
-            var signalEvent = new SignalEvent<long>()
+            var signalEvent = new SignalEvent<long>();
+            var subscriberList = new List<Subscriber<long>>() 
             {
-                TemplateData = replaceModel
+                new Subscriber<long>() { SubscriberId = 2 }
             };
-            var subscriber = new Subscriber<long>() { SubscriberId = 2 };
-            var subscriberList = new List<Subscriber<long>>() { subscriber };
             var templateData = new List<TemplateData>()
             {
-                new TemplateData(replaceModel)
+                new TemplateData(new Dictionary<string, string>()
+            {
+                { "key", "value" }
+            })
             };
 
             //invoke

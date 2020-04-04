@@ -13,7 +13,7 @@ namespace Sanatana.Notifications.DAL.Entities
         where TKey : struct
     {
         /// <summary>
-        /// Required unique identifier. Assigned by database if database storage is chosen. By default should be assigned manually cause settings are stored in memory.
+        /// Required unique identifier. Assigned by database if database storage is chosen. Should be assigned manually if settings are stored in memory (default).
         /// </summary>
         public TKey EventSettingsId { get; set; }
         /// <summary>
@@ -21,9 +21,9 @@ namespace Sanatana.Notifications.DAL.Entities
         /// </summary>
         public string DisplayName { get; set; }
         /// <summary>
-        /// Identifier used to match incoming SignalEvent to EventSettings. SignalEvents can come from IDirectSignalProvider, WcfSignalProvider or other SignalProviders including custom.
+        /// Key used to match incoming SignalEvent to EventSettings. SignalEvents can come from IDirectSignalProvider, WcfSignalProvider or other ISignalProvider.
         /// </summary>
-        public int CategoryId { get; set; }
+        public int EventKey { get; set; }
         /// <summary>
         /// Optional identifier to match EventSettings with custom ICompositionHandler. 
         /// Default ICompositionHandler is used if value if left null. 

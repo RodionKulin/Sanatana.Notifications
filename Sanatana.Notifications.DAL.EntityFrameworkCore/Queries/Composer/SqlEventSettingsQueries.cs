@@ -148,14 +148,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
             return eventSettings;
         }
 
-        public virtual async Task<List<EventSettings<long>>> Select(int category)
+        public virtual async Task<List<EventSettings<long>>> SelectByKey(int eventKey)
         {
             List<EventSettingsLong> eventSettings = null;
             
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
                 eventSettings = await context.EventSettings
-                        .Where(x => x.CategoryId == category)
+                        .Where(x => x.EventKey == eventKey)
                         .Include(x => x.TemplatesNavigation)
                         .ToListAsync()
                         .ConfigureAwait(false);

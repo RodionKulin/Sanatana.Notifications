@@ -18,7 +18,7 @@ namespace Sanatana.Notifications.Monitoring
     {
         void SenderSwitched(SwitchState state);
 
-        void EventTransferred(SignalEvent<TKey> signalEvent);
+        void EventReceived(SignalEvent<TKey> signalEvent);
 
         void DispatchTransferred(SignalDispatch<TKey> signalDispatch);
 

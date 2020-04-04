@@ -72,8 +72,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     && p.IsScheduled == true);
 
                 Expression<Func<SignalDispatchLong, bool>> categorySelector = deliveryTypeAndCategories
-                    .Select<KeyValuePair<int, int>, Expression<Func<SignalDispatchLong, bool>>>(
-                        cat => exp => exp.DeliveryType == cat.Key
+                    .Select<KeyValuePair<int, int>, Expression<Func<SignalDispatchLong, bool>>>(cat =>
+                        exp => exp.DeliveryType == cat.Key
                         && exp.CategoryId == cat.Value)
                     .Or();
                 request = request.Where(categorySelector);

@@ -62,7 +62,7 @@ namespace Sanatana.Notifications.Queues
 
         public override void Append(SignalWrapper<SignalEvent<TKey>> item)
         {
-            base.Append(item, item.Signal.CategoryId);
+            base.Append(item, item.Signal.EventKey);
         }
 
         public virtual SignalWrapper<SignalEvent<TKey>> DequeueNext()
@@ -104,7 +104,7 @@ namespace Sanatana.Notifications.Queues
             }
             else if (result == ProcessingResult.NoHandlerFound)
             {
-                _logger.LogError(SenderInternalMessages.EventQueue_HandlerNotFound, item.Signal.CategoryId);
+                _logger.LogError(SenderInternalMessages.EventQueue_HandlerNotFound, item.Signal.EventKey);
                 _signalFlushJob.Delete(item);
             }
             else if (result == ProcessingResult.ReturnToStorage)

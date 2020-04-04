@@ -17,6 +17,7 @@ namespace Sanatana.Notifications.DAL.Entities
 
         public int DeliveryType { get; set; }
         public int? CategoryId { get; set; }
+        public int? EventKey { get; set; }
         public string TopicId { get; set; }
 
         public bool IsScheduled { get; set; }

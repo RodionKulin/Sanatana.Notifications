@@ -20,10 +20,10 @@ namespace Sanatana.Notifications.Monitoring
                 , DateTime.Now.ToLongTimeString(), state);
         }
         
-        public void EventTransferred(SignalEvent<TKey> signalEvent)
+        public void EventReceived(SignalEvent<TKey> signalEvent)
         {
             Console.WriteLine(MonitorMessages.EventTransferred
-               , DateTime.Now.ToLongTimeString(), signalEvent.CategoryId);
+               , DateTime.Now.ToLongTimeString(), signalEvent.EventKey);
         }
 
         public void DispatchTransferred(SignalDispatch<TKey> signalDispatch)

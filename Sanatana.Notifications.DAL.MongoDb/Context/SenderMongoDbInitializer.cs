@@ -235,10 +235,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
         public virtual void CreateEventSettingsIndex()
         {
             IndexKeysDefinition<EventSettings<ObjectId>> subscriberIndex = Builders<EventSettings<ObjectId>>.IndexKeys
-               .Ascending(p => p.CategoryId);
+               .Ascending(p => p.EventKey);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "CategoryId",
+                Name = "EventKey",
                 Unique = false
             };
             var model = new CreateIndexModel<EventSettings<ObjectId>>(subscriberIndex, subscriberOptions);

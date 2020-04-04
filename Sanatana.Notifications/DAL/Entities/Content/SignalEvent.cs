@@ -15,7 +15,7 @@ namespace Sanatana.Notifications.DAL.Entities
         public TKey SignalEventId { get; set; }
         public Dictionary<string, string> TemplateData { get; set; }
         public DateTime CreateDateUtc { get; set; }
-        public int CategoryId { get; set; }
+        public int EventKey { get; set; }
         public string TopicId { get; set; }
         public int FailedAttempts { get; set; }
         public TKey? EventSettingsId { get; set; }

@@ -28,10 +28,10 @@ namespace Sanatana.Notifications.Monitoring
             Trace.WriteLine(message);
         }
 
-        public void EventTransferred(SignalEvent<TKey> signalEvent)
+        public void EventReceived(SignalEvent<TKey> signalEvent)
         {
             string message = string.Format(MonitorMessages.EventTransferred
-               , DateTime.Now.ToLongTimeString(), signalEvent.CategoryId);
+               , DateTime.Now.ToLongTimeString(), signalEvent.EventKey);
             Trace.WriteLine(message);
         }
 

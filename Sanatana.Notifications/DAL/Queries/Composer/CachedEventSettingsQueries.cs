@@ -50,13 +50,13 @@ namespace Sanatana.Notifications.DAL.Queries
             return item;
         }
 
-        public virtual async Task<List<EventSettings<TKey>>> Select(int category)
+        public virtual async Task<List<EventSettings<TKey>>> SelectByKey(int eventKey)
         {
             TotalResult<List<EventSettings<TKey>>> allItems = await GetFromCacheOrFetch()
                 .ConfigureAwait(false);
 
-            List<EventSettings<TKey>> items = allItems.Data.Where(
-                x => x.CategoryId == category)
+            List<EventSettings<TKey>> items = allItems.Data
+                .Where(x => x.EventKey == eventKey)
                 .ToList();
 
             return items;

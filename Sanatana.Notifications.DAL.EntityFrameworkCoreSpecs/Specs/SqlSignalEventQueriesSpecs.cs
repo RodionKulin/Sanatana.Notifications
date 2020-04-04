@@ -34,7 +34,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     new SignalEvent<long>()
                     {
                         TopicId = _topicId,
-                        CategoryId = 1,
+                        EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
@@ -50,7 +50,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     new SignalEvent<long>()
                     {
                         TopicId = _topicId,
-                        CategoryId = 1,
+                        EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
@@ -106,7 +106,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     new SignalEventLong()
                     {
                         TopicId = _topicId,
-                        CategoryId = 1,
+                        EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
@@ -122,7 +122,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     new SignalEventLong()
                     {
                         TopicId = _topicId,
-                        CategoryId = 1,
+                        EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
@@ -193,7 +193,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     new SignalEventLong()
                     {
                         TopicId = _topicId,
-                        CategoryId = 1,
+                        EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
@@ -209,7 +209,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     new SignalEventLong()
                     {
                         TopicId = _topicId,
-                        CategoryId = 1,
+                        EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
@@ -244,7 +244,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     actual.Should().BeEquivalentTo(new
                     {
                         TopicId = "topic17",
-                        CategoryId = 1,
+                        EventKey = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
                         TemplateData = new Dictionary<string, string>
                         {

@@ -129,7 +129,7 @@ namespace Sanatana.Notifications.Demo.Sender
             {
                 new EventSettings<long>()
                 {
-                    CategoryId = (int)CategoryTypes.CustomerGreetings,
+                    EventKey = (int)CategoryTypes.CustomerGreetings,
                     EventSettingsId = 1,
                     Subscription = new SubscriptionParameters()
                     {

@@ -21,7 +21,7 @@ namespace Sanatana.Notifications.DAL.Interfaces
         /// <param name="pageSize"></param>
         /// <returns></returns>
         Task<TotalResult<List<EventSettings<TKey>>>> Select(int pageIndex, int pageSize);
-        Task<List<EventSettings<TKey>>> Select(int category);
+        Task<List<EventSettings<TKey>>> SelectByKey(int eventKey);
         Task<EventSettings<TKey>> Select(TKey eventSettingsId);
         Task Update(List<EventSettings<TKey>> items);
         Task Delete(List<EventSettings<TKey>> items);

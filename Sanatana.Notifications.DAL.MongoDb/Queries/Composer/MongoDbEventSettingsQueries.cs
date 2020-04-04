@@ -85,10 +85,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             return item;
         }
 
-        public virtual async Task<List<EventSettings<ObjectId>>> Select(int category)
+        public virtual async Task<List<EventSettings<ObjectId>>> SelectByKey(int eventKey)
         {
             var filter = Builders<EventSettings<ObjectId>>.Filter.Where(
-                p => p.CategoryId == category);
+                p => p.EventKey == eventKey);
 
             List<EventSettings<ObjectId>> list = await _collectionFactory
                 .GetCollection<EventSettings<ObjectId>>()

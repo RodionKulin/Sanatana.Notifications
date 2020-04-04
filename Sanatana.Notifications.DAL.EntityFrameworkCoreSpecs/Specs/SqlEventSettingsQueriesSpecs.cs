@@ -48,7 +48,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     new EventSettings<long>()
                     {
-                        CategoryId = _categoryId,
+                        EventKey = _categoryId,
                         Subscription = new SubscriptionParameters()
                         {
                             CategoryId = _categoryId
@@ -79,7 +79,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     },
                     new EventSettings<long>()
                     {
-                        CategoryId = _categoryId,
+                        EventKey = _categoryId,
                         Subscription = new SubscriptionParameters()
                         {
                             CategoryId = _categoryId
@@ -113,7 +113,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             public void then_event_settings_inserted_are_found_using_ef()
             {
                 List<EventSettingsLong> actual = DbContext.EventSettings
-                    .Where(x => x.CategoryId == _categoryId)
+                    .Where(x => x.EventKey == _categoryId)
                     .OrderBy(x => x.EventSettingsId)
                     .ToList();
 
@@ -182,7 +182,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     new EventSettingsLong()
                     {
-                        CategoryId = _categoryId,
+                        EventKey = _categoryId,
                         Subscription = new SubscriptionParameters()
                         {
                             CategoryId = _categoryId
@@ -213,7 +213,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     },
                     new EventSettingsLong()
                     {
-                        CategoryId = _categoryId,
+                        EventKey = _categoryId,
                         Subscription = new SubscriptionParameters()
                         {
                             CategoryId = _categoryId
@@ -268,7 +268,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             public void then_event_settings_updated_are_found_using_ef()
             {
                 List<EventSettingsLong> actual = DbContext.EventSettings
-                    .Where(x => x.CategoryId == _categoryId)
+                    .Where(x => x.EventKey == _categoryId)
                     .OrderBy(x => x.EventSettingsId)
                     .ToList();
 
@@ -332,7 +332,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     new EventSettingsLong()
                     {
-                        CategoryId = _categoryId,
+                        EventKey = _categoryId,
                         Subscription = new SubscriptionParameters()
                         {
                             CategoryId = _categoryId
@@ -363,7 +363,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                     },
                     new EventSettingsLong()
                     {
-                        CategoryId = _categoryId,
+                        EventKey = _categoryId,
                         Subscription = new SubscriptionParameters()
                         {
                             CategoryId = _categoryId
@@ -407,7 +407,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
             public void then_event_settings_deleted_are_not_found_using_ef()
             {
                 List<EventSettingsLong> actual = DbContext.EventSettings
-                    .Where(x => x.CategoryId == _categoryId)
+                    .Where(x => x.EventKey == _categoryId)
                     .ToList();
 
                 actual.Count.Should().Be(0);

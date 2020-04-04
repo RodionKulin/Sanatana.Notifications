@@ -117,7 +117,7 @@ namespace Sanatana.Notifications.Processing
         protected virtual void SplitEvent(SignalWrapper<SignalEvent<TKey>> item, IEventQueue<TKey> eventQueue)
         {
             List<EventSettings<TKey>> eventSettings = _eventSettingsQueries
-                .Select(item.Signal.CategoryId).Result;
+                .SelectByKey(item.Signal.EventKey).Result;
 
             if (eventSettings.Count == 0)
             {
