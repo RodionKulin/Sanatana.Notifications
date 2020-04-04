@@ -26,7 +26,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
 
 
             // Properties
-            builder.OwnsOne(p => p.Subscription);
+            builder.OwnsOne(p => p.Subscription)
+                .Ignore(x => x.SubscriberFiltersData);
             builder.OwnsOne(p => p.Updates, build => build
                 .Ignore(x => x.UpdateAnything)
                 .Ignore(x => x.UpdateDeliveryType)

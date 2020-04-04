@@ -19,7 +19,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class InstallScripts {
@@ -97,7 +97,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
         ///	[EventSettingsId] [int] NULL,
         ///	[SubscriberIdRangeFrom] [bigint] NULL,
         ///	[SubscriberIdRangeTo] [bigint] NULL,
-        ///	[SubscriberIdFromDeliveryTypesHandled] [xml] NULL
+        ///	[SubscriberIdFromDeliveryTypesHandled] [nvarchar](max) NULL
         ///).
         /// </summary>
         internal static string type_SignalEvent {

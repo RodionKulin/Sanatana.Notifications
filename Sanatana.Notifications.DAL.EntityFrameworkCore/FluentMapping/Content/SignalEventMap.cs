@@ -28,19 +28,19 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             
             // Properties
             builder.Ignore(t => t.TemplateData);
-            builder.Property(r => r.TemplateDataSerialized).HasColumnName("TemplateData");
+            builder.Property(r => r.TemplateDataSerialized).HasColumnName("TemplateData").HasColumnType("nvarchar(max)");
 
             builder.Ignore(t => t.SubscriberFiltersData);
-            builder.Property(r => r.SubscriberFiltersDataSerialized).HasColumnName("SubscriberFiltersData");
+            builder.Property(r => r.SubscriberFiltersDataSerialized).HasColumnName("SubscriberFiltersData").HasColumnType("nvarchar(max)");
 
             builder.Ignore(t => t.SubscriberIdFromDeliveryTypesHandled);
-            builder.Property(r => r.SubscriberIdFromDeliveryTypesHandledSerialized).HasColumnName("SubscriberIdFromDeliveryTypesHandled");
+            builder.Property(r => r.SubscriberIdFromDeliveryTypesHandledSerialized).HasColumnName("SubscriberIdFromDeliveryTypesHandled").HasColumnType("nvarchar(max)");
 
             builder.Ignore(t => t.PredefinedAddresses);
-            builder.Property(t => t.PredefinedAddressesSerialized).HasColumnName("PredefinedAddresses");
+            builder.Property(t => t.PredefinedAddressesSerialized).HasColumnName("PredefinedAddresses").HasColumnType("nvarchar(max)");
 
             builder.Ignore(t => t.PredefinedSubscriberIds);
-            builder.Property(t => t.PredefinedSubscriberIdsSerialized).HasColumnName("PredefinedSubscriberIds");
+            builder.Property(t => t.PredefinedSubscriberIdsSerialized).HasColumnName("PredefinedSubscriberIds").HasColumnType("nvarchar(max)");
 
             // Table
             builder.ToTable(DefaultTableNameConstants.SignalEvents, _connectionSettings.Schema);

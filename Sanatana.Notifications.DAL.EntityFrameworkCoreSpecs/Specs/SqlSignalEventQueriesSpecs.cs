@@ -243,10 +243,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                 {
                     actual.Should().BeEquivalentTo(new
                     {
-                        TopicId = "topic1",
+                        TopicId = "topic17",
                         CategoryId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        DataKeyValues = new Dictionary<string, string>
+                        TemplateData = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }

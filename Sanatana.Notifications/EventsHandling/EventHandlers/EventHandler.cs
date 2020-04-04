@@ -64,8 +64,7 @@ namespace Sanatana.Notifications.EventsHandling
             }
 
             //build dispatches
-            EventHandleResult<SignalDispatch<TKey>> dispatches = BuildDispatches(
-                settings, signalEvent, subscribers.Items);
+            EventHandleResult<SignalDispatch<TKey>> dispatches = BuildDispatches(settings, signalEvent, subscribers.Items);
             if (dispatches.Result != ProcessingResult.Success)
             {
                 return dispatches;

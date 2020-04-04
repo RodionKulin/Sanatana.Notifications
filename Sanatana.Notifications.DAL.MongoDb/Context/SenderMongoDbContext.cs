@@ -309,22 +309,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 cm.AutoMap();
             });
 
-            BsonClassMap.RegisterClassMap<ITemplateTransformer>(cm =>
-            {
-                cm.AutoMap();
-                cm.AddKnownType(typeof(LimitedLengthReplaceTransformer));
-                cm.AddKnownType(typeof(RazorTransformer));
-                cm.AddKnownType(typeof(ReplaceTransformer));
-                cm.AddKnownType(typeof(XsltTransformer));
-            });
+            BsonClassMap.RegisterClassMap<LimitedLengthReplaceTransformer>();
+            BsonClassMap.RegisterClassMap<RazorTransformer>();
+            BsonClassMap.RegisterClassMap<ReplaceTransformer>();
+            BsonClassMap.RegisterClassMap<XsltTransformer>();
 
-            BsonClassMap.RegisterClassMap<ITemplateProvider>(cm =>
-            {
-                cm.AutoMap();
-                cm.AddKnownType(typeof(FileTemplate));
-                cm.AddKnownType(typeof(ResourceTemplate));
-                cm.AddKnownType(typeof(StringTemplate));
-            });
+            BsonClassMap.RegisterClassMap<FileTemplate>();
+            BsonClassMap.RegisterClassMap<ResourceTemplate>();
+            BsonClassMap.RegisterClassMap<StringTemplate>();
         }
 
 

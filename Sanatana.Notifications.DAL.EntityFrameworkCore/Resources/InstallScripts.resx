@@ -142,7 +142,7 @@
 	[EventSettingsId] [int] NULL,
 	[SubscriberIdRangeFrom] [bigint] NULL,
 	[SubscriberIdRangeTo] [bigint] NULL,
-	[SubscriberIdFromDeliveryTypesHandled] [xml] NULL
+	[SubscriberIdFromDeliveryTypesHandled] [nvarchar](max) NULL
 )</value>
   </data>
   <data name="type_StoredNotification" xml:space="preserve">
