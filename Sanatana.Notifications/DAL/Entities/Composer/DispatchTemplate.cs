@@ -3,6 +3,8 @@ using Sanatana.Notifications.DAL;
 using System;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
+using Sanatana.Notifications.EventsHandling.Templates;
+using System.Linq;
 
 namespace Sanatana.Notifications.DAL.Entities
 {
@@ -38,8 +40,20 @@ namespace Sanatana.Notifications.DAL.Entities
 
 
         //methods
-        public abstract List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers);
+        public abstract List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
+             List<Subscriber<TKey>> subscribers, List<TemplateData> dataWithCulture);
+
+        protected virtual List<string> FillTemplates(ITemplateProvider provider, ITemplateTransformer transformer,
+            List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
+        {
+            Dictionary<TemplateData, string> filledTemplates = provider == null || transformer == null
+                ? new Dictionary<TemplateData, string>()
+                : transformer.Transform(provider, cultureAndData);
+
+            return subscribers
+                .Select(subscriber => filledTemplates.First(x => x.Key.Language == subscriber.Language).Value)
+                .ToList();
+        }
 
         protected virtual void SetBaseProperties(SignalDispatch<TKey> dispatch, EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber)

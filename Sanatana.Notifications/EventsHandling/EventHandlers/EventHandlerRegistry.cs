@@ -9,40 +9,39 @@ using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.EventsHandling
 {
-    public class CompositionHandlerRegistry<TKey> : ICompositionHandlerRegistry<TKey>
+    public class EventHandlerRegistry<TKey> : IEventHandlerRegistry<TKey>
         where TKey : struct
     {
         //fields
-        protected IEnumerable<ICompositionHandler<TKey>> _compositionHandlers;
+        protected IEnumerable<IEventHandler<TKey>> _eventHandlers;
         protected ILogger _logger;
 
 
         //init
-        public CompositionHandlerRegistry(IEnumerable<ICompositionHandler<TKey>> compositionHandlers,
-            ILogger logger)
+        public EventHandlerRegistry(IEnumerable<IEventHandler<TKey>> compositionHandlers, ILogger logger)
         {
-            _compositionHandlers = compositionHandlers;
+            _eventHandlers = compositionHandlers;
             _logger = logger;
         }
 
 
         //methods
-        public virtual ICompositionHandler<TKey> MatchHandler(int? handlerId)
+        public virtual IEventHandler<TKey> MatchHandler(int? handlerId)
         {
-            ICompositionHandler<TKey> handler = _compositionHandlers.FirstOrDefault(
-                x => x.CompositionHandlerId == handlerId);
-            int handlerIdCount = _compositionHandlers.Count(x => x.CompositionHandlerId == handlerId);
+            IEventHandler<TKey> handler = _eventHandlers.FirstOrDefault(
+                x => x.EventHandlerId == handlerId);
+            int handlerIdCount = _eventHandlers.Count(x => x.EventHandlerId == handlerId);
 
             if (handler == null)
             {
                 string error = string.Format(SenderInternalMessages.CompositionHandlerFactory_NotFound,
-                    typeof(ICompositionHandler<TKey>), nameof(ICompositionHandler<TKey>.CompositionHandlerId), handlerId);
+                    typeof(IEventHandler<TKey>), nameof(IEventHandler<TKey>.EventHandlerId), handlerId);
                 _logger.LogError(error);
             }
             else if (handlerIdCount > 1)
             {
                 string error = string.Format(SenderInternalMessages.CompositionHandlerFactory_MoreThanOneFound, 
-                    typeof(ICompositionHandler<TKey>), nameof(ICompositionHandler<TKey>.CompositionHandlerId), handlerId);
+                    typeof(IEventHandler<TKey>), nameof(IEventHandler<TKey>.EventHandlerId), handlerId);
                 _logger.LogError(error);
             }
 

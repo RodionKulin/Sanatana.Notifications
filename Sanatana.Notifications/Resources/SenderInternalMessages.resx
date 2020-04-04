@@ -132,6 +132,9 @@
   <data name="DatabaseEventProvider_DatabaseError" xml:space="preserve">
     <value>Database exceptioption when selecting SignalEvents.</value>
   </data>
+  <data name="DispatchBuilder_CultureNotFound" xml:space="preserve">
+    <value>Could not create CultureInfo from language [{0}] for Subscriber Id=[{1}]</value>
+  </data>
   <data name="DispatchBuilder_NoTemplateMatched" xml:space="preserve">
     <value>No template delivery type matched subscriber delivery type(s) {0}.</value>
   </data>

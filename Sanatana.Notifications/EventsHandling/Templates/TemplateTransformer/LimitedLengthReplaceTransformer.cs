@@ -32,23 +32,23 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 
 
         //methods
-        public virtual List<string> Transform(ITemplateProvider templateProvider
-            , List<TemplateData> templateData)
+        public virtual Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
         {
-            List<string> list = new List<string>();
-            TemplateCache templateCache = new TemplateCache(templateProvider);
-
-            foreach (TemplateData data in templateData)
+            if (templateProvider == null)
             {
-                string template = templateCache.GetOrCreateTemplate(data.Culture);
-                string content = Transform(template, data.KeyValueModel);
-                list.Add(content);
+                return new Dictionary<TemplateData, string>();
             }
 
-            return list;
+            var filledTemplates = new Dictionary<TemplateData, string>();
+            TemplateCache templateCache = new TemplateCache(templateProvider);
+            return templateData.ToDictionary(data => data, data =>
+            {
+                string template = templateCache.GetOrCreateTemplate(data.Culture);
+                return ReplacePlaceholders(template, data.KeyValueModel);
+            });
         }
 
-        protected virtual string Transform(string template, Dictionary<string, string> replaceStrings)
+        protected virtual string ReplacePlaceholders(string template, Dictionary<string, string> replaceStrings)
         {
             if (replaceStrings == null)
             {

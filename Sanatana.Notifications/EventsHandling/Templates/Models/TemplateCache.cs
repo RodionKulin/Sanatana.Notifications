@@ -40,21 +40,17 @@ namespace Sanatana.Notifications.EventsHandling.Templates
         public virtual object GetItem(CultureInfo culture = null)
         {
             string key = GetKey(culture);
-
-            if (_cache.ContainsKey(key))
-            {
-                return _cache[key];
-            }
-            else
+            if (!_cache.ContainsKey(key))
             {
                 return null;
             }
+
+            return _cache[key];
         }
 
         public virtual string GetOrCreateTemplate(CultureInfo culture = null)
         {
             object item = GetItem(culture);
-
             if (item == null)
             {
                 item = _templateProvider.ProvideTemplate(culture);

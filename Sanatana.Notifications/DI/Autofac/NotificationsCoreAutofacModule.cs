@@ -101,8 +101,8 @@ namespace Sanatana.Notifications.DI.Autofac
             builder.RegisterType<TemporaryStorage<SignalEvent<TKey>>>().As<ITemporaryStorage<SignalEvent<TKey>>>().SingleInstance();
             builder.RegisterType<TemporaryStorage<SignalDispatch<TKey>>>().As<ITemporaryStorage<SignalDispatch<TKey>>>().SingleInstance();
 
-            builder.RegisterType<CompositionHandlerRegistry<TKey>>().As<ICompositionHandlerRegistry<TKey>>().SingleInstance();
-            builder.RegisterType<CompositionHandler<TKey>>().As<ICompositionHandler<TKey>>().SingleInstance();
+            builder.RegisterType<EventHandlerRegistry<TKey>>().As<IEventHandlerRegistry<TKey>>().SingleInstance();
+            builder.RegisterType<EventHandler<TKey>>().As<IEventHandler<TKey>>().SingleInstance();
             builder.RegisterType<DispatchBuilder<TKey>>().As<IDispatchBuilder<TKey>>().SingleInstance();
             builder.RegisterType<SubscribersFetcher<TKey>>().As<ISubscribersFetcher<TKey>>().SingleInstance();
             builder.RegisterType<ReceivePeriodScheduler<TKey>>().As<IScheduler<TKey>>().SingleInstance();

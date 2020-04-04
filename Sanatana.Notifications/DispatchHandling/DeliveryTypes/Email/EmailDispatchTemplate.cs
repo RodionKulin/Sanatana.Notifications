@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Sanatana.Notifications.DAL;
-using System.Net.Mail;
 using Sanatana.Notifications.EventsHandling.Templates;
-using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
 
@@ -28,38 +25,20 @@ namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Email
 
 
         //methods
-        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
+        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
+            , List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
         {
-            TemplateData templateData = new TemplateData(signalEvent.TemplateData);
-            var templateDataList = new List<TemplateData>() { templateData };
+            List<string> subjects = FillTemplates(SubjectProvider, SubjectTransformer, subscribers, cultureAndData);
+            List<string> bodies = FillTemplates(BodyProvider, BodyTransformer, subscribers, cultureAndData);
 
-            string body = null;
-            if (BodyProvider != null && BodyTransformer != null)
-            {
-                body = BodyTransformer.Transform(BodyProvider, templateDataList)
-                    .First();
-            }
-
-            string subject = null;
-            if (SubjectProvider != null && SubjectTransformer != null)
-            {
-                subject = SubjectTransformer.Transform(SubjectProvider, templateDataList)
-                    .First();
-            }
-
-            var list = new List<SignalDispatch<TKey>>();
-            for (int i = 0; i < subscribers.Count; i++)
-            {
-                EmailDispatch<TKey> dispatch = Build(settings, signalEvent, subscribers[i], subject, body);
-                list.Add(dispatch);
-            }
-
-            return list;
+            return subscribers
+                .Select((subscriber, i) => AssembleEmail(settings, signalEvent, subscriber, subjects[i], bodies[i]))
+                .Cast<SignalDispatch<TKey>>()
+                .ToList();
         }
 
-        protected virtual EmailDispatch<TKey> Build(EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string subject, string body)
+        protected virtual EmailDispatch<TKey> AssembleEmail(EventSettings<TKey> settings,
+            SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string subject, string body)
         {
             var dispatch = new EmailDispatch<TKey>()
             {

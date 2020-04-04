@@ -106,6 +106,15 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not create CultureInfo from language [{0}] for Subscriber Id=[{1}].
+        /// </summary>
+        public static string DispatchBuilder_CultureNotFound {
+            get {
+                return ResourceManager.GetString("DispatchBuilder_CultureNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No template delivery type matched subscriber delivery type(s) {0}..
         /// </summary>
         public static string DispatchBuilder_NoTemplateMatched {

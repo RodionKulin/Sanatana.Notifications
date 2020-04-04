@@ -26,7 +26,7 @@ namespace Sanatana.Notifications.Processing
         protected IMonitor<TKey> _monitor;
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
-        protected ICompositionHandlerRegistry<TKey> _handlerRegistry;
+        protected IEventHandlerRegistry<TKey> _handlerRegistry;
         protected IEventSettingsQueries<TKey> _eventSettingsQueries;
 
 
@@ -34,7 +34,7 @@ namespace Sanatana.Notifications.Processing
         public EventProcessor(SenderState<TKey> hubState, IMonitor<TKey> eventSink
             , ILogger logger, SenderSettings senderSettings
             , IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue
-            , ICompositionHandlerRegistry<TKey> handlerRegistry, IEventSettingsQueries<TKey> eventSettingsQueries)
+            , IEventHandlerRegistry<TKey> handlerRegistry, IEventSettingsQueries<TKey> eventSettingsQueries)
             : base(logger)
         {
             _hubState = hubState;
@@ -167,7 +167,7 @@ namespace Sanatana.Notifications.Processing
                 return EventHandleResult<SignalDispatch<TKey>>.FromResult(ProcessingResult.NoHandlerFound);
             }
 
-            ICompositionHandler<TKey> compositionHandler =
+            IEventHandler<TKey> compositionHandler =
                 _handlerRegistry.MatchHandler(eventSettings.CompositionHandlerId);
             if(compositionHandler == null)
             {

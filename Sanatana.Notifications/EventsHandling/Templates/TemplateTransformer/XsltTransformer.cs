@@ -17,52 +17,54 @@ namespace Sanatana.Notifications.EventsHandling.Templates
         {
             XslCompiledTransform transform = ConstructXslTransform(template);
 
-            string content = null;
             if (data.ObjectModel != null)
             {
-                content = ApplyTransform(transform, data.ObjectModel);
+                return ApplyTransform(transform, data.ObjectModel);
             }
             else
             {
                 var replaceModel = data.KeyValueModel ?? new Dictionary<string, string>();
                 XsltArgumentList argList = ConstructArgumentList(replaceModel);
-                content = ApplyTransform(transform, argList);
+                return ApplyTransform(transform, argList);
             }
-
-            return content;
         }
 
-        public virtual List<string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
+        public virtual Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
         {
-            List<string> list = new List<string>();
-            TemplateCache templateCache = new TemplateCache(templateProvider);
-
-            foreach (TemplateData data in templateData)
+            if (templateProvider == null)
             {
-                var transform = (XslCompiledTransform)templateCache.GetItem(data.Culture);
-                if (transform == null)
-                {
-                    string template = templateProvider.ProvideTemplate(data.Culture);
-                    transform = ConstructXslTransform(template);
-                    templateCache.InsertItem(transform, data.Culture);
-                }
-
-                string content = null;
-                if (data.ObjectModel != null)
-                {
-                    content = ApplyTransform(transform, data.ObjectModel);
-                }
-                else
-                {
-                    var replaceModel = data.KeyValueModel ?? new Dictionary<string, string>();
-                    XsltArgumentList argList = ConstructArgumentList(replaceModel);
-                    content = ApplyTransform(transform, argList);
-                }
-
-                list.Add(content);
+                return new Dictionary<TemplateData, string>();
             }
 
-            return list;
+            var filledTemplates = new Dictionary<TemplateData, string>();
+            TemplateCache templateCache = new TemplateCache(templateProvider);
+            return templateData.ToDictionary(data => data, data =>
+            {
+                string template = templateCache.GetOrCreateTemplate(data.Culture);
+                return ReplacePlaceholders(data, templateProvider, templateCache);
+            });
+        }
+
+        protected virtual string ReplacePlaceholders(TemplateData data, ITemplateProvider templateProvider, TemplateCache templateCache)
+        {
+            var transform = (XslCompiledTransform)templateCache.GetItem(data.Culture);
+            if (transform == null)
+            {
+                string template = templateProvider.ProvideTemplate(data.Culture);
+                transform = ConstructXslTransform(template);
+                templateCache.InsertItem(transform, data.Culture);
+            }
+
+            if (data.ObjectModel != null)
+            {
+                return ApplyTransform(transform, data.ObjectModel);
+            }
+            else
+            {
+                var replaceModel = data.KeyValueModel ?? new Dictionary<string, string>();
+                XsltArgumentList argList = ConstructArgumentList(replaceModel);
+                return ApplyTransform(transform, argList);
+            }
         }
 
         protected virtual XsltArgumentList ConstructArgumentList(Dictionary<string, string> parameters)

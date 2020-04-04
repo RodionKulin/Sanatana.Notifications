@@ -5,11 +5,10 @@ using Sanatana.Notifications.DAL.Entities;
 
 namespace Sanatana.Notifications.EventsHandling
 {
-    public interface ICompositionHandler<TKey> 
+    public interface IEventHandler<TKey> 
         where TKey : struct
     {
-        int? CompositionHandlerId { get; set; }
-        EventHandleResult<SignalDispatch<TKey>> ProcessEvent(EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent);
+        int? EventHandlerId { get; set; }
+        EventHandleResult<SignalDispatch<TKey>> ProcessEvent(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent);
     }
 }

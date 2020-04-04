@@ -23,37 +23,19 @@ namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.StoredNotificati
 
 
         //methods
-        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
+        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
+             List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
         {
-            TemplateData templateData = new TemplateData(signalEvent.TemplateData);
-            var templateDataList = new List<TemplateData>() { templateData };
+            List<string> subjects = FillTemplates(SubjectProvider, SubjectTransformer, subscribers, cultureAndData);
+            List<string> bodies = FillTemplates(BodyProvider, BodyTransformer, subscribers, cultureAndData);
 
-            string subject = null;
-            if (SubjectProvider != null && SubjectTransformer != null)
-            {
-                subject = SubjectTransformer.Transform(SubjectProvider, templateDataList)
-                    .First();
-            }
-
-            string body = null;
-            if (BodyProvider != null && BodyTransformer != null)
-            {
-                body = BodyTransformer.Transform(BodyProvider, templateDataList)
-                    .First();
-            }
-
-            var list = new List<SignalDispatch<TKey>>();
-            for (int i = 0; i < subscribers.Count; i++)
-            {
-                StoredNotificationDispatch<TKey> dispatch = Build(settings, signalEvent, subscribers[i], subject, body);
-                list.Add(dispatch);
-            }
-
-            return list;
+            return subscribers
+                .Select((subscriber, i) => AssembleStoredNotification(settings, signalEvent, subscriber, subjects[i], bodies[i]))
+                .Cast<SignalDispatch<TKey>>()
+                .ToList();
         }
 
-        protected virtual StoredNotificationDispatch<TKey> Build(EventSettings<TKey> settings
+        protected virtual StoredNotificationDispatch<TKey> AssembleStoredNotification(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string subject, string body)
         {
             var dispatch = new StoredNotificationDispatch<TKey>()

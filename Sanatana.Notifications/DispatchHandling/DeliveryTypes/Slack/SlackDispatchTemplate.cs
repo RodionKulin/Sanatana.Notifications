@@ -26,30 +26,18 @@ namespace Sanatana.Notifications.DispatchHandling.DeliveryTypes.Slack
 
 
         //methods
-        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
+        public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
+             List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
         {
-            TemplateData templateData = new TemplateData(signalEvent.TemplateData);
-            var templateDataList = new List<TemplateData>() { templateData };
+            List<string> texts = FillTemplates(TextProvider, TextTransformer, subscribers, cultureAndData);
 
-            string content = null;
-            if (TextProvider != null && TextTransformer != null)
-            {
-                content = TextTransformer.Transform(TextProvider, templateDataList)
-                    .First();
-            }
-
-            var list = new List<SignalDispatch<TKey>>();
-            for (int i = 0; i < subscribers.Count; i++)
-            {
-                SlackDispatch<TKey> dispatch = Build(settings, signalEvent, subscribers[i], content);
-                list.Add(dispatch);
-            }
-
-            return list;
+            return subscribers
+                .Select((subscriber, i) => AssembleSlackMessage(settings, signalEvent, subscriber, texts[i]))
+                .Cast<SignalDispatch<TKey>>()
+                .ToList();
         }
 
-        protected virtual SlackDispatch<TKey> Build(EventSettings<TKey> settings
+        protected virtual SlackDispatch<TKey> AssembleSlackMessage(EventSettings<TKey> settings
             , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber, string content)
         {
             var dispatch = new SlackDispatch<TKey>()

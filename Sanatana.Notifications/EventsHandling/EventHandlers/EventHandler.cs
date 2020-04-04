@@ -15,7 +15,7 @@ using Sanatana.Notifications.DAL.Entities;
 
 namespace Sanatana.Notifications.EventsHandling
 {
-    public class CompositionHandler<TKey> : ICompositionHandler<TKey>
+    public class EventHandler<TKey> : IEventHandler<TKey>
         where TKey : struct
     {
         //fields
@@ -25,11 +25,11 @@ namespace Sanatana.Notifications.EventsHandling
         protected ISubscriberQueries<TKey> _subscriberQueries;
 
         //properties
-        public int? CompositionHandlerId { get; set; }
+        public int? EventHandlerId { get; set; }
 
 
         //init
-        public CompositionHandler(ISubscribersFetcher<TKey> subscribersFetcher
+        public EventHandler(ISubscribersFetcher<TKey> subscribersFetcher
             , IDispatchBuilder<TKey> dispatchBuilder, IScheduler<TKey> scheduler
             , ISubscriberQueries<TKey> subscriberQueries)
         {
@@ -136,17 +136,19 @@ namespace Sanatana.Notifications.EventsHandling
 
         protected virtual void SetCurrentProgress(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
-            if (subscribers.Count > 0 
-                && signalEvent.AddresseeType == AddresseeType.SubscriptionParameters)
+            if (subscribers.Count == 0 
+                || signalEvent.AddresseeType != AddresseeType.SubscriptionParameters)
             {
-                subscribers = subscribers.OrderByDescending(x => x.SubscriberId).ToList();    //assume that SubscriberIds are ordered in storage
-                TKey latestSubscriberId = subscribers.First().SubscriberId;
-                signalEvent.SubscriberIdRangeFrom = latestSubscriberId;
-                signalEvent.SubscriberIdFromDeliveryTypesHandled = subscribers
-                    .TakeWhile(x => EqualityComparer<TKey>.Default.Equals(x.SubscriberId, latestSubscriberId))
-                    .Select(x => x.DeliveryType)
-                    .ToList();
+                return;
             }
+
+            subscribers = subscribers.OrderByDescending(x => x.SubscriberId).ToList();    //assume that SubscriberIds are ordered in storage
+            TKey latestSubscriberId = subscribers.First().SubscriberId;
+            signalEvent.SubscriberIdRangeFrom = latestSubscriberId;
+            signalEvent.SubscriberIdFromDeliveryTypesHandled = subscribers
+                .TakeWhile(x => EqualityComparer<TKey>.Default.Equals(x.SubscriberId, latestSubscriberId))
+                .Select(x => x.DeliveryType)
+                .ToList();
         }
     }
 }

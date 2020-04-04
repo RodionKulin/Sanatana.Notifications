@@ -8,6 +8,6 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 {
     public interface ITemplateTransformer
     {
-        List<string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData);
+        Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData);
     }
 }

@@ -9,16 +9,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Sanatana.Notifications.EventsHandling
 {
     public class DispatchBuilder<TKey> : IDispatchBuilder<TKey>
         where TKey : struct
     {
+        //fields
+        protected ILogger _logger;
 
-        //init
-        public DispatchBuilder()
+
+        //ctor
+        public DispatchBuilder(ILogger logger)
         {
+            _logger = logger;
         }
 
 
@@ -41,7 +47,8 @@ namespace Sanatana.Notifications.EventsHandling
                 }
 
                 List<Subscriber<TKey>> templateSubscribers = delivTypeSubscribers[template.DeliveryType];
-                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers);
+                List<TemplateData> cultureAndData = PrepareCultureData(signalEvent, templateSubscribers);
+                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers, cultureAndData);
                 dispatches.AddRange(templateDispatches);
             }
 
@@ -53,10 +60,32 @@ namespace Sanatana.Notifications.EventsHandling
             };
         }
 
-        protected virtual List<SignalDispatch<TKey>> BuildTemplate(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
-            , DispatchTemplate<TKey> template , List<Subscriber<TKey>> templateSubscribers)
+        protected virtual List<TemplateData> PrepareCultureData(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
-            return template.Build(settings, signalEvent, templateSubscribers);
+            return subscribers
+                .Select(x => x.Language)
+                .Distinct()
+                .ToDictionary(lang => lang, cultureName =>
+                {
+                    try
+                    {
+                        return string.IsNullOrEmpty(cultureName) ? null : new CultureInfo(cultureName);
+                    }
+                    catch (CultureNotFoundException ex)
+                    {
+                        TKey subscriberId = subscribers.First(x => x.Language == cultureName).SubscriberId;
+                        _logger.LogError(ex, SenderInternalMessages.DispatchBuilder_CultureNotFound, cultureName, subscriberId);
+                        return null;
+                    }
+                })
+                .Select(culture => new TemplateData(signalEvent.TemplateData, culture.Value, culture.Key))
+                .ToList();
+        }
+               
+        protected virtual List<SignalDispatch<TKey>> BuildTemplate(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
+            , DispatchTemplate<TKey> template, List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
+        {
+            return template.Build(settings, signalEvent, subscribers, cultureAndData);
         }
 
     }
