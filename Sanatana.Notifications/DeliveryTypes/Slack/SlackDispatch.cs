@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Sanatana.Notifications.DeliveryTypes.Slack
 {
+    [Serializable]
     public class SlackDispatch<TKey> : SignalDispatch<TKey>
         where TKey : struct
     {

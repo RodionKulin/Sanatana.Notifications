@@ -14,8 +14,5 @@ namespace Sanatana.Notifications.DAL.Entities
         public int Order { get; set; }
         public TimeSpan PeriodBegin { get; set; }
         public TimeSpan PeriodEnd { get; set; }
-
-
-
     }
 }
