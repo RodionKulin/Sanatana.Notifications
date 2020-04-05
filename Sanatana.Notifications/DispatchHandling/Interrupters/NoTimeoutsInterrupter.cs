@@ -27,5 +27,9 @@ namespace Sanatana.Notifications.DispatchHandling.Interrupters
             return null;
         }
 
+        public void Dispose()
+        {
+
+        }
     }
 }

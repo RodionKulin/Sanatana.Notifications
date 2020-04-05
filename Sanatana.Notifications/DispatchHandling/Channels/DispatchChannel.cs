@@ -152,7 +152,7 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
                 LimitCounter.Dispose();
 
             if (Interrupter != null)
-                LimitCounter.Dispose();
+                Interrupter.Dispose();
         }
     }
 }

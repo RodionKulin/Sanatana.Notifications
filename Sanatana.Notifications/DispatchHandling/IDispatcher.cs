@@ -1,15 +1,12 @@
-﻿using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DispatchHandling;
+﻿using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.Processing;
-using Sanatana.Notifications.Queues;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DeliveryTypes
+namespace Sanatana.Notifications.DispatchHandling
 {
     public interface IDispatcher<TKey> : IDisposable
         where TKey : struct

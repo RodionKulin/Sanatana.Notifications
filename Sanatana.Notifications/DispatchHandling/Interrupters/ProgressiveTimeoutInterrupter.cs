@@ -89,5 +89,9 @@ namespace Sanatana.Notifications.DispatchHandling.Interrupters
         {
             return _timeoutEndUtc;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

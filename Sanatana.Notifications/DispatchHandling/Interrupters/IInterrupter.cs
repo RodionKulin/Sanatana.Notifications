@@ -5,7 +5,7 @@ using System;
 
 namespace Sanatana.Notifications.DispatchHandling.Interrupters
 {
-    public interface IInterrupter<TKey>
+    public interface IInterrupter<TKey> : IDisposable
         where TKey : struct
     {
         void Success(SignalDispatch<TKey> dispatch);
