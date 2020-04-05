@@ -11,6 +11,7 @@ namespace Sanatana.Notifications.DAL.Entities
     {
         public int DeliveryType { get; set; }
         public string Address { get; set; }
+        public string TimeZoneId { get; set; }
         public string Language { get; set; }
     }
 }

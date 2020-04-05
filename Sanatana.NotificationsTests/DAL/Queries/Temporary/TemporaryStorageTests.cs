@@ -47,7 +47,7 @@ namespace Sanatana.NotificationsTests.DAL.Queries.Temporary
             };
             var signalEvent = new SignalEvent<long>
             {
-                TemplateData = new Dictionary<string, string>
+                TemplateDataDict = new Dictionary<string, string>
                 {
                     { "customer", "Crabs" }
                 },
@@ -79,7 +79,7 @@ namespace Sanatana.NotificationsTests.DAL.Queries.Temporary
             Dictionary<Guid, SignalEvent<long>> eventsList = _tempStorage
                 .Select(temporaryStorageParameters);
             SignalEvent<long> actualEvent = eventsList[id];
-            actualEvent.TemplateData["customer"].ShouldBe("Crabs");
+            actualEvent.TemplateDataDict["customer"].ShouldBe("Crabs");
             actualEvent.PredefinedAddresses[0].Address.ShouldBe("address");
         }
     }

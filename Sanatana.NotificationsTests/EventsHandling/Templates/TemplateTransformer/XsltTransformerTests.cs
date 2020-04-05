@@ -23,7 +23,8 @@ namespace Sanatana.NotificationsTests.EventsHandling.Templates
             var templateProvider = new FileTemplate("TestTools/Content/ProductsOrder.xslt");
             var templateData = new List<TemplateData>
             {
-                new TemplateData(CreateObjectModel())
+                new TemplateData(keyValueModel: null, objectModel: CreateObjectModel())
+                
             };
 
             //invoke

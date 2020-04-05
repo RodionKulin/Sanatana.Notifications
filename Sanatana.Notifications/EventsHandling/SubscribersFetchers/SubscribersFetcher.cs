@@ -80,6 +80,7 @@ namespace Sanatana.Notifications.EventsHandling
             {
                 DeliveryType = x.DeliveryType,
                 Address = x.Address,
+                TimeZoneId = x.TimeZoneId,
                 Language = x.Language
             })
             .ToList();

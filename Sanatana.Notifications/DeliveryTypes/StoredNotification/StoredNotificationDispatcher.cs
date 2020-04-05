@@ -29,7 +29,7 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 
 
         //methods
-        public Task<ProcessingResult> Send(SignalDispatch<TKey> item)
+        public virtual Task<ProcessingResult> Send(SignalDispatch<TKey> item)
         {
             var signal = (StoredNotificationDispatch<TKey>)item;
 
@@ -47,12 +47,12 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
             return Task.FromResult(ProcessingResult.Success);
         }
 
-        public Task<DispatcherAvailability> CheckAvailability()
+        public virtual Task<DispatcherAvailability> CheckAvailability()
         {
             return Task.FromResult(DispatcherAvailability.Available);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
 
         }

@@ -16,9 +16,11 @@ namespace Sanatana.NotificationsTests.EventsHandling.Templates
             StringTemplate templateProvider = "@Model.Name";
             var templateData = new List<TemplateData>
             {
-                new TemplateData(new {
-                    Name = "Replaced"
-                })
+                new TemplateData(
+                    keyValueModel: null,
+                    objectModel: new {
+                        Name = "Replaced"
+                    })
             };
 
             //invoke

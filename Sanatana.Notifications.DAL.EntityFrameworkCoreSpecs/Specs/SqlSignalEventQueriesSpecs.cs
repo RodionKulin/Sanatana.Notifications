@@ -37,7 +37,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -53,7 +53,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -109,7 +109,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -125,7 +125,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -196,7 +196,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -212,7 +212,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         EventKey = 1,
                         EventSettingsId = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }
@@ -246,7 +246,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         TopicId = "topic17",
                         EventKey = 1,
                         AddresseeType = AddresseeType.SubscriptionParameters,
-                        TemplateData = new Dictionary<string, string>
+                        TemplateDataDict = new Dictionary<string, string>
                         {
                             { "1", "1" },
                             { "2", "2" }

@@ -13,24 +13,24 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
     public class SignalEventLong : SignalEvent<long>
     {
         //serialized properties
-        public string TemplateDataSerialized
+        public string TemplateDataDictSerialized
         {
             get
             {
-                if (TemplateData == null || TemplateData.Count == 0)
+                if (TemplateDataDict == null || TemplateDataDict.Count == 0)
                 {
                     return null;
                 }
-                return JsonConvert.SerializeObject(TemplateData);
+                return JsonConvert.SerializeObject(TemplateDataDict);
             }
             set
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    TemplateData = null;
+                    TemplateDataDict = null;
                     return;
                 }
-                TemplateData = JsonConvert.DeserializeObject<Dictionary<string, string>>(value);
+                TemplateDataDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(value);
             }
         }
 

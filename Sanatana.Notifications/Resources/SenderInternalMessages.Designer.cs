@@ -124,6 +124,15 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not deserialize {0} property json {1} in {2} Id {3}..
+        /// </summary>
+        public static string DispatchBuilder_DeserializeError {
+            get {
+                return ResourceManager.GetString("DispatchBuilder_DeserializeError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No template delivery type matched subscriber delivery type(s) {0}..
         /// </summary>
         public static string DispatchBuilder_NoTemplateMatched {

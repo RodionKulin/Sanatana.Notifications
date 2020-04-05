@@ -38,10 +38,12 @@ namespace Sanatana.Notifications.EventsHandling.Tests
             };
             var templateData = new List<TemplateData>()
             {
-                new TemplateData(new Dictionary<string, string>()
-            {
-                { "key", "value" }
-            })
+                new TemplateData(
+                    keyValueModel: new Dictionary<string, string>()
+                    {
+                        { "key", "value" }
+                    }, 
+                    objectModel: null)
             };
 
             //invoke

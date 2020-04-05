@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace Sanatana.Notifications.EventsHandling
 {
@@ -62,10 +63,24 @@ namespace Sanatana.Notifications.EventsHandling
 
         protected virtual List<TemplateData> PrepareTemplateData(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
+            object objectModel = null;
+            try
+            {
+                objectModel = string.IsNullOrEmpty(signalEvent.TemplateDataObj)
+                    ? null
+                    : JsonConvert.DeserializeObject(signalEvent.TemplateDataObj);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, SenderInternalMessages.DispatchBuilder_DeserializeError,
+                    nameof(signalEvent.TemplateDataObj), signalEvent.TemplateDataObj,
+                    nameof(SignalEvent<TKey>), signalEvent.SignalEventId);
+            }
+
             List<TemplateData> templatesData = subscribers
                 .Select(x => x.Language)
                 .Distinct()
-                .Select(language => new TemplateData(signalEvent.TemplateData, language))
+                .Select(language => new TemplateData(signalEvent.TemplateDataDict, objectModel, language: language))
                 .ToList();
 
             //validate and log invalid language values.

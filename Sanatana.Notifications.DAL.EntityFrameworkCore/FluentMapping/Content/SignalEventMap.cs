@@ -27,8 +27,8 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             builder.HasIndex(t => new { t.FailedAttempts }).IsUnique(false);
             
             // Properties
-            builder.Ignore(t => t.TemplateData);
-            builder.Property(r => r.TemplateDataSerialized).HasColumnName("TemplateData").HasColumnType("nvarchar(max)");
+            builder.Ignore(t => t.TemplateDataDict);
+            builder.Property(r => r.TemplateDataDictSerialized).HasColumnName("TemplateDataDict").HasColumnType("nvarchar(max)");
 
             builder.Ignore(t => t.SubscriberFiltersData);
             builder.Property(r => r.SubscriberFiltersDataSerialized).HasColumnName("SubscriberFiltersData").HasColumnType("nvarchar(max)");

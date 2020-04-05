@@ -138,6 +138,9 @@
   <data name="DispatchBuilder_CultureNotFound" xml:space="preserve">
     <value>Could not create CultureInfo from language [{0}] for Subscriber Id=[{1}]</value>
   </data>
+  <data name="DispatchBuilder_DeserializeError" xml:space="preserve">
+    <value>Could not deserialize {0} property json {1} in {2} Id {3}.</value>
+  </data>
   <data name="DispatchBuilder_NoTemplateMatched" xml:space="preserve">
     <value>No template delivery type matched subscriber delivery type(s) {0}.</value>
   </data>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -17,21 +18,16 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 
 
         //init
-        public TemplateData(Dictionary<string, string> keyValueModel, string language = null)
+        public TemplateData(Dictionary<string, string> keyValueModel, object objectModel, string language = null)
         {
             KeyValueModel = keyValueModel;
-            Language = language;
-        }
-
-        public TemplateData(object objectModel, string language = null)
-        {
             ObjectModel = objectModel;
             Language = language;
         }
 
         public static TemplateData Empty()
         {
-            return new TemplateData(new Dictionary<string, string>());
+            return new TemplateData(new Dictionary<string, string>(), null);
         }
 
 
@@ -40,7 +36,7 @@ namespace Sanatana.Notifications.EventsHandling.Templates
         //convert
         public static implicit operator TemplateData(Dictionary<string, string> keyValueModel)
         {
-            return new TemplateData(keyValueModel);
+            return new TemplateData(keyValueModel, null);
         }
 
 
