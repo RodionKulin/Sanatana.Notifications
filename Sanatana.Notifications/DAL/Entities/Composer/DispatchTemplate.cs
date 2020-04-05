@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using Sanatana.Notifications.DAL;
 using System;
-using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.EventsHandling.Templates;
 using System.Linq;
@@ -43,8 +41,8 @@ namespace Sanatana.Notifications.DAL.Entities
         public abstract List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
              List<Subscriber<TKey>> subscribers, List<TemplateData> dataWithCulture);
 
-        protected virtual List<string> FillTemplates(ITemplateProvider provider, ITemplateTransformer transformer,
-            List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
+        protected virtual List<string> FillTemplate(ITemplateProvider provider, ITemplateTransformer transformer,
+            List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
         {
             if(provider == null || transformer == null)
             {
@@ -53,9 +51,9 @@ namespace Sanatana.Notifications.DAL.Entities
                     .ToList();
             }
 
-            Dictionary<TemplateData, string> filledTemplates = transformer.Transform(provider, cultureAndData);
+            Dictionary<string, string> filledTemplates = transformer.Transform(provider, languageTemplateData);
             return subscribers
-                .Select(subscriber => filledTemplates.First(x => x.Key.Language == subscriber.Language).Value)
+                .Select(subscriber => filledTemplates[subscriber.Language ?? ""])
                 .ToList();
         }
 

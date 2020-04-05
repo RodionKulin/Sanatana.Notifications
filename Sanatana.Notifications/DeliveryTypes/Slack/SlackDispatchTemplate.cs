@@ -27,9 +27,9 @@ namespace Sanatana.Notifications.DeliveryTypes.Slack
 
         //methods
         public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
-             List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
+             List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
         {
-            List<string> texts = FillTemplates(TextProvider, TextTransformer, subscribers, cultureAndData);
+            List<string> texts = FillTemplate(TextProvider, TextTransformer, subscribers, languageTemplateData);
 
             return subscribers
                 .Select((subscriber, i) => AssembleSlackMessage(settings, signalEvent, subscriber, texts[i]))

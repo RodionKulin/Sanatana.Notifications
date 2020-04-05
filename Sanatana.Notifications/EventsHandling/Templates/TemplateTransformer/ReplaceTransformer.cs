@@ -29,22 +29,23 @@ namespace Sanatana.Notifications.EventsHandling.Templates
  
 
         //methods
-        public virtual Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
+        public virtual Dictionary<string, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
         {
-            if(templateProvider == null)
+            if (templateProvider == null)
             {
-                return new Dictionary<TemplateData, string>();
+                throw new ArgumentNullException(nameof(templateProvider));
             }
 
-            return templateData.ToDictionary(data => data, data =>
+            return templateData.ToDictionary(data => data.Language ?? "", data =>
             {
+                string template = templateProvider.ProvideTemplate(data.Language);
+
                 if (data.KeyValueModel == null)
                 {
                     throw new ArgumentNullException(nameof(data.KeyValueModel),
-                        string.Format(SenderInternalMessages.Common_TransformerDataMissing, nameof(ReplaceTransformer)));
+                        string.Format(SenderInternalMessages.Common_TransformerDataMissing, nameof(ReplaceTransformer), template));
                 }
 
-                string template = templateProvider.ProvideTemplate(data.Language);
                 return ReplacePlaceholders(template, data.KeyValueModel);
             });
         }

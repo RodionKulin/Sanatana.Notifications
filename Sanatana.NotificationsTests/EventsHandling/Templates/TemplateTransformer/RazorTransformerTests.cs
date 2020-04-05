@@ -25,7 +25,7 @@ namespace Sanatana.NotificationsTests.EventsHandling.Templates
 
             //invoke
             var target = new RazorTransformer();
-            Dictionary<TemplateData, string> filledTemplates = target.Transform(templateProvider, templateData);
+            Dictionary<string, string> filledTemplates = target.Transform(templateProvider, templateData);
 
             //assert
             Assert.AreEqual(1, filledTemplates.Count);

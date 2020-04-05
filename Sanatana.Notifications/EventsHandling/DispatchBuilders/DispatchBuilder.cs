@@ -48,8 +48,8 @@ namespace Sanatana.Notifications.EventsHandling
                 }
 
                 List<Subscriber<TKey>> templateSubscribers = delivTypeSubscribers[template.DeliveryType];
-                List<TemplateData> cultureAndData = PrepareTemplateData(signalEvent, templateSubscribers);
-                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers, cultureAndData);
+                List<TemplateData> languageTemplateData = PrepareTemplateData(signalEvent, templateSubscribers);
+                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers, languageTemplateData);
                 dispatches.AddRange(templateDispatches);
             }
 
@@ -63,6 +63,7 @@ namespace Sanatana.Notifications.EventsHandling
 
         protected virtual List<TemplateData> PrepareTemplateData(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
+            //deserialize object model
             object objectModel = null;
             try
             {
@@ -77,8 +78,9 @@ namespace Sanatana.Notifications.EventsHandling
                     nameof(SignalEvent<TKey>), signalEvent.SignalEventId);
             }
 
+            //find distinct languages
             List<TemplateData> templatesData = subscribers
-                .Select(x => x.Language)
+                .Select(x => x.Language ?? string.Empty)
                 .Distinct()
                 .Select(language => new TemplateData(signalEvent.TemplateDataDict, objectModel, language: language))
                 .ToList();
@@ -108,9 +110,9 @@ namespace Sanatana.Notifications.EventsHandling
         }
                
         protected virtual List<SignalDispatch<TKey>> BuildTemplate(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
-            , DispatchTemplate<TKey> template, List<Subscriber<TKey>> subscribers, List<TemplateData> cultureAndData)
+            , DispatchTemplate<TKey> template, List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
         {
-            return template.Build(settings, signalEvent, subscribers, cultureAndData);
+            return template.Build(settings, signalEvent, subscribers, languageTemplateData);
         }
 
     }

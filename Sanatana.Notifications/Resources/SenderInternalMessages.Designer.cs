@@ -70,7 +70,7 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} only supports dictionary data and dictionary was not provided..
+        ///   Looks up a localized string similar to {0} only supports dictionary data and dictionary was not provided for template [{1}]..
         /// </summary>
         public static string Common_TransformerDataMissing {
             get {

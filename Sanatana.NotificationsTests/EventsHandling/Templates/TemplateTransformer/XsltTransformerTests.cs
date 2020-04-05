@@ -30,7 +30,7 @@ namespace Sanatana.NotificationsTests.EventsHandling.Templates
             //invoke
             Stopwatch timer = Stopwatch.StartNew();
             var target = new XsltTransformer();
-            Dictionary<TemplateData, string> filledTemplates = target.Transform(templateProvider, templateData);
+            Dictionary<string, string> filledTemplates = target.Transform(templateProvider, templateData);
 
             //assert
             Debug.WriteLine("Xslt time: " + timer.Elapsed);

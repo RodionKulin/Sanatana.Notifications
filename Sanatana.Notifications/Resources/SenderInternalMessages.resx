@@ -121,7 +121,7 @@
     <value>{0} parameter was not provided.</value>
   </data>
   <data name="Common_TransformerDataMissing" xml:space="preserve">
-    <value>{0} only supports dictionary data and dictionary was not provided.</value>
+    <value>{0} only supports dictionary data and dictionary was not provided for template [{1}].</value>
   </data>
   <data name="CompositionHandlerFactory_MoreThanOneFound" xml:space="preserve">
     <value>More than one {0} registered with {1} of \"{2}\".</value>

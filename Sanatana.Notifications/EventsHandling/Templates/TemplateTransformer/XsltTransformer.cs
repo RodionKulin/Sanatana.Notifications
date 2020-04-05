@@ -27,14 +27,14 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 
 
         //methods
-        public virtual Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
+        public virtual Dictionary<string, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
         {
             if (templateProvider == null)
             {
-                return new Dictionary<TemplateData, string>();
+                throw new ArgumentNullException(nameof(templateProvider));
             }
 
-            return templateData.ToDictionary(data => data, data =>
+            return templateData.ToDictionary(data => data.Language ?? "", data =>
             {
                 var transform = UseLongTermCaching
                     ? (XslCompiledTransform)_longTermTemplatesCache.GetOrCreate(data.Language, () => ConstructXslTransform(templateProvider, data))

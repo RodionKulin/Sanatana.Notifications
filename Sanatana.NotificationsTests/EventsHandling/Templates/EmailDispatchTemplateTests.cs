@@ -15,7 +15,7 @@ namespace Sanatana.Notifications.EventsHandling.Tests
     public class EmailDispatchTemplateTests
     {
         [TestMethod()]
-        public void EmailDispatchTemplate_ProvideContentTest()
+        public void EmailDispatchTemplate_BuildTest()
         {
             //prepare
             var emailTemplate = new EmailDispatchTemplate<long>()
