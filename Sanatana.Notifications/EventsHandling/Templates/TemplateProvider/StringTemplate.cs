@@ -22,7 +22,7 @@ namespace Sanatana.Notifications.EventsHandling.Templates
       
 
         //methods
-        public virtual string ProvideTemplate(CultureInfo culture = null)
+        public virtual string ProvideTemplate(string language = null)
         {
             return Template;
         }

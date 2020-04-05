@@ -9,12 +9,14 @@ namespace Sanatana.Notifications.EventsHandling.Templates
     public class RazorTransformer : ITemplateTransformer
     {
         //fields
-        protected static TemplateCache _longTermTemplatesCache = new TemplateCache(null);
+        protected TemplateCache _longTermTemplatesCache = new TemplateCache();
 
 
         //properties
         /// <summary>
-        /// Create compiled razor templates only once and reuse on next calls.
+        /// Create compiled razor templates only once and reuse on next calls. Default is true.
+        /// Memory Cache is persistent if EventSettings are stored in memory.
+        /// But will be wiped out on EventSettings reading if EventSettings are stored in database.
         /// </summary>
         public bool UseLongTermCaching { get; set; } = true;
 
@@ -28,35 +30,23 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 return new Dictionary<TemplateData, string>();
             }
 
-            TemplateCache templateCache = UseLongTermCaching
-                ? _longTermTemplatesCache
-                : new TemplateCache(templateProvider);
-
             return templateData.ToDictionary(data => data, data =>
             {
-                RazorEngineCompiledTemplate template = GetCompiledTemplate(templateProvider, templateCache, data);
+                var template = UseLongTermCaching
+                    ? (RazorEngineCompiledTemplate)_longTermTemplatesCache.GetOrCreate(data.Language, () => GetCompiledTemplate(templateProvider, data))
+                    : GetCompiledTemplate(templateProvider, data);
+
                 return data.ObjectModel == null
                     ? template.Run(data.KeyValueModel)
                     : template.Run(data.ObjectModel);
             });
         }
 
-        protected virtual RazorEngineCompiledTemplate GetCompiledTemplate(ITemplateProvider templateProvider, 
-            TemplateCache templateCache, TemplateData data)
+        protected virtual RazorEngineCompiledTemplate GetCompiledTemplate(ITemplateProvider templateProvider, TemplateData data)
         {
-            var transform = (RazorEngineCompiledTemplate)templateCache.GetItem(data.Culture);
-            if (transform != null)
-            {
-                return transform;
-            }
-
-            string template = templateProvider.ProvideTemplate(data.Culture);
-
-            RazorEngine razorEngine = new RazorEngine();
-            transform = razorEngine.Compile(template);
-
-            templateCache.InsertItem(transform, data.Culture);
-            return transform;
+            string template = templateProvider.ProvideTemplate(data.Language);
+            var razorEngine = new RazorEngine();
+            return razorEngine.Compile(template);
         }
 
     }

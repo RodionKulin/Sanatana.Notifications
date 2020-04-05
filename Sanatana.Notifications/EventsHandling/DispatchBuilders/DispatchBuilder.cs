@@ -47,7 +47,7 @@ namespace Sanatana.Notifications.EventsHandling
                 }
 
                 List<Subscriber<TKey>> templateSubscribers = delivTypeSubscribers[template.DeliveryType];
-                List<TemplateData> cultureAndData = PrepareCultureData(signalEvent, templateSubscribers);
+                List<TemplateData> cultureAndData = PrepareTemplateData(signalEvent, templateSubscribers);
                 List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers, cultureAndData);
                 dispatches.AddRange(templateDispatches);
             }
@@ -60,26 +60,36 @@ namespace Sanatana.Notifications.EventsHandling
             };
         }
 
-        protected virtual List<TemplateData> PrepareCultureData(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
+        protected virtual List<TemplateData> PrepareTemplateData(SignalEvent<TKey> signalEvent, List<Subscriber<TKey>> subscribers)
         {
-            return subscribers
+            List<TemplateData> templatesData = subscribers
                 .Select(x => x.Language)
                 .Distinct()
-                .ToDictionary(lang => lang, cultureName =>
-                {
-                    try
-                    {
-                        return string.IsNullOrEmpty(cultureName) ? null : new CultureInfo(cultureName);
-                    }
-                    catch (CultureNotFoundException ex)
-                    {
-                        TKey subscriberId = subscribers.First(x => x.Language == cultureName).SubscriberId;
-                        _logger.LogError(ex, SenderInternalMessages.DispatchBuilder_CultureNotFound, cultureName, subscriberId);
-                        return null;
-                    }
-                })
-                .Select(culture => new TemplateData(signalEvent.TemplateData, culture.Value, culture.Key))
+                .Select(language => new TemplateData(signalEvent.TemplateData, language))
                 .ToList();
+
+            //validate and log invalid language values.
+            foreach (TemplateData templateData in templatesData)
+            {
+                //empty langauge is not logged. tempplate provider will return default language template.
+                if (string.IsNullOrEmpty(templateData.Language))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    //language should be a valid culture name
+                    new CultureInfo(templateData.Language);
+                }
+                catch (CultureNotFoundException ex)
+                {
+                    TKey subscriberId = subscribers.First(x => x.Language == templateData.Language).SubscriberId;
+                    _logger.LogError(ex, SenderInternalMessages.DispatchBuilder_CultureNotFound, templateData.Language, subscriberId);
+                }
+            }
+
+            return templatesData;
         }
                
         protected virtual List<SignalDispatch<TKey>> BuildTemplate(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent

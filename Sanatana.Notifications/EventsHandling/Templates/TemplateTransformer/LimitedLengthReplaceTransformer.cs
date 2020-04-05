@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sanatana.Notifications.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,11 +40,15 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 return new Dictionary<TemplateData, string>();
             }
 
-            var filledTemplates = new Dictionary<TemplateData, string>();
-            TemplateCache templateCache = new TemplateCache(templateProvider);
             return templateData.ToDictionary(data => data, data =>
             {
-                string template = templateCache.GetOrCreateTemplate(data.Culture);
+                if(data.KeyValueModel == null)
+                {
+                    throw new ArgumentNullException(nameof(data.KeyValueModel), 
+                        string.Format(SenderInternalMessages.Common_TransformerDataMissing, nameof(LimitedLengthReplaceTransformer)));
+                }
+
+                string template = templateProvider.ProvideTemplate(data.Language);
                 return ReplacePlaceholders(template, data.KeyValueModel);
             });
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,8 +11,16 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 {
     public class FileTemplate : ITemplateProvider
     {
+        //fields
+        protected static string _longTermTemplatesCache;
+
+
         //properties
         public string FilePath { get; set; }
+        /// <summary>
+        /// Cache file content in memory. Default is true.
+        /// </summary>
+        public bool LongTermCache { get; set; } = true;
               
 
 
@@ -23,17 +32,18 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 
 
         //methods
-        public virtual string ProvideTemplate(CultureInfo culture = null)
+        public virtual string ProvideTemplate(string language = null)
         {
-            string text;
-           
-            using (var fileStream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (var streamReader = new StreamReader(fileStream))
+            if (!LongTermCache)
             {
-                text = streamReader.ReadToEnd();
+                return File.ReadAllText(FilePath);
             }
 
-            return text;
+            if (_longTermTemplatesCache == null)
+            {
+                _longTermTemplatesCache = File.ReadAllText(FilePath);
+            }
+            return _longTermTemplatesCache;
         }
 
     }

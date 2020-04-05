@@ -22,7 +22,11 @@ namespace Sanatana.Notifications.EventsHandling.Templates
         //properties
         public Type ResourceType { get; set; }
         public string ResourceName { get; set; }
-     
+        /// <summary>
+        /// Default resource culture if Subscriber does not have a valid language specified. Thread.CurrentThread.CurrentCulture by default.
+        /// </summary>
+        public CultureInfo DefaultCulture { get; set; } = Thread.CurrentThread.CurrentCulture;
+
 
 
         //init
@@ -43,10 +47,18 @@ namespace Sanatana.Notifications.EventsHandling.Templates
             _resourceManager = (ResourceManager)resourceManagerProp.GetValue(null);
         }
 
-        public virtual string ProvideTemplate(CultureInfo culture = null)
+        public virtual string ProvideTemplate(string language = null)
         {
-            culture = culture ?? Thread.CurrentThread.CurrentCulture;
-                        
+            CultureInfo culture = null;
+            try
+            {
+                culture = string.IsNullOrEmpty(language) ? null : new CultureInfo(language);
+            }
+            catch (CultureNotFoundException ex)
+            {
+            }
+            culture = culture ?? DefaultCulture;
+
             ResourceSet set = _resourceManager.GetResourceSet(culture, true, true);
             return set.GetString(ResourceName);
         }

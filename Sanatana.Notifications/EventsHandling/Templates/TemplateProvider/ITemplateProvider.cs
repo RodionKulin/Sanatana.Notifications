@@ -9,6 +9,6 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 {
     public interface ITemplateProvider
     {
-        string ProvideTemplate(CultureInfo culture = null);
+        string ProvideTemplate(string language = null);
     }
 }

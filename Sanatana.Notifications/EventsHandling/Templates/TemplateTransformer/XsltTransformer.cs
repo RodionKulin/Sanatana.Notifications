@@ -12,6 +12,20 @@ namespace Sanatana.Notifications.EventsHandling.Templates
 {
     public class XsltTransformer : ITemplateTransformer
     {
+        //fields
+        protected TemplateCache _longTermTemplatesCache = new TemplateCache();
+
+
+        //properties
+        /// <summary>
+        /// Create XslCompiledTransform only once and reuse on next calls. Default is true. 
+        /// Memory Cache is persistent if EventSettings are stored in memory.
+        /// But will be wiped out on EventSettings reading if EventSettings are stored in database.
+        /// </summary>
+        public bool UseLongTermCaching { get; set; } = true;
+
+
+
         //methods
         public virtual Dictionary<TemplateData, string> Transform(ITemplateProvider templateProvider, List<TemplateData> templateData)
         {
@@ -20,34 +34,29 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 return new Dictionary<TemplateData, string>();
             }
 
-            TemplateCache templateCache = new TemplateCache(templateProvider);
             return templateData.ToDictionary(data => data, data =>
             {
-                XslCompiledTransform transform = ConstructXslTransform(templateProvider, templateCache, data);
+                var transform = UseLongTermCaching
+                    ? (XslCompiledTransform)_longTermTemplatesCache.GetOrCreate(data.Language, () => ConstructXslTransform(templateProvider, data))
+                    : ConstructXslTransform(templateProvider, data);
+
                 return data.ObjectModel == null
                     ? ApplyXslt(transform, data.KeyValueModel)
                     : ApplyXslt(transform, data.ObjectModel);
             });
         }
 
-        protected virtual XslCompiledTransform ConstructXslTransform(ITemplateProvider templateProvider, TemplateCache templateCache, TemplateData data)
+        protected virtual XslCompiledTransform ConstructXslTransform(ITemplateProvider templateProvider, TemplateData data)
         {
-            var transform = (XslCompiledTransform)templateCache.GetItem(data.Culture);
-            if (transform != null)
-            {
-                return transform;
-            }
+            string template = templateProvider.ProvideTemplate(data.Language);
 
-            string template = templateProvider.ProvideTemplate(data.Culture);
-
-            transform = new XslCompiledTransform();
+            var transform = new XslCompiledTransform();
             using (TextReader textReader = new StringReader(template))
             using (XmlReader styleSheetReader = XmlReader.Create(textReader))
             {                
                 transform.Load(styleSheetReader);
             }
 
-            templateCache.InsertItem(transform, data.Culture);
             return transform;
         }
 

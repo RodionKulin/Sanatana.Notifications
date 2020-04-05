@@ -12,23 +12,20 @@ namespace Sanatana.Notifications.EventsHandling.Templates
         //properties
         public Dictionary<string, string> KeyValueModel { get; private set; }
         public object ObjectModel { get; private set; }
-        public CultureInfo Culture { get; set; }
         public string Language { get; set; }
 
 
 
         //init
-        public TemplateData(Dictionary<string, string> keyValueModel, CultureInfo culture = null, string language = null)
+        public TemplateData(Dictionary<string, string> keyValueModel, string language = null)
         {
             KeyValueModel = keyValueModel;
-            Culture = culture;
             Language = language;
         }
 
-        public TemplateData(object objectModel, CultureInfo culture = null, string language = null)
+        public TemplateData(object objectModel, string language = null)
         {
             ObjectModel = objectModel;
-            Culture = culture;
             Language = language;
         }
 

@@ -1,5 +1,6 @@
 ﻿using Sanatana.Notifications.EventsHandling.Templates;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,53 +12,21 @@ namespace Sanatana.Notifications.EventsHandling.Templates
     public class TemplateCache
     {
         //fields
-        private ITemplateProvider _templateProvider;
-        private Dictionary<string, object> _cache;
+        private ConcurrentDictionary<string, object> _cache;
 
 
         //init
-        public TemplateCache(ITemplateProvider templateProvider)
+        public TemplateCache()
         {
-            _templateProvider = templateProvider;
-            _cache = new Dictionary<string, object>();
+            _cache = new ConcurrentDictionary<string, object>();
         }
 
 
         //methods
-        protected virtual string GetKey(CultureInfo culture = null)
+        public virtual object GetOrCreate(string language, Func<object> itemCreator)
         {
-            return culture == null
-                ? string.Empty
-                : culture.EnglishName;
-        }
-
-        public virtual void InsertItem(object item, CultureInfo culture = null)
-        {
-            string key = GetKey(culture);
-            _cache[key] = item;
-        }
-
-        public virtual object GetItem(CultureInfo culture = null)
-        {
-            string key = GetKey(culture);
-            if (!_cache.ContainsKey(key))
-            {
-                return null;
-            }
-
-            return _cache[key];
-        }
-
-        public virtual string GetOrCreateTemplate(CultureInfo culture = null)
-        {
-            object item = GetItem(culture);
-            if (item == null)
-            {
-                item = _templateProvider.ProvideTemplate(culture);
-                InsertItem(item, culture);
-            }
-
-            return (string)item;
+            language = language ?? string.Empty;
+            return _cache.GetOrAdd(language, _ => itemCreator());
         }
 
     }

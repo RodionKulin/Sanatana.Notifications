@@ -70,6 +70,15 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} only supports dictionary data and dictionary was not provided..
+        /// </summary>
+        public static string Common_TransformerDataMissing {
+            get {
+                return ResourceManager.GetString("Common_TransformerDataMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More than one {0} registered with {1} of \&quot;{2}\&quot;..
         /// </summary>
         public static string CompositionHandlerFactory_MoreThanOneFound {
