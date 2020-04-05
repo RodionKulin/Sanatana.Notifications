@@ -62,6 +62,16 @@ namespace Sanatana.Notifications.SignalProviders
             return base.EnqueueMatchSubscribersEvent(templateData, categoryId, subscriberFiltersData, topicId, writeConcern);
         }
 
+        public override Task EnqueueMatchSubscribersEvent(string templateDataObj, int eventKey, Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
+        {
+            if (_isStarted == false)
+            {
+                ThrowStoppedInstanceError();
+            }
+
+            return base.EnqueueMatchSubscribersEvent(templateDataObj, eventKey, subscriberFiltersData, topicId, writeConcern);
+        }
+
         public override Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
             List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
@@ -73,6 +83,16 @@ namespace Sanatana.Notifications.SignalProviders
             return base.EnqueueDirectSubscriberIdsEvent(templateData, categoryId, subscriberIds, topicId, writeConcern);
         }
 
+        public override Task EnqueueDirectSubscriberIdsEvent(string templateDataObj, int eventKey, List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
+        {
+            if (_isStarted == false)
+            {
+                ThrowStoppedInstanceError();
+            }
+
+            return base.EnqueueDirectSubscriberIdsEvent(templateDataObj, eventKey, subscriberIds, topicId, writeConcern);
+        }
+
         public override Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId,
             List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
@@ -82,6 +102,16 @@ namespace Sanatana.Notifications.SignalProviders
             }
 
             return base.EnqueueDirectAddressesEvent(templateData, categoryId, deliveryAddresses, writeConcern);
+        }
+
+        public override Task EnqueueDirectAddressesEvent(string templateDataObj, int eventKey, List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
+        {
+            if (_isStarted == false)
+            {
+                ThrowStoppedInstanceError();
+            }
+
+            return base.EnqueueDirectAddressesEvent(templateDataObj, eventKey, deliveryAddresses, writeConcern);
         }
 
         public override Task EnqueueDispatch(SignalDispatch<TKey> dispatch, 
