@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DispatchHandling;
+using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Processing;
 using System;
 using System.Collections.Generic;

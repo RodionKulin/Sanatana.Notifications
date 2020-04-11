@@ -12,11 +12,11 @@ using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.Sender;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Queues
 {
-    public class EventQueue<TKey> : QueueBase<SignalEvent<TKey>, TKey>
-        , IEventQueue<TKey>
+    public class EventQueue<TKey> : QueueBase<SignalEvent<TKey>, TKey>, IEventQueue<TKey>
         where TKey : struct
     {
         //fields
@@ -100,6 +100,7 @@ namespace Sanatana.Notifications.Queues
             }
             else if (result == ProcessingResult.Repeat)
             {
+                //received only limited number of subscribers, need to repeat for next limited batch of subscribers
                 Append(item);                
             }
             else if (result == ProcessingResult.NoHandlerFound)

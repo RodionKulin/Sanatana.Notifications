@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Sanatana.Notifications.DeliveryTypes;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Demo.Sender.Model
 {

@@ -3,6 +3,7 @@ using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.DispatchHandling;
 using System;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Queues
 {

@@ -25,7 +25,7 @@ namespace Sanatana.Notifications.DeliveryTypes.Http
         public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
              List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
         {
-            List<string> bodies = FillTemplate(ContentProvider, ContentTransformer, subscribers, languageTemplateData);
+            List<string> bodies = FillTemplateProperty(ContentProvider, ContentTransformer, subscribers, languageTemplateData);
             
             return subscribers
                 .Select((subscriber, i) => AssembleHttpRequest(settings, signalEvent, subscriber, bodies[i]))

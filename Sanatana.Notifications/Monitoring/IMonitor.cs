@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Timers.Switchables;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Monitoring
 {
@@ -26,10 +27,10 @@ namespace Sanatana.Notifications.Monitoring
 
         void DispatchPersistentStorageQueried(TimeSpan time, List<SignalDispatch<TKey>> dispatches);
 
-        void DispatchesComposed(SignalEvent<TKey> item
-            , TimeSpan time, ProcessingResult composeResult, List<SignalDispatch<TKey>> dispatches);
+        void DispatchesComposed(SignalEvent<TKey> item, TimeSpan time,
+             ProcessingResult composeResult, List<SignalDispatch<TKey>> dispatches);
 
-        void DispatchSent(SignalDispatch<TKey> item
-            , TimeSpan time, ProcessingResult sendResult, DispatcherAvailability dispatcherAvailability);
+        void DispatchSent(SignalDispatch<TKey> item, TimeSpan time,
+             ProcessingResult sendResult, DispatcherAvailability dispatcherAvailability);
     }
 }

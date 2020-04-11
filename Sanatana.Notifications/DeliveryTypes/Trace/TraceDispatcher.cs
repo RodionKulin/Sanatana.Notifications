@@ -1,6 +1,7 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DispatchHandling;
+using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Resources;
 using System;

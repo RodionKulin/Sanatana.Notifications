@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.EventsHandling
 {

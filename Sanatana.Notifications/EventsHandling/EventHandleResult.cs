@@ -1,4 +1,5 @@
-﻿using Sanatana.Notifications.Processing;
+﻿using Sanatana.Notifications.Models;
+using Sanatana.Notifications.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;

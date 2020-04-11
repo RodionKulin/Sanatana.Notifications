@@ -26,8 +26,8 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
         public override List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
              List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
         {
-            List<string> subjects = FillTemplate(SubjectProvider, SubjectTransformer, subscribers, languageTemplateData);
-            List<string> bodies = FillTemplate(BodyProvider, BodyTransformer, subscribers, languageTemplateData);
+            List<string> subjects = FillTemplateProperty(SubjectProvider, SubjectTransformer, subscribers, languageTemplateData);
+            List<string> bodies = FillTemplateProperty(BodyProvider, BodyTransformer, subscribers, languageTemplateData);
 
             return subscribers
                 .Select((subscriber, i) => AssembleStoredNotification(settings, signalEvent, subscriber, subjects[i], bodies[i]))

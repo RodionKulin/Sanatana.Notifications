@@ -11,6 +11,7 @@ using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DeliveryTypes.StoredNotification;
 using Microsoft.Extensions.Logging;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
 {

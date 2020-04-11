@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Providers
 {
@@ -28,9 +29,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.TestTools.Provider
                 return;
             }
 
-            dynamic specsDynamic = instance;
-            AutoMockedContainer autoMockContainer = specsDynamic.Mocker.MoqAutoMocker.Container;
-            ISenderDbContextFactory factory = autoMockContainer.GetInstance<ISenderDbContextFactory>();
+            ISenderDbContextFactory factory = instance.Mocker.GetServiceInstance<ISenderDbContextFactory>();
             factory.InitializeDatabase();
 
             _isInitialized = true;

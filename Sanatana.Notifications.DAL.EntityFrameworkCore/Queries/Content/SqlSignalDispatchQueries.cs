@@ -56,13 +56,13 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 
         //Select
         public virtual async Task<List<SignalDispatch<long>>> SelectScheduled(
-            long subscriberId, List<KeyValuePair<int, int>> deliveryTypeAndCategories)
+            long subscriberId, List<(int deliveryType, int category)> categories)
         {
-            if (deliveryTypeAndCategories.Count == 0)
+            if (categories.Count == 0)
             {
                 return new List<SignalDispatch<long>>();
             }
-            
+
             List<SignalDispatch<long>> list = null;
 
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
@@ -71,10 +71,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     p => p.ReceiverSubscriberId == subscriberId
                     && p.IsScheduled == true);
 
-                Expression<Func<SignalDispatchLong, bool>> categorySelector = deliveryTypeAndCategories
-                    .Select<KeyValuePair<int, int>, Expression<Func<SignalDispatchLong, bool>>>(cat =>
-                        exp => exp.DeliveryType == cat.Key
-                        && exp.CategoryId == cat.Value)
+                Expression<Func<SignalDispatchLong, bool>> categorySelector = categories
+                    .Select<(int deliveryType, int category), Expression<Func<SignalDispatchLong, bool>>>(cat =>
+                        exp => exp.DeliveryType == cat.deliveryType
+                        && exp.CategoryId == cat.category)
                     .Or();
                 request = request.Where(categorySelector);
 
@@ -83,7 +83,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     .Select(_mapper.Map<SignalDispatch<long>>)
                     .ToList();
             }
-            
+
             return list;
         }
 
@@ -158,5 +158,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     .ConfigureAwait(false);                
             }
         }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Sanatana.Notifications;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Sender;

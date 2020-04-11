@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.Processing
+namespace Sanatana.Notifications.Models
 {
     public enum ProcessingResult
     {

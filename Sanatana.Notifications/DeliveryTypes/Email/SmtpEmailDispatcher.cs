@@ -14,6 +14,7 @@ using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.DeliveryTypes.Email
 {

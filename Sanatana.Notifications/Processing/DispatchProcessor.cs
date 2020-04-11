@@ -14,29 +14,33 @@ using Sanatana.Notifications.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Sanatana.Timers.Switchables;
 using Sanatana.Notifications.Sender;
-using Sanatana.Notifications.Processing.Interfaces;
+using Sanatana.Notifications.Models;
+using Sanatana.Notifications.Processing.DispatchProcessingCommands;
 
 namespace Sanatana.Notifications.Processing
 {
-    public class DispatchProcessor<TKey> : ProcessorBase<TKey>, IRegularJob, IDispatchingProcessor where TKey : struct
+    public class DispatchProcessor<TKey> : ProcessorBase<TKey>, IRegularJob, IDispatchProcessor
+        where TKey : struct
     {
         //fields
         protected SenderState<TKey> _hubState;
-        protected IMonitor<TKey> _monitor;
         protected IDispatchChannelRegistry<TKey> _channelRegistry;
         protected IDispatchQueue<TKey> _dispatchQueue;
+        protected IDispatchProcessingCommand<TKey>[] _processingCommands;
 
 
         //init
-        public DispatchProcessor(SenderState<TKey> hubState, IDispatchQueue<TKey> dispatchQueue
-            , IDispatchChannelRegistry<TKey> channelRegistry, IMonitor<TKey> eventSink
-            , ILogger logger, SenderSettings senderSettings)
+        public DispatchProcessor(SenderState<TKey> hubState, IDispatchQueue<TKey> dispatchQueue,
+            ILogger logger, SenderSettings senderSettings,IDispatchChannelRegistry<TKey> channelRegistry,
+            IEnumerable<IDispatchProcessingCommand<TKey>> processingCommands)
             : base(logger)
         {
             _hubState = hubState;
             _dispatchQueue = dispatchQueue;
             _channelRegistry = channelRegistry;
-            _monitor = eventSink;
+            _processingCommands = processingCommands
+                .OrderBy(x => x.Order)
+                .ToArray();
 
             MaxParallelItems = senderSettings.MaxParallelDispatchesProcessed;
         }
@@ -81,7 +85,7 @@ namespace Sanatana.Notifications.Processing
                     break;
                 }
 
-                StartNextTask(() => ProcessSignal(item, _dispatchQueue));
+                StartNextTask(() => ProcessSignal(item));
             }
             WaitForCompletion();
         }
@@ -104,39 +108,17 @@ namespace Sanatana.Notifications.Processing
             return CanContinue(true);
         }
 
-        protected void ProcessSignal(SignalWrapper<SignalDispatch<TKey>> item, IDispatchQueue<TKey> queue)
+        protected void ProcessSignal(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            DispatchChannel<TKey> dispatchChannel = _channelRegistry.Match(item.Signal);
-            
-            ProcessingResult sendResult = ProcessingResult.NoHandlerFound;
-            DispatcherAvailability dispatcherAvailability = DispatcherAvailability.NotAvailable;
-            TimeSpan sendDuration = TimeSpan.FromSeconds(0);
-
-            if (dispatchChannel != null)
+            foreach (IDispatchProcessingCommand<TKey> command in _processingCommands)
             {
-                Stopwatch sendTimer = Stopwatch.StartNew();
-                try
+                bool completed = command.Execute(item).Result;
+                if (!completed)
                 {
-                    sendResult = dispatchChannel.Dispatcher.Send(item.Signal).Result;
+                    break;
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, null);
-                    sendResult = ProcessingResult.Fail;
-                }
-                sendDuration = sendTimer.Elapsed;
             }
-
-            dispatcherAvailability = dispatchChannel.ApplyResult(sendResult, item.Signal, _logger);
-            if (sendResult == ProcessingResult.Fail && dispatcherAvailability == DispatcherAvailability.NotAvailable)
-            {
-                sendResult = ProcessingResult.Repeat;
-            }
-
-            queue.ApplyResult(item, sendResult);
-            _monitor.DispatchSent(item.Signal, sendDuration, sendResult, dispatcherAvailability);
         }
-
 
     }
 }

@@ -7,6 +7,7 @@ using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Timers.Switchables;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Monitoring
 {

@@ -15,15 +15,18 @@ namespace Sanatana.Notifications.DI.Autofac
     public class InMemoryEventSettingsAutofacModule<TKey> : Module
         where TKey : struct
     {
-        private IEnumerable<EventSettings<TKey>> _settings;
+        //fields
+        protected IEnumerable<EventSettings<TKey>> _settings;
 
 
+        //ctor
         public InMemoryEventSettingsAutofacModule(IEnumerable<EventSettings<TKey>> settings)
         {
             _settings = settings;
         }
 
 
+        //methods
         protected override void Load(ContainerBuilder builder)
         {
             var queries = new InMemoryEventSettingsQueries<TKey>(_settings);

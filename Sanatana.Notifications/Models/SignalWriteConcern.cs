@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sanatana.Notifications
+namespace Sanatana.Notifications.Models
 {
     public enum SignalWriteConcern
     {

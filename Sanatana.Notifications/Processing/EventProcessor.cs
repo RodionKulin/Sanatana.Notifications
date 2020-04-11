@@ -2,24 +2,20 @@
 using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
-using Sanatana.Notifications.DispatchHandling;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sanatana.Notifications.EventsHandling.Templates;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Sanatana.Timers.Switchables;
 using Sanatana.Notifications.Sender;
-using Sanatana.Notifications.Processing.Interfaces;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Processing
 {
-    public class EventProcessor<TKey> : ProcessorBase<TKey>, IRegularJob, ICompositionProcessor where TKey : struct
+    public class EventProcessor<TKey> : ProcessorBase<TKey>, IRegularJob, IEventProcessor where TKey : struct
     {
         //fields
         protected SenderState<TKey> _hubState;
@@ -51,13 +47,9 @@ namespace Sanatana.Notifications.Processing
         //IRegularJob methods
         public virtual void Tick()
         {
-            if (CanContinue())
-            {
-                DequeueAll();
-            }
-
-            return;
+            DequeueAll();
         }
+
         public virtual void Flush()
         {
         }
@@ -76,7 +68,7 @@ namespace Sanatana.Notifications.Processing
                     break;
                 }
 
-                StartNextTask(() => ProcessSignal(item, _eventQueue));
+                StartNextTask(() => ProcessSignal(item));
             }
 
             WaitForCompletion();
@@ -93,42 +85,42 @@ namespace Sanatana.Notifications.Processing
             return !isQueueEmpty && !isDispatchQueueFull && _hubState.State == SwitchState.Started;
         }
 
-        protected void ProcessSignal(SignalWrapper<SignalEvent<TKey>> item, IEventQueue<TKey> eventQueue)
+        protected void ProcessSignal(SignalWrapper<SignalEvent<TKey>> item)
         {
             try
             {
                 if (item.Signal.EventSettingsId == null)
                 {
-                    SplitEvent(item, eventQueue);
+                    SplitEvent(item);
                 }
                 else
                 {
-                    ComposeAndApplyResult(item, eventQueue);
+                    ComposeAndApplyResult(item);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, null);
                 //increment fail counter and don't let same event to repeat exceptions multiple times 
-                eventQueue.ApplyResult(item, ProcessingResult.Fail);
+                _eventQueue.ApplyResult(item, ProcessingResult.Fail);
             }
         }
 
-        protected virtual void SplitEvent(SignalWrapper<SignalEvent<TKey>> item, IEventQueue<TKey> eventQueue)
+        protected virtual void SplitEvent(SignalWrapper<SignalEvent<TKey>> item)
         {
             List<EventSettings<TKey>> eventSettings = _eventSettingsQueries
                 .SelectByKey(item.Signal.EventKey).Result;
 
             if (eventSettings.Count == 0)
             {
-                eventQueue.ApplyResult(item, ProcessingResult.NoHandlerFound);
+                _eventQueue.ApplyResult(item, ProcessingResult.NoHandlerFound);
             }
             else if (eventSettings.Count == 1)
             {
                 item.Signal.EventSettingsId = eventSettings.First().EventSettingsId;
                 item.IsUpdated = true;
 
-                ComposeAndApplyResult(item, eventQueue);
+                ComposeAndApplyResult(item);
             }
             else if (eventSettings.Count > 1)
             {
@@ -141,51 +133,50 @@ namespace Sanatana.Notifications.Processing
                     splitedEvents.Add(clone);
                 }
 
-                eventQueue.ApplyResult(item, ProcessingResult.Success);
-                eventQueue.Append(splitedEvents, false);
+                _eventQueue.ApplyResult(item, ProcessingResult.Success);
+                _eventQueue.Append(splitedEvents, false);
             }
         }
 
-        protected virtual void ComposeAndApplyResult(SignalWrapper<SignalEvent<TKey>> item, IEventQueue<TKey> eventQueue)
+        protected virtual void ComposeAndApplyResult(SignalWrapper<SignalEvent<TKey>> item)
         {
             Stopwatch composeTimer = Stopwatch.StartNew();
-
             EventHandleResult<SignalDispatch<TKey>> composeResult = ComposeDispatches(item);
-            eventQueue.ApplyResult(item, composeResult.Result);
+            composeTimer.Stop();
 
-            TimeSpan composeDuration = composeTimer.Elapsed;
-            _monitor.DispatchesComposed(
-                item.Signal, composeDuration, composeResult.Result, composeResult.Items);
+            _eventQueue.ApplyResult(item, composeResult.Result);
+            _monitor.DispatchesComposed(item.Signal, composeTimer.Elapsed, composeResult.Result, composeResult.Items);
         }
 
-        protected virtual EventHandleResult<SignalDispatch<TKey>> ComposeDispatches(SignalWrapper<SignalEvent<TKey>> item)
+        protected virtual EventHandleResult<SignalDispatch<TKey>> ComposeDispatches(SignalWrapper<SignalEvent<TKey>> @event)
         {
-            EventSettings<TKey> eventSettings = _eventSettingsQueries
-                .Select(item.Signal.EventSettingsId.Value).Result;
+            //find matching EventHandler
+            EventSettings<TKey> eventSettings = _eventSettingsQueries.Select(@event.Signal.EventSettingsId.Value).Result;
             if (eventSettings == null)
             {
                 return EventHandleResult<SignalDispatch<TKey>>.FromResult(ProcessingResult.NoHandlerFound);
             }
 
-            IEventHandler<TKey> compositionHandler =
-                _handlerRegistry.MatchHandler(eventSettings.CompositionHandlerId);
-            if(compositionHandler == null)
+            IEventHandler<TKey> eventHandler = _handlerRegistry.MatchHandler(eventSettings.EventHandlerId);
+            if(eventHandler == null)
             {
                 return EventHandleResult<SignalDispatch<TKey>>.FromResult(ProcessingResult.NoHandlerFound);
             }
-
-            EventHandleResult<SignalDispatch<TKey>> composeResult = 
-                compositionHandler.ProcessEvent(eventSettings, item.Signal);
-            if (composeResult.Result == ProcessingResult.Success)
+            
+            //compose dispatches for subscribers
+            EventHandleResult<SignalDispatch<TKey>> composeResult = eventHandler.ProcessEvent(eventSettings, @event.Signal);
+            if (composeResult.Result != ProcessingResult.Success)
             {
-                item.IsUpdated = true;
+                return composeResult;
+            }
 
-                _dispatchQueue.Append(composeResult.Items, false);
+            //enqueue dispatches
+            _dispatchQueue.Append(composeResult.Items, false);
 
-                if (composeResult.IsFinished == false)
-                {
-                    composeResult.Result = ProcessingResult.Repeat;
-                }
+            @event.IsUpdated = true;
+            if (composeResult.IsFinished == false)
+            {
+                composeResult.Result = ProcessingResult.Repeat;
             }
 
             return composeResult;

@@ -11,6 +11,7 @@ using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Parameters;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using Sanatana.Notifications.Models;
 
 [assembly: InternalsVisibleTo("Sanatana.NotificationsTests")]
 namespace Sanatana.Notifications.Queues

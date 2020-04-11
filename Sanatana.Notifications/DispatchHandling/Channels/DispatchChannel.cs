@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.DeliveryTypes;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.DispatchHandling.Channels
 {

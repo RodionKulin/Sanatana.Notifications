@@ -19,6 +19,7 @@ using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.Sender;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Queues
 {
@@ -34,9 +35,9 @@ namespace Sanatana.Notifications.Queues
 
         //properties
         /// <summary>
-        /// Pause duration after failed attempt before retrying.
+        /// Pause duration after failed attempt or dispatcher not available before retrying.
         /// </summary>
-        public TimeSpan FailedAttemptRetryPeriod { get; set; }
+        public TimeSpan RetryPeriod { get; set; }
 
 
         //init
@@ -49,7 +50,7 @@ namespace Sanatana.Notifications.Queues
             _signalFlushJob = signalFlushJob;
             _logger = logger;
 
-            FailedAttemptRetryPeriod = senderSettings.SignalQueueOnFailedAttemptRetryPeriod;
+            RetryPeriod = senderSettings.SignalQueueRetryPeriod;
             PersistBeginOnItemsCount = senderSettings.SignalQueuePersistBeginOnItemsCount;
             PersistEndOnItemsCount = senderSettings.SignalQueuePersistEndOnItemsCount;
             IsTemporaryStorageEnabled = senderSettings.SignalQueueIsTemporaryStorageEnabled;
@@ -116,32 +117,39 @@ namespace Sanatana.Notifications.Queues
             return item;
         }
 
-        public override void ApplyResult(SignalWrapper<SignalDispatch<TKey>> item
-            , ProcessingResult result)
+        public override void ApplyResult(SignalWrapper<SignalDispatch<TKey>> item, ProcessingResult result)
         {
             if (result == ProcessingResult.Success)
             {
+                //when successfuly sent dispatch
                 _signalFlushJob.Delete(item);
             }
             else if (result == ProcessingResult.Fail)
             {
+                //dispatcher throws error
                 item.Signal.FailedAttempts++;
-                item.Signal.SendDateUtc = DateTime.UtcNow.Add(FailedAttemptRetryPeriod);
+                item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
 
                 _signalFlushJob.Return(item);
             }
             else if (result == ProcessingResult.Repeat)
             {
+                //when dispatcherer is not available
+                item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
+                item.IsUpdated = true;
                 Append(item, item.Signal.DeliveryType);
             }
             else if (result == ProcessingResult.NoHandlerFound)
             {
+                //no dispatcher found matching diliveryType
                 _logger.LogError(SenderInternalMessages.DispatchQueue_HandlerNotFound, item.Signal.DeliveryType);
                 _signalFlushJob.Delete(item);
             }
             else if (result == ProcessingResult.ReturnToStorage)
             {
+                //1. stoped Sender and saving everything from queue to database
+                //2. insert schedules dispatch after it is composed
                 _signalFlushJob.Return(item);
             }
         }

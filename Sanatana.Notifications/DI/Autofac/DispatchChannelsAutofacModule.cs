@@ -10,20 +10,23 @@ using System.Text;
 namespace Sanatana.Notifications.DI.Autofac
 {
     /// <summary>
-    /// Register DispatchChannels including a sender and it's settings.
+    /// Register DispatchChannels including IDispatcher.
     /// </summary>
     public class DispatchChannelsAutofacModule<TKey> : Module
         where TKey : struct
     {
+        //fields
         private IEnumerable<DispatchChannel<TKey>> _dispatchChannels;
 
 
+        //ctor
         public DispatchChannelsAutofacModule(IEnumerable<DispatchChannel<TKey>> dispatchChannels)
         {
             _dispatchChannels = dispatchChannels;
         }
 
 
+        //methods
         protected override void Load(ContainerBuilder builder)
         {
             foreach (DispatchChannel<TKey> item in _dispatchChannels)

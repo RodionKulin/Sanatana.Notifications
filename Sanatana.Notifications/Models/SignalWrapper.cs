@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications
+namespace Sanatana.Notifications.Models
 {
     public class SignalWrapper<T>
     {

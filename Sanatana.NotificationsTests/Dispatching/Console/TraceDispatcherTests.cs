@@ -2,6 +2,7 @@
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DeliveryTypes.Trace;
+using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Processing;
 using System;
 using System.Collections.Generic;

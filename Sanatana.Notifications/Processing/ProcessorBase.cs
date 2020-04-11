@@ -68,10 +68,7 @@ namespace Sanatana.Notifications.Processing
             else
             {
                 int finishedIndex = Task.WaitAny(_runningTasks);
-
-                nextTask = _runningTasks[finishedIndex]
-                    .ContinueWith(t => action());
-
+                nextTask = _runningTasks[finishedIndex].ContinueWith(t => action());
                 _runningTasks[finishedIndex] = nextTask;
             }
             

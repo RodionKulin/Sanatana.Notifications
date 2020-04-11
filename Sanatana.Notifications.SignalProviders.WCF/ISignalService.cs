@@ -1,5 +1,6 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
+using Sanatana.Notifications.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -6,6 +6,10 @@ using System.Linq;
 
 namespace Sanatana.Notifications.DAL.Entities
 {
+    /// <summary>
+    /// Entity containing properties that are copied to Dispatches created from it.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
     public abstract class DispatchTemplate<TKey>
         where TKey : struct
     {
@@ -27,33 +31,41 @@ namespace Sanatana.Notifications.DAL.Entities
         /// </summary>
         public int DeliveryType { get; set; }
         /// <summary>
-        /// Optional identifier. If not null enables scheduling of dispatches for later sending. ScheduleSet is used to match SubscriberScheduleSettings set of daytime intervals that user chosen to receive notifications.
+        /// Optional identifier. If not null enables scheduling of dispatches for later sending. 
+        /// ScheduleSet is used to match SubscriberScheduleSettings set of daytime intervals that user choose to receive notifications.
         /// </summary>
         public int? ScheduleSet { get; set; }
         /// <summary>
-        /// Toggle to enable or disable building SignalDispatches from this Template. Often used in conjunction with storing EventSettings and DispatchTemplates in database.
+        /// Toggle to enable or disable building SignalDispatches from this Template. 
         /// </summary>
         public bool IsActive { get; set; } = true;
-
+        /// <summary>
+        /// Enable storing dispatch in history database table after sending it.
+        /// </summary>
+        public bool StoreInHistory { get; set; }
+        /// <summary>
+        /// Before sending get all scheduled dispatches for subscriber of same category and create a single Dispatch from all of them.
+        /// </summary>
+        public bool Consolidate { get; set; }
 
 
         //methods
         public abstract List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
-             List<Subscriber<TKey>> subscribers, List<TemplateData> dataWithCulture);
+             List<Subscriber<TKey>> subscribers, List<TemplateData> dataWithLanguage);
 
-        protected virtual List<string> FillTemplate(ITemplateProvider provider, ITemplateTransformer transformer,
+        protected virtual List<string> FillTemplateProperty(ITemplateProvider provider, ITemplateTransformer transformer,
             List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
         {
             if(provider == null || transformer == null)
             {
                 return subscribers
-                    .Select(x => string.Empty)
+                    .Select(x => (string)null)
                     .ToList();
             }
 
             Dictionary<string, string> filledTemplates = transformer.Transform(provider, languageTemplateData);
             return subscribers
-                .Select(subscriber => filledTemplates[subscriber.Language ?? ""])
+                .Select(subscriber => filledTemplates[subscriber.Language ?? string.Empty])
                 .ToList();
         }
 
@@ -70,9 +82,12 @@ namespace Sanatana.Notifications.DAL.Entities
 
             dispatch.ScheduleSet = ScheduleSet;
             dispatch.IsScheduled = false;
+
             dispatch.CreateDateUtc = signalEvent.CreateDateUtc;
             dispatch.SendDateUtc = DateTime.UtcNow;
             dispatch.FailedAttempts = 0;
+
+            dispatch.StoreInHistory = StoreInHistory;
         }
     }
 }

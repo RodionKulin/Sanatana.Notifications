@@ -17,6 +17,7 @@ using Amazon;
 using Sanatana.Notifications.Resources;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.DeliveryTypes;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.Dispatchers.AWS_SES
 {

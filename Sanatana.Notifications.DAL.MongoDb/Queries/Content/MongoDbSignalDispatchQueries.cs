@@ -72,14 +72,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         }
         
         public virtual async Task<List<SignalDispatch<ObjectId>>> SelectScheduled(
-            ObjectId subscriberId, List<KeyValuePair<int, int>> deliveryTypeAndCategories)
+            ObjectId subscriberId, List<(int deliveryType, int category)> categories)
         {
             var categoryFilter = Builders<SignalDispatch<ObjectId>>.Filter.Where(p => false);
-            foreach (KeyValuePair<int, int> category in deliveryTypeAndCategories)
+            foreach ((int deliveryType, int category) deliveryTypeCategory in categories)
             {
                 categoryFilter = Builders<SignalDispatch<ObjectId>>.Filter.Or(categoryFilter, Builders<SignalDispatch<ObjectId>>.Filter.Where(
-                    p => p.DeliveryType == category.Key
-                    && p.CategoryId == category.Value));
+                    p => p.DeliveryType == deliveryTypeCategory.deliveryType
+                    && p.CategoryId == deliveryTypeCategory.category));
             }
 
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
@@ -95,7 +95,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             return list;
         }
 
-        
+
         //Update
         public virtual async Task UpdateSendResults(List<SignalDispatch<ObjectId>> items)
         {
@@ -148,5 +148,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
         public virtual void Dispose()
         {
         }
+
     }
 }

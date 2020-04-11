@@ -136,7 +136,7 @@ namespace Sanatana.Notifications.Demo.Sender
                         DeliveryType = (int)Model.DeliveryTypes.Email,
                         CategoryId = (int)CategoryTypes.CustomerGreetings
                     },
-                    CompositionHandlerId = null,
+                    EventHandlerId = null,
                     Templates = new List<DispatchTemplate<long>>()
                     {
                         new EmailDispatchTemplate<long>()

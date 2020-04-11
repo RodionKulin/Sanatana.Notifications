@@ -1,4 +1,5 @@
-﻿using Sanatana.Notifications.Resources;
+﻿using Sanatana.Notifications.Models;
+using Sanatana.Notifications.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,9 +34,9 @@ namespace Sanatana.Notifications.Sender
 
         //Queues
         /// <summary>
-        /// Pause duration after failed attempt before retrying.
+        /// Pause duration after failed attempt or dispatcher not available before retrying.
         /// </summary>
-        public TimeSpan SignalQueueOnFailedAttemptRetryPeriod { get; set; } = NotificationsConstants.SIGNAL_QUEUE_ON_FAILED_ATTEMPT_RETRY_PERIOD;
+        public TimeSpan SignalQueueRetryPeriod { get; set; } = NotificationsConstants.SIGNAL_QUEUE_ON_FAILED_ATTEMPT_RETRY_PERIOD;
         /// <summary>
         /// Enable storing items in temporary storage while they are processed to prevent data loss in case of power down.
         /// </summary>
@@ -127,8 +128,8 @@ namespace Sanatana.Notifications.Sender
         //init
         public SenderSettings()
         {
-            MaxParallelDispatchesProcessed = Environment.ProcessorCount;
-            MaxParallelEventsProcessed = Environment.ProcessorCount;
+            MaxParallelDispatchesProcessed = Environment.ProcessorCount * 2;
+            MaxParallelEventsProcessed = Environment.ProcessorCount * 2;
         }
 
 

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using Newtonsoft.Json;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.EventsHandling
 {

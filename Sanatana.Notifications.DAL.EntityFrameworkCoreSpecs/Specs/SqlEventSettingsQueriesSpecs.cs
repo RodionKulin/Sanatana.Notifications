@@ -53,7 +53,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         {
                             CategoryId = _categoryId
                         },
-                        CompositionHandlerId = null,
+                        EventHandlerId = null,
                         Templates = new List<DispatchTemplate<long>>()
                         {
                             new EmailDispatchTemplate<long>()
@@ -187,7 +187,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         {
                             CategoryId = _categoryId
                         },
-                        CompositionHandlerId = null,
+                        EventHandlerId = null,
                         Templates = new List<DispatchTemplate<long>>()
                         {
                             new EmailDispatchTemplate<long>()
@@ -337,7 +337,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCoreSpecs.Queries
                         {
                             CategoryId = _categoryId
                         },
-                        CompositionHandlerId = null,
+                        EventHandlerId = null,
                         Templates = new List<DispatchTemplate<long>>()
                         {
                             new EmailDispatchTemplate<long>()

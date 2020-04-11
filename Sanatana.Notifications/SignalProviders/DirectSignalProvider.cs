@@ -11,6 +11,7 @@ using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders.Interfaces;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.SignalProviders
 {

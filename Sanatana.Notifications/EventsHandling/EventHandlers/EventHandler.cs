@@ -12,6 +12,7 @@ using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.DAL.Entities;
+using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.EventsHandling
 {
