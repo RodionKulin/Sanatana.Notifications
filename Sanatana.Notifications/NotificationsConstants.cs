@@ -32,7 +32,7 @@ namespace Sanatana.Notifications
 
 
         //Temporary storage
-        public static readonly Version TS_ENTITIES_VERSION = new Version(1, 0, 0, 0);
+        public static readonly Version TS_ENTITIES_VERSION = new Version(2, 0, 0, 0);
         public const string TS_EVENT_QUEUE_KEY = "E";
         public const string TS_DISPATCH_QUEUE_KEY = "D";
 

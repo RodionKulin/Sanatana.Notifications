@@ -34,6 +34,12 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
         {
             var signal = (StoredNotificationDispatch<TKey>)item;
 
+            if(signal.ReceiverSubscriberId == null)
+            {
+                throw new NullReferenceException(string.Format(SenderInternalMessages.Common_MissingPropertyValue,
+                    nameof(signal.ReceiverSubscriberId), nameof(StoredNotificationDispatch<TKey>)));
+            }
+
             var storedNotification = new StoredNotification<TKey>
             {
                 MessageBody = signal.MessageBody,

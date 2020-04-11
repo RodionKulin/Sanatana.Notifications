@@ -15,6 +15,7 @@ using Sanatana.Notifications.Sender;
 using Sanatana.Notifications.SignalProviders;
 using Sanatana.Notifications.SignalProviders.Interfaces;
 using Sanatana.Notifications.Processing.DispatchProcessingCommands;
+using Sanatana.Notifications.Flushing.Queues;
 
 namespace Sanatana.Notifications.DI.Autofac
 {
@@ -47,6 +48,7 @@ namespace Sanatana.Notifications.DI.Autofac
             RegisterStoredNotifications(builder);
             RegisterProcessors(builder);
             RegisterTempStorage(builder);
+            RegisterDispatching(builder);
         }
 
         protected virtual void RegisterSender(ContainerBuilder builder)
@@ -54,6 +56,10 @@ namespace Sanatana.Notifications.DI.Autofac
             builder.RegisterInstance(_senderSettings).AsSelf().SingleInstance();
             builder.RegisterType<SenderState<TKey>>().SingleInstance();
             builder.RegisterType<Sender<TKey>>().As<ISender>().SingleInstance();
+        }
+
+        protected virtual void RegisterDispatching(ContainerBuilder builder)
+        {
             builder.RegisterType<DispatchChannelRegistry<TKey>>().As<IDispatchChannelRegistry<TKey>>().SingleInstance();
         }
 
@@ -100,7 +106,6 @@ namespace Sanatana.Notifications.DI.Autofac
                 .As<IRegularJob>()
                 .IfNotRegistered(typeof(IEventQueue<TKey>))
                 .SingleInstance();
-
             builder.RegisterType<DispatchQueue<TKey>>()
                 .As<IDispatchQueue<TKey>>()
                 .As<IRegularJob>()
@@ -117,7 +122,6 @@ namespace Sanatana.Notifications.DI.Autofac
                 .As<IRegularJob>()
                 .IfNotRegistered(typeof(ISignalFlushJob<SignalDispatch<TKey>>))
                 .SingleInstance();
-
         }
 
         protected virtual void RegisterProcessors(ContainerBuilder builder)
@@ -130,7 +134,9 @@ namespace Sanatana.Notifications.DI.Autofac
 
             builder.RegisterType<ConsolidateDispatchCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
             builder.RegisterType<SendDispatchCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
-            builder.RegisterType<InsertDispatchHistoryCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
+            builder.RegisterType<InsertDispatchHistoryCommand<TKey>>()
+                .As<IDispatchProcessingCommand<TKey>>()
+                .As<IRegularJob>();
 
             builder.RegisterType<EventProcessor<TKey>>()
                 .As<IEventProcessor>()

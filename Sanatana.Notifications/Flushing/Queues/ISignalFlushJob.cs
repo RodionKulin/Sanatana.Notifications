@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.Flushing
+namespace Sanatana.Notifications.Flushing.Queues
 {
     public interface ISignalFlushJob<TSignal>
     {

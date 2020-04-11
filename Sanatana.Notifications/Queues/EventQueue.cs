@@ -1,11 +1,4 @@
-﻿using Sanatana.Notifications.Flushing;
-using Sanatana.Notifications.Processing;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Parameters;
@@ -13,6 +6,7 @@ using Sanatana.Notifications.Sender;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Models;
+using Sanatana.Notifications.Flushing.Queues;
 
 namespace Sanatana.Notifications.Queues
 {

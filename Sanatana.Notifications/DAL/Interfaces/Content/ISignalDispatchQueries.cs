@@ -8,7 +8,7 @@ namespace Sanatana.Notifications.DAL.Interfaces
     public interface ISignalDispatchQueries<TKey> : ISignalQueries<SignalDispatch<TKey>>
         where TKey : struct
     {
-        Task<List<SignalDispatch<TKey>>> SelectScheduled(TKey subscriberId, List<(int deliveryType, int category)> categories);
+        Task<List<SignalDispatch<TKey>>> SelectCreatedBefore(int pageSize, List<TKey> subscriberIds, List<(int deliveryType, int category)> categories, DateTime createdBefore, DateTime? createdAfter = null);
         Task<List<SignalDispatch<TKey>>> Select(int count, List<int> deliveryTypes, int maxFailedAttempts);
     }
 }

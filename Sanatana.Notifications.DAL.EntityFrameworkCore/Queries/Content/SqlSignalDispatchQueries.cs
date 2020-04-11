@@ -55,8 +55,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 
 
         //Select
-        public virtual async Task<List<SignalDispatch<long>>> SelectScheduled(
-            long subscriberId, List<(int deliveryType, int category)> categories)
+        public virtual async Task<List<SignalDispatch<long>>> SelectCreatedBefore(
+            int pageSize, List<long> subscriberIds, List<(int deliveryType, int category)> categories, 
+            DateTime createdBefore, DateTime? createdAfter = null)
         {
             if (categories.Count == 0)
             {
@@ -68,8 +69,14 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
                 IQueryable<SignalDispatchLong> request = context.SignalDispatches.Where(
-                    p => p.ReceiverSubscriberId == subscriberId
-                    && p.IsScheduled == true);
+                    p => p.ReceiverSubscriberId != null
+                    && subscriberIds.Contains(p.ReceiverSubscriberId.Value)
+                    && p.CreateDateUtc < createdBefore);
+
+                if(createdAfter != null)
+                {
+                    request = request.Where(x => createdAfter.Value < x.CreateDateUtc);
+                }
 
                 Expression<Func<SignalDispatchLong, bool>> categorySelector = categories
                     .Select<(int deliveryType, int category), Expression<Func<SignalDispatchLong, bool>>>(cat =>
@@ -78,7 +85,11 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     .Or();
                 request = request.Where(categorySelector);
 
-                List<SignalDispatchLong> response = await request.ToListAsync().ConfigureAwait(false);
+                List<SignalDispatchLong> response = await request
+                    .OrderBy(x => x.CreateDateUtc)
+                    .Take(pageSize)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
                 list = response
                     .Select(_mapper.Map<SignalDispatch<long>>)
                     .ToList();

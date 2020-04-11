@@ -1,6 +1,8 @@
 ﻿using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
+using Sanatana.Notifications.Flushing;
 using Sanatana.Notifications.Models;
+using Sanatana.Notifications.Sender;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,36 +10,30 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 {
-    public class InsertDispatchHistoryCommand<TKey> : IDispatchProcessingCommand<TKey>
+    public class InsertDispatchHistoryCommand<TKey> : FlushJobBase<SignalDispatch<TKey>>, IDispatchProcessingCommand<TKey>
         where TKey : struct
     {
-        //fields
-        protected ISignalDispatchHistoryQueries<TKey> _signalDispatchHistoryQueries;
-
-
         //properties
-        public int Order { get; set; }
+        public int Order { get; set; } = 2;
 
 
         //ctor
-        public InsertDispatchHistoryCommand(ISignalDispatchHistoryQueries<TKey> signalDispatchHistoryQueries)
+        public InsertDispatchHistoryCommand(SenderSettings senderSettings, ISignalDispatchHistoryQueries<TKey> queries)
+            : base(senderSettings)
         {
-            _signalDispatchHistoryQueries = signalDispatchHistoryQueries;
+            _flushQueues[FlushAction.Insert] = new FlushQueue<SignalDispatch<TKey>>(items => queries.InsertMany(items));
         }
 
 
         //methods
-        public virtual async Task<bool> Execute(SignalWrapper<SignalDispatch<TKey>> item)
+        public virtual Task<bool> Execute(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            if (!item.Signal.StoreInHistory)
+            if (item.Signal.StoreInHistory)
             {
-                return true;
+                _flushQueues[FlushAction.Insert].Queue.Add(item.Signal);
             }
 
-            await _signalDispatchHistoryQueries
-                .Insert(new List<SignalDispatch<TKey>> { item.Signal })
-                .ConfigureAwait(false);
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

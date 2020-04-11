@@ -1,5 +1,4 @@
-﻿using Sanatana.Notifications.Models;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,45 +10,44 @@ namespace Sanatana.Notifications.Flushing
 {
     public class FlushQueue<T>
     {
+        //fields
+        protected Func<List<T>, Task> _flushQuery;
+
+
         //properties
-        public Task FlushTask { get; set; }
         public int ItemsTaken { get; set; }
-        public BlockingCollection<SignalWrapper<T>> Queue { get; set; }
+        public BlockingCollection<T> Queue { get; set; }
 
 
         //init
-        public FlushQueue()
+        public FlushQueue(Func<List<T>, Task> flushQuery)
         {
-            Queue = new BlockingCollection<SignalWrapper<T>>();
+            Queue = new BlockingCollection<T>();
+            _flushQuery = flushQuery;
         }
 
 
         //methods
-        public virtual void Flush(Func<List<T>, Task> flushQuery)
+        public virtual Task Flush()
         {
-            List<T> list = Queue.Select(p => p.Signal).ToList();
-            ItemsTaken = list.Count;
+            List<T> list = Queue.Select(p => p).ToList();
+            if (list.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
 
-            if (list.Count > 0)
-            {
-                FlushTask = flushQuery(list);
-            }
-            else
-            {
-                FlushTask = Task.CompletedTask;
-            }
+            ItemsTaken = list.Count;
+            return _flushQuery(list);
         }
 
-        public virtual IEnumerable<SignalWrapper<T>> Clear()
+        public virtual IEnumerable<T> Clear()
         {
-            if (FlushTask != null && ItemsTaken > 0)
+            for (int i = 0; i < ItemsTaken; i++)
             {
-                for (int i = 0; i < ItemsTaken; i++)
-                {
-                    SignalWrapper<T> item = Queue.Take();
-                    yield return item;
-                }
+                T item = Queue.Take();
+                yield return item;
             }
+            ItemsTaken = 0;
         }
     }
 }

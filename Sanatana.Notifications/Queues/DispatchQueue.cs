@@ -1,17 +1,6 @@
-﻿using Sanatana.Notifications.DAL;
-using Sanatana.Notifications.Queues;
-using Sanatana.Notifications.DispatchHandling;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using Sanatana.Notifications;
-using Sanatana.Notifications.Monitoring;
-using Sanatana.Notifications.Processing;
-using Sanatana.Notifications.Flushing;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Entities;
@@ -20,6 +9,7 @@ using Sanatana.Notifications.Sender;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Models;
+using Sanatana.Notifications.Flushing.Queues;
 
 namespace Sanatana.Notifications.Queues
 {
@@ -121,7 +111,7 @@ namespace Sanatana.Notifications.Queues
         {
             if (result == ProcessingResult.Success)
             {
-                //when successfuly sent dispatch
+                //successfuly sent dispatch
                 _signalFlushJob.Delete(item);
             }
             else if (result == ProcessingResult.Fail)
@@ -135,7 +125,7 @@ namespace Sanatana.Notifications.Queues
             }
             else if (result == ProcessingResult.Repeat)
             {
-                //when dispatcherer is not available
+                //dispatcherer is not available
                 item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
                 Append(item, item.Signal.DeliveryType);

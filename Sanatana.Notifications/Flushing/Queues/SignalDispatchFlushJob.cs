@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.Flushing
+namespace Sanatana.Notifications.Flushing.Queues
 {
     public class SignalDispatchFlushJob<TKey> : SignalFlushJobBase<SignalDispatch<TKey>>
         where TKey : struct
@@ -18,10 +18,8 @@ namespace Sanatana.Notifications.Flushing
         //init
         public SignalDispatchFlushJob(SenderSettings senderSettings, ITemporaryStorage<SignalDispatch<TKey>> temporaryStorage
             , ISignalDispatchQueries<TKey> queries)
-            : base(temporaryStorage, queries)
+            : base(senderSettings, temporaryStorage, queries)
         {
-            FlushPeriod = senderSettings.FlushJobFlushPeriod;
-            QueueLimit = senderSettings.FlushJobQueueLimit;
             IsTemporaryStorageEnabled = senderSettings.SignalQueueIsTemporaryStorageEnabled;
 
             _temporaryStorageParameters = new TemporaryStorageParameters()

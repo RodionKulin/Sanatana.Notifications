@@ -61,6 +61,15 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing {0} property on {1}.
+        /// </summary>
+        public static string Common_MissingPropertyValue {
+            get {
+                return ResourceManager.GetString("Common_MissingPropertyValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} parameter was not provided..
         /// </summary>
         public static string Common_ParameterMissing {

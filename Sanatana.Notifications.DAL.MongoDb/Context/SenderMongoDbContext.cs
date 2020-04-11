@@ -4,7 +4,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using Sanatana.Notifications.EventsHandling;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Parameters;
 using System;
@@ -33,19 +32,20 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
         private IMongoDatabase _database;
         private MongoDbConnectionSettings _settings;
 
-        private Dictionary<Type, string> _collectionNames = new Dictionary<Type, string>
-        {
-            { typeof(EventSettings<ObjectId>), "EventSettings" },
-            { typeof(DispatchTemplate<ObjectId>), "DispatchTemplates" },
-            { typeof(SignalEvent<ObjectId>), "SignalEvents" },
-            { typeof(SignalDispatch<ObjectId>), "SignalDispatches" },
-            { typeof(StoredNotification<ObjectId>), "StoredNotifications" },
-            { typeof(SignalBounce<ObjectId>), "SignalBounces" },
-            { typeof(TDeliveryType), "SubscriberDeliveryTypeSettings" },
-            { typeof(TCategory), "SubscriberCategorySettings" },
-            { typeof(TTopic), "SubscriberTopicSettings" },
-            { typeof(SubscriberScheduleSettings<ObjectId>), "SubscriberScheduleSettings" }
-        };
+        private (Type type, string collectionName)[] _collectionNames = new (Type type, string collectionName)[]
+       {
+            ( typeof(EventSettings<ObjectId>), "EventSettings" ),
+            ( typeof(DispatchTemplate<ObjectId>), "DispatchTemplates" ),
+            ( typeof(SignalEvent<ObjectId>), "SignalEvents" ),
+            ( typeof(SignalDispatch<ObjectId>), "SignalDispatches" ),
+            ( typeof(SignalDispatch<ObjectId>), "SignalDispatchesHistory" ),
+            ( typeof(StoredNotification<ObjectId>), "StoredNotifications" ),
+            ( typeof(SignalBounce<ObjectId>), "SignalBounces" ),
+            ( typeof(TDeliveryType), "SubscriberDeliveryTypeSettings" ),
+            ( typeof(TCategory), "SubscriberCategorySettings" ),
+            ( typeof(TTopic), "SubscriberTopicSettings" ),
+            ( typeof(SubscriberScheduleSettings<ObjectId>), "SubscriberScheduleSettings" )
+       };
 
 
         //properties     
@@ -324,15 +324,38 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
         public virtual IMongoCollection<TEntity> GetCollection<TEntity>()
         {
             Type entityType = typeof(TEntity);
-            if (!_collectionNames.ContainsKey(entityType))
+            var entityMappings = _collectionNames.Where(x => x.type == entityType).ToArray();
+
+            if (entityMappings.Length == 0)
             {
                 throw new KeyNotFoundException($"Entity type [{entityType.FullName}] is not registered as a MongoDb collection. First add an entry to {nameof(_collectionNames)}");
             }
+            if (entityMappings.Length > 1)
+            {
+                throw new KeyNotFoundException($"Entity type [{entityType.FullName}] is mapped to more than one collection. Use {nameof(GetCollection)} method with collectionName argument.");
+            }
 
-            string collectionName = _collectionNames[entityType];
+            string collectionName = entityMappings.First().collectionName;
             IMongoCollection<TEntity> collection = _database.GetCollection<TEntity>(
                 _settings.CollectionsPrefix + collectionName);
             return collection;           
+        }
+
+        public virtual IMongoCollection<TEntity> GetCollection<TEntity>(string collectionName)
+        {
+            Type entityType = typeof(TEntity);
+            (Type type, string collectionName)[] entityMappings = _collectionNames
+                .Where(x => x.type == entityType && x.collectionName == collectionName)
+                .ToArray();
+
+            if (entityMappings.Length == 0)
+            {
+                throw new KeyNotFoundException($"Entity type [{entityType.FullName}] is not registered as a MongoDb collection with name {collectionName}. First add an entry to {nameof(_collectionNames)}");
+            }
+
+            IMongoCollection<TEntity> collection = _database.GetCollection<TEntity>(
+                _settings.CollectionsPrefix + collectionName);
+            return collection;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 
 
         //properties
-        public int Order { get; set; }
+        public int Order { get; set; } = 0;
 
 
         //ctor
@@ -36,11 +36,17 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
                 return true;
             }
 
+            int itemsLimit = 1000;
+
             var categories = new List<(int deliveryType, int category)>();
             categories.Add((item.Signal.DeliveryType, item.Signal.CategoryId.Value));
 
-            List<SignalDispatch<TKey>> sameCategoryScheduledDispatches = await _signalDispatchQueries
-                .SelectScheduled(item.Signal.ReceiverSubscriberId.Value, categories)
+            List<SignalDispatch<TKey>> sameCategoryScheduledDispatches = await _signalDispatchQueries.SelectCreatedBefore(
+                pageSize: itemsLimit, 
+                subscriberIds: new List<TKey> { item.Signal.ReceiverSubscriberId.Value },
+                categories: categories,
+                createdBefore: DateTime.UtcNow,
+                createdAfter: null)
                 .ConfigureAwait(false);
 
             return true;
