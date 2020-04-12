@@ -34,7 +34,7 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 throw new ArgumentNullException(nameof(templateProvider));
             }
 
-            return templateData.ToDictionary(data => data.Language ?? "", data =>
+            return templateData.ToDictionary(data => data.Language ?? string.Empty, data =>
             {
                 var transform = UseLongTermCaching
                     ? (XslCompiledTransform)_longTermTemplatesCache.GetOrCreate(data.Language, () => ConstructXslTransform(templateProvider, data))

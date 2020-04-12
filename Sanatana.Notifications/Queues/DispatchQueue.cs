@@ -7,14 +7,13 @@ using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Parameters;
 using Sanatana.Notifications.Sender;
 using Microsoft.Extensions.Logging;
-using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Flushing.Queues;
+using Sanatana.Notifications.Resources;
 
 namespace Sanatana.Notifications.Queues
 {
-    public class DispatchQueue<TKey> : QueueBase<SignalDispatch<TKey>, TKey>
-        , IDispatchQueue<TKey>
+    public class DispatchQueue<TKey> : QueueBase<SignalDispatch<TKey>, TKey>, IDispatchQueue<TKey>
         where TKey : struct
     {
         //fields
@@ -28,11 +27,15 @@ namespace Sanatana.Notifications.Queues
         /// Pause duration after failed attempt or dispatcher not available before retrying.
         /// </summary>
         public TimeSpan RetryPeriod { get; set; }
+        /// <summary>
+        /// Maximum number of failed attempts after which item won't be fetched from permanent storage any more.
+        /// </summary>
+        public int MaxFailedAttempts { get; set; }
 
 
         //init
         public DispatchQueue(SenderSettings senderSettings, ITemporaryStorage<SignalDispatch<TKey>> temporaryStorage
-            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalFlushJob<SignalDispatch<TKey>> signalFlushJob 
+            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalFlushJob<SignalDispatch<TKey>> signalFlushJob
             , ILogger logger)
             : base(temporaryStorage)
         {
@@ -41,6 +44,7 @@ namespace Sanatana.Notifications.Queues
             _logger = logger;
 
             RetryPeriod = senderSettings.SignalQueueRetryPeriod;
+            MaxFailedAttempts = senderSettings.DatabaseSignalProviderItemsMaxFailedAttempts;
             PersistBeginOnItemsCount = senderSettings.SignalQueuePersistBeginOnItemsCount;
             PersistEndOnItemsCount = senderSettings.SignalQueuePersistEndOnItemsCount;
             IsTemporaryStorageEnabled = senderSettings.SignalQueueIsTemporaryStorageEnabled;
@@ -61,25 +65,52 @@ namespace Sanatana.Notifications.Queues
         }
 
 
-
         //queue methods
-        public virtual void Append(List<SignalDispatch<TKey>> items, bool isStored)
+        public virtual void Append(List<SignalDispatch<TKey>> signals, bool isPermanentlyStored)
         {
-            IEnumerable<SignalDispatch<TKey>> scheduledItems =
-                items.Where(x => x.IsScheduled && x.SendDateUtc > DateTime.UtcNow);
-            foreach (SignalDispatch<TKey> item in scheduledItems)
+            SignalWrapper<SignalDispatch<TKey>>[] items = signals
+                .Select(x => SignalWrapper.Create(x, isPermanentlyStored))
+                .ToArray();
+
+            SignalWrapper<SignalDispatch<TKey>>[] scheduledItems = items
+                .Where(x => x.Signal.IsScheduled && x.Signal.SendDateUtc > DateTime.UtcNow)
+                .ToArray();
+            foreach (SignalWrapper<SignalDispatch<TKey>> item in scheduledItems)
             {
-                var signal = new SignalWrapper<SignalDispatch<TKey>>(item, isStored);
-                AppendToTemporaryStorage(signal);
-                ApplyResult(signal, ProcessingResult.ReturnToStorage);
+                AppendToTemporaryStorage(item);
+                ApplyResult(item, ProcessingResult.ReturnToStorage);
             }
 
-            IEnumerable<SignalDispatch<TKey>> immediateItems = items.Except(scheduledItems);
-            foreach (SignalDispatch<TKey> item in immediateItems)
-            {
-                var signal = new SignalWrapper<SignalDispatch<TKey>>(item, isStored);
-                Append(signal);
-            }
+            List<SignalWrapper<SignalDispatch<TKey>>> immediateItems = items.Except(scheduledItems).ToList();
+            immediateItems = Consolidate(immediateItems);
+            immediateItems.ForEach(Append);
+        }
+
+        protected virtual List<SignalWrapper<SignalDispatch<TKey>>> Consolidate(
+            List<SignalWrapper<SignalDispatch<TKey>>> items)
+        {
+            List<SignalWrapper<SignalDispatch<TKey>>> newList = items
+                .Where(x => x.Signal.TemplateData == null //TempalteData is present only on consolodated Dispatches
+                    || x.Signal.ReceiverSubscriberId == null
+                    || x.Signal.CategoryId == null)
+                .ToList();
+
+            items.Except(newList)
+                .GroupBy(x => new
+                {
+                    x.Signal.ReceiverSubscriberId,
+                    x.Signal.CategoryId
+                })
+                .Select(x =>
+                {
+                    SignalWrapper<SignalDispatch<TKey>> signal = x.First();
+                    signal.ConsolidatedSignals = x.ToArray();
+                    return signal;
+                })
+                .ToList()
+                .ForEach(newList.Add);
+
+            return newList;
         }
 
         public override void Append(SignalWrapper<SignalDispatch<TKey>> item)
@@ -117,30 +148,41 @@ namespace Sanatana.Notifications.Queues
             else if (result == ProcessingResult.Fail)
             {
                 //dispatcher throws error
-                item.Signal.FailedAttempts++;
+                IncrementFailedAttempts(item);
                 item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
-
                 _signalFlushJob.Return(item);
             }
             else if (result == ProcessingResult.Repeat)
             {
-                //dispatcherer is not available
+                //dispatcher is not available
                 item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
-                Append(item, item.Signal.DeliveryType);
+                _signalFlushJob.Return(item);
             }
             else if (result == ProcessingResult.NoHandlerFound)
             {
-                //no dispatcher found matching diliveryType
-                _logger.LogError(SenderInternalMessages.DispatchQueue_HandlerNotFound, item.Signal.DeliveryType);
-                _signalFlushJob.Delete(item);
+                //no dispatcher found matching deliveryType
+                IncrementFailedAttempts(item);
+                item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
+                item.IsUpdated = true;
+                _signalFlushJob.Return(item);
             }
             else if (result == ProcessingResult.ReturnToStorage)
             {
                 //1. stoped Sender and saving everything from queue to database
-                //2. insert schedules dispatch after it is composed
+                //2. insert scheduled dispatch after it is composed
                 _signalFlushJob.Return(item);
+            }
+        }
+
+        protected virtual void IncrementFailedAttempts(SignalWrapper<SignalDispatch<TKey>> item)
+        {
+            item.Signal.FailedAttempts++;
+            if (item.Signal.FailedAttempts >= MaxFailedAttempts)
+            {
+                _logger.LogError(SenderInternalMessages.DispatchQueue_MaxAttemptsReached,
+                    MaxFailedAttempts, nameof(SignalDispatch<TKey>), item.Signal.SignalDispatchId);
             }
         }
     }

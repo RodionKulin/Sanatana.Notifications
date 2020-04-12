@@ -22,7 +22,7 @@ namespace Sanatana.Notifications.EventsHandling.Templates
         {
             KeyValueModel = keyValueModel;
             ObjectModel = objectModel;
-            Language = language;
+            Language = language ?? string.Empty;
         }
 
         public static TemplateData Empty()

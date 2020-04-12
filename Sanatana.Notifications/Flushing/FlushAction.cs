@@ -8,8 +8,9 @@ namespace Sanatana.Notifications.Flushing
 {
     public enum FlushAction
     {
-        Delete,
+        Insert,
         Update,
-        Insert
+        DeleteOne,
+        DeleteConsolidated
     }
 }

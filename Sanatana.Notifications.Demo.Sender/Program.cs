@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using Sanatana.Notifications;
-using Sanatana.Notifications.EventsHandling.Templates;
+﻿using Sanatana.Notifications.EventsHandling.Templates;
 using Sanatana.Notifications.DispatchHandling.Channels;
 using System;
 using System.Collections.Generic;
@@ -12,14 +10,10 @@ using Autofac;
 using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.Notifications.Demo.Sender.Model;
-using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.DeliveryTypes.Email;
-using Sanatana.Notifications.DeliveryTypes.Trace;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Parameters;
-using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.DI.Autofac;
-using Sanatana.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
@@ -141,6 +135,7 @@ namespace Sanatana.Notifications.Demo.Sender
                     {
                         new EmailDispatchTemplate<long>()
                         {
+                            DispatchTemplateId = 1,
                             DeliveryType = (int)Model.DeliveryTypes.Email,
                             IsBodyHtml = false,
                             SubjectProvider = (StringTemplate)"Test subject to {customer}",

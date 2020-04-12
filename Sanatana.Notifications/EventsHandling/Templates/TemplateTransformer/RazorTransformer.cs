@@ -30,7 +30,7 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 throw new ArgumentNullException(nameof(templateProvider));
             }
 
-            return templateData.ToDictionary(data => data.Language ?? "", data =>
+            return templateData.ToDictionary(data => data.Language ?? string.Empty, data =>
             {
                 var template = UseLongTermCaching
                     ? (RazorEngineCompiledTemplate)_longTermTemplatesCache.GetOrCreate(data.Language, () => GetCompiledTemplate(templateProvider, data))

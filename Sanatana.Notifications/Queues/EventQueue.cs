@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Flushing.Queues;
+using System.Linq;
 
 namespace Sanatana.Notifications.Queues
 {
@@ -45,13 +46,11 @@ namespace Sanatana.Notifications.Queues
 
 
         //queue methods
-        public virtual void Append(List<SignalEvent<TKey>> items, bool isStored)
+        public virtual void Append(List<SignalEvent<TKey>> items, bool isPermanentlyStored)
         {
-            foreach (SignalEvent<TKey> item in items)
-            {
-                var signal = new SignalWrapper<SignalEvent<TKey>>(item, isStored);
-                Append(signal);
-            }
+            items.Select(x => SignalWrapper.Create(x, isPermanentlyStored))
+                .ToList()
+                .ForEach(Append);
         }
 
         public override void Append(SignalWrapper<SignalEvent<TKey>> item)

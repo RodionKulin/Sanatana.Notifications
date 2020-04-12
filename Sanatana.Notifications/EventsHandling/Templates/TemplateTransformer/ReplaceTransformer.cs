@@ -36,7 +36,7 @@ namespace Sanatana.Notifications.EventsHandling.Templates
                 throw new ArgumentNullException(nameof(templateProvider));
             }
 
-            return templateData.ToDictionary(data => data.Language ?? "", data =>
+            return templateData.ToDictionary(data => data.Language ?? string.Empty, data =>
             {
                 string template = templateProvider.ProvideTemplate(data.Language);
 

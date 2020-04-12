@@ -4,6 +4,7 @@ using Sanatana.Notifications.Processing;
 using Sanatana.Notifications.DispatchHandling;
 using System;
 using Sanatana.Notifications.Models;
+using System.Collections.Generic;
 
 namespace Sanatana.Notifications.Queues
 {
@@ -11,7 +12,7 @@ namespace Sanatana.Notifications.Queues
     {
         int PersistBeginOnItemsCount { get; }
 
-        void Append(System.Collections.Generic.List<TSignal> items, bool isStored);
+        void Append(List<TSignal> items, bool isPermanentlyStored);
         void Append(SignalWrapper<TSignal> item);
         SignalWrapper<TSignal> DequeueNext();
         void ApplyResult(SignalWrapper<TSignal> item, ProcessingResult result);

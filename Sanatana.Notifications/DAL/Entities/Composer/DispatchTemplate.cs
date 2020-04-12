@@ -3,6 +3,7 @@ using System;
 using Sanatana.Notifications.DAL.Results;
 using Sanatana.Notifications.EventsHandling.Templates;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Sanatana.Notifications.DAL.Entities
 {
@@ -15,7 +16,8 @@ namespace Sanatana.Notifications.DAL.Entities
     {
         //properties
         /// <summary>
-        /// Identifier. Only required if stored in database. Is set by database itself.
+        /// Required unique identifier. Assigned by database if database storage is chosen. 
+        /// Should be assigned a static value manually if settings are stored in memory (default) to match SignalDispatch with DispatchTemplate.
         /// </summary>
         public TKey DispatchTemplateId { get; set; }
         /// <summary>
@@ -39,22 +41,17 @@ namespace Sanatana.Notifications.DAL.Entities
         /// Toggle to enable or disable building SignalDispatches from this Template. 
         /// </summary>
         public bool IsActive { get; set; } = true;
-        /// <summary>
-        /// Enable storing dispatch in history database table after sending it.
-        /// </summary>
-        public bool StoreInHistory { get; set; }
-        /// <summary>
-        /// Before sending get all scheduled dispatches for subscriber of same category and create a single Dispatch from all of them.
-        /// </summary>
-        public bool Consolidate { get; set; }
+     
 
 
         //methods
         public abstract List<SignalDispatch<TKey>> Build(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent,
              List<Subscriber<TKey>> subscribers, List<TemplateData> dataWithLanguage);
 
+        public abstract void Update(SignalDispatch<TKey> item, TemplateData templateData);
+
         protected virtual List<string> FillTemplateProperty(ITemplateProvider provider, ITemplateTransformer transformer,
-            List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
+            List<Subscriber<TKey>> subscribers, List<TemplateData> templateData)
         {
             if(provider == null || transformer == null)
             {
@@ -63,19 +60,34 @@ namespace Sanatana.Notifications.DAL.Entities
                     .ToList();
             }
 
-            Dictionary<string, string> filledTemplates = transformer.Transform(provider, languageTemplateData);
+            Dictionary<string, string> filledTemplates = transformer.Transform(provider, templateData);
             return subscribers
                 .Select(subscriber => filledTemplates[subscriber.Language ?? string.Empty])
                 .ToList();
         }
 
-        protected virtual void SetBaseProperties(SignalDispatch<TKey> dispatch, EventSettings<TKey> settings
-            , SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber)
+        protected virtual string FillTemplateProperty(ITemplateProvider provider, ITemplateTransformer transformer,
+            TemplateData templateData)
         {
-            dispatch.EventKey = settings.EventKey;
+            if (provider == null || transformer == null)
+            {
+                return null;
+            }
+
+            Dictionary<string, string> filledTemplates = transformer.Transform(
+                provider, new List<TemplateData> { templateData });
+            return filledTemplates[templateData.Language ?? string.Empty];
+        }
+
+        protected virtual void SetBaseProperties(SignalDispatch<TKey> dispatch, EventSettings<TKey> settings,
+            SignalEvent<TKey> signalEvent, Subscriber<TKey> subscriber)
+        {
+            dispatch.EventSettingsId = settings.EventSettingsId;
+            dispatch.DispatchTemplateId = DispatchTemplateId;
+
             dispatch.DeliveryType = DeliveryType;
             dispatch.CategoryId = settings.Subscription.CategoryId;
-            dispatch.TopicId = signalEvent.TopicId;
+            dispatch.TopicId = signalEvent.TopicId ?? settings.Subscription.TopicId;
 
             dispatch.ReceiverSubscriberId = subscriber.SubscriberId;
             dispatch.ReceiverAddress = subscriber.Address;
@@ -87,7 +99,13 @@ namespace Sanatana.Notifications.DAL.Entities
             dispatch.SendDateUtc = DateTime.UtcNow;
             dispatch.FailedAttempts = 0;
 
-            dispatch.StoreInHistory = StoreInHistory;
+            dispatch.Language = subscriber.Language ?? string.Empty;
+            if (settings.ConsolidatorId != null)
+            {
+                dispatch.TemplateData = signalEvent.TemplateDataObj == null
+                    ? JsonConvert.SerializeObject(signalEvent.TemplateDataDict)
+                    : signalEvent.TemplateDataObj;
+            }
         }
     }
 }

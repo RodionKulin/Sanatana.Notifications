@@ -29,5 +29,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             throw new NotImplementedException();
         }
 
+        public override void Update(SignalDispatch<long> item, TemplateData templateData)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -11,6 +11,6 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
         where TKey : struct
     {
         int Order { get; }
-        Task<bool> Execute(SignalWrapper<SignalDispatch<TKey>> item);
+        bool Execute(SignalWrapper<SignalDispatch<TKey>> item);
     }
 }

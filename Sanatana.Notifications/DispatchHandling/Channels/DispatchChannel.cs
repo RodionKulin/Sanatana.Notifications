@@ -1,19 +1,15 @@
-﻿using Sanatana.Notifications.Processing;
-using Sanatana.Notifications.DispatchHandling.Interrupters;
+﻿using Sanatana.Notifications.DispatchHandling.Interrupters;
 using Sanatana.Notifications.DispatchHandling.Limits;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.Entities;
-using Microsoft.Extensions.Logging;
-using Sanatana.Notifications.DeliveryTypes;
 using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.DispatchHandling.Channels
 {
-    public class DispatchChannel<TKey> : IDisposable
+    public class DispatchChannel<TKey> : IDispatchChannel<TKey> 
         where TKey : struct
     {
         //fields
@@ -46,9 +42,6 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
         /// For example introduce progressive timeout on failed attempts with ProgressiveTimeoutInterrupter.
         /// </summary>
         public IInterrupter<TKey> Interrupter { get; set; }
-
-
-        
         /// <summary>
         /// Amount of deliveries before reaching the limit. 
         /// </summary>
@@ -79,55 +72,47 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
             Dispatcher = dispatcher;
         }
 
-        
 
-        //methods
-        public virtual DispatcherAvailability ApplyResult(ProcessingResult result, SignalDispatch<TKey> dispatch, ILogger logger)
+
+        //send methods
+        public virtual ProcessingResult Send(SignalDispatch<TKey> dispatch)
         {
-            if(result == ProcessingResult.Success)
+            return Dispatcher.Send(dispatch).Result;
+        }
+        public virtual DispatcherAvailability CheckAvailability()
+        {
+            return Dispatcher.CheckAvailability().Result;
+        }
+
+
+        //limitation methods
+        public virtual void CountSendAttempt(SignalDispatch<TKey> dispatch,
+            ProcessingResult result, DispatcherAvailability availability)
+        {
+            if (result == ProcessingResult.Success)
             {
                 AvailableLimitCapacity--;
                 LimitCounter.InsertTime();
                 Interrupter.Success(dispatch);
-                return DispatcherAvailability.Available;
             }
             else if (result == ProcessingResult.Fail)
             {
-                DispatcherAvailability availability = CheckAvailability(logger);                
-
                 AvailableLimitCapacity--;
                 LimitCounter.InsertTime();
                 Interrupter.Fail(dispatch, availability);
-
-                return availability;
-            }
-            else
-            {
-                return DispatcherAvailability.NotChecked;
             }
         }
-        
-        protected virtual DispatcherAvailability CheckAvailability(ILogger logger)
+
+        public virtual void CountAvailabilityCheck(DispatcherAvailability availability)
         {
-            DispatcherAvailability availability;
-            try
+            if (availability == DispatcherAvailability.NotChecked)
             {
-                availability = Dispatcher.CheckAvailability().Result;
-            }
-            catch (Exception ex)
-            {
-                availability = DispatcherAvailability.NotAvailable;
-                logger.LogError(ex, null);
-            }
-            
-            //count check as additional message dispatched
-            if (availability != DispatcherAvailability.NotChecked)
-            {
-                AvailableLimitCapacity--;
-                LimitCounter.InsertTime();
+                return;
             }
 
-            return availability;
+            //count check as additional message dispatched
+            AvailableLimitCapacity--;
+            LimitCounter.InsertTime();
         }
 
         public virtual void SetLimitsCapacity()
@@ -146,10 +131,10 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
         //IDisposable
         public virtual void Dispose()
         {
-            if(Dispatcher != null)
+            if (Dispatcher != null)
                 Dispatcher.Dispose();
 
-            if(LimitCounter != null)
+            if (LimitCounter != null)
                 LimitCounter.Dispose();
 
             if (Interrupter != null)

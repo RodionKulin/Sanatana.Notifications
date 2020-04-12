@@ -55,7 +55,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 
 
         //Select
-        public virtual async Task<List<SignalDispatch<long>>> SelectCreatedBefore(
+        public virtual async Task<List<SignalDispatch<long>>> SelectConsolidated(
             int pageSize, List<long> subscriberIds, List<(int deliveryType, int category)> categories, 
             DateTime createdBefore, DateTime? createdAfter = null)
         {
@@ -71,7 +71,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                 IQueryable<SignalDispatchLong> request = context.SignalDispatches.Where(
                     p => p.ReceiverSubscriberId != null
                     && subscriberIds.Contains(p.ReceiverSubscriberId.Value)
-                    && p.CreateDateUtc < createdBefore);
+                    && p.CreateDateUtc <= createdBefore);
 
                 if(createdAfter != null)
                 {
@@ -88,6 +88,12 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                 List<SignalDispatchLong> response = await request
                     .OrderBy(x => x.CreateDateUtc)
                     .Take(pageSize)
+                    .Select(x => new SignalDispatchLong
+                    {
+                        SignalDispatchId = x.SignalDispatchId,
+                        CreateDateUtc = x.CreateDateUtc,
+                        TemplateData = x.TemplateData
+                    })
                     .ToListAsync()
                     .ConfigureAwait(false);
                 list = response
@@ -170,5 +176,35 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
             }
         }
 
+        public virtual Task DeleteConsolidated(List<SignalDispatch<long>> items)
+        {
+            if (items.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            var deleteTasks = new List<Task>();
+
+            using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
+            {
+                foreach (SignalDispatch<long> item in items)
+                {
+                    if (item.ReceiverSubscriberId == null)
+                    {
+                        continue;
+                    }
+
+                    Task<int> deleteTask = repository.DeleteManyAsync<SignalDispatchLong>(
+                        p => p.ReceiverSubscriberId == p.ReceiverSubscriberId
+                        && p.CategoryId == item.CategoryId
+                        && p.DeliveryType == item.DeliveryType
+                        && p.CreateDateUtc <= item.SendDateUtc
+                        && p.SignalDispatchId != item.SignalDispatchId);
+                    deleteTasks.Add(deleteTask);
+                }
+            }
+
+            return Task.WhenAll(deleteTasks.ToArray());
+        }
     }
 }

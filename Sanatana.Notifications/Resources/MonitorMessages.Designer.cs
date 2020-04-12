@@ -61,6 +61,15 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}: Channel {1} availability is {2}.
+        /// </summary>
+        public static string ChannelAvailabilityChecked {
+            get {
+                return ResourceManager.GetString("ChannelAvailabilityChecked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: {1} dispatches composed with result {2} in {3}..
         /// </summary>
         public static string DispatchesComposed {

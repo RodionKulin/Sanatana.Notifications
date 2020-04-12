@@ -13,7 +13,8 @@ namespace Sanatana.Notifications.DAL.Entities
         where TKey : struct
     {
         /// <summary>
-        /// Required unique identifier. Assigned by database if database storage is chosen. Should be assigned manually if settings are stored in memory (default).
+        /// Required unique identifier. Assigned by database if database storage is chosen. 
+        /// Should be assigned a static value manually if settings are stored in memory (default) to match SignalEvent with EventSettings.
         /// </summary>
         public TKey EventSettingsId { get; set; }
         /// <summary>
@@ -36,12 +37,22 @@ namespace Sanatana.Notifications.DAL.Entities
         /// </summary>
         public List<DispatchTemplate<TKey>> Templates { get; set; }
         /// <summary>
-        /// Query settings describing how to select subscribers that will be notified.
+        /// Query settings for selecting subscribers to notify.
         /// </summary>
         public SubscriptionParameters Subscription { get; set; }
         /// <summary>
-        /// Query settings to update data for subscribers after receiving a SignalEvent. Update data like incrementing a number of messages sent and latest send time.
+        /// Query settings to update subscriber's settings and counters after receiving a SignalEvent. 
         /// </summary>
         public UpdateParameters Updates { get; set; }
+        /// <summary>
+        /// Enable storing dispatch in history database table after sending it.
+        /// </summary>
+        public bool StoreInHistory { get; set; }
+        /// <summary>
+        /// Optional identifier of ITemplateDataConsolidator that will combine multiple TemplateData objects into one.
+        /// Before sending Dispatch will get all queued dispatches for subscriber of same category and create a single Dispatch from them.
+        /// Null disabled consolidation.
+        /// </summary>
+        public int? ConsolidatorId { get; set; }
     }
 }

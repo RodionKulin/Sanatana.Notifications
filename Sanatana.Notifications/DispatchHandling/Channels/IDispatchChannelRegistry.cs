@@ -8,7 +8,7 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
         where TKey : struct
     {
         List<int> GetActiveDeliveryTypes(bool checkLimitCapacity);
-        DispatchChannel<TKey> Match(SignalDispatch<TKey> signal);
-        List<DispatchChannel<TKey>> GetAll();
+        IDispatchChannel<TKey> Match(SignalDispatch<TKey> signal);
+        List<IDispatchChannel<TKey>> GetAll();
     }
 }

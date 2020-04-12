@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Sanatana.Notifications.Models;
 
-[assembly: InternalsVisibleTo("Sanatana.NotificationsTests")]
+
 namespace Sanatana.Notifications.Queues
 {
     public abstract class QueueBase<TSignal, TKey>
@@ -137,7 +137,7 @@ namespace Sanatana.Notifications.Queues
 
 
         //Return to persistent storage
-        internal virtual void ReturnExtraItems(List<int> activeKeys = null)
+        public virtual void ReturnExtraItems(List<int> activeKeys = null)
         {
             lock (_queueLock)
             {
@@ -157,12 +157,13 @@ namespace Sanatana.Notifications.Queues
                         .Where(p => !activeKeys.Contains(p))
                         .ToList();
 
-                    ReturnExtraItems(notActiveKeys, ref extraItems);
-                    ReturnExtraItems(activeKeys, ref extraItems);
+                    ApplyReturnExtra(notActiveKeys, ref extraItems);
+                    ApplyReturnExtra(activeKeys, ref extraItems);
                 }
             }
         }
-        protected void ReturnExtraItems(List<int> keys, ref int extraItems)
+
+        protected void ApplyReturnExtra(List<int> keys, ref int extraItems)
         {
             List<KeyValuePair<int, Queue<SignalWrapper<TSignal>>>> queues = _itemsQueue
                 .Where(p => keys.Contains(p.Key) && p.Value.Count > 0)

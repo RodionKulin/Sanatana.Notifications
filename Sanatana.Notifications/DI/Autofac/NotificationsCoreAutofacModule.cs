@@ -75,7 +75,7 @@ namespace Sanatana.Notifications.DI.Autofac
         protected virtual void RegisterEvenHandling(ContainerBuilder builder)
         {
             builder.RegisterType<EventHandlerRegistry<TKey>>().As<IEventHandlerRegistry<TKey>>().SingleInstance();
-            builder.RegisterType<EventHandler<TKey>>().As<IEventHandler<TKey>>().SingleInstance();
+            builder.RegisterType<DefaultEventHandler<TKey>>().As<IEventHandler<TKey>>().SingleInstance();
             builder.RegisterType<DispatchBuilder<TKey>>().As<IDispatchBuilder<TKey>>().SingleInstance();
             builder.RegisterType<SubscribersFetcher<TKey>>().As<ISubscribersFetcher<TKey>>().SingleInstance();
             builder.RegisterType<ReceivePeriodScheduler<TKey>>().As<IScheduler<TKey>>().SingleInstance();

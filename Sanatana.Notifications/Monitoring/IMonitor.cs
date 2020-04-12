@@ -30,7 +30,8 @@ namespace Sanatana.Notifications.Monitoring
         void DispatchesComposed(SignalEvent<TKey> item, TimeSpan time,
              ProcessingResult composeResult, List<SignalDispatch<TKey>> dispatches);
 
-        void DispatchSent(SignalDispatch<TKey> item, TimeSpan time,
-             ProcessingResult sendResult, DispatcherAvailability dispatcherAvailability);
+        void DispatchSent(SignalDispatch<TKey> item, ProcessingResult sendResult, TimeSpan sendTime);
+
+        void DispatchChannelAvailabilityChecked(IDispatchChannel<TKey> channel, DispatcherAvailability availability);
     }
 }

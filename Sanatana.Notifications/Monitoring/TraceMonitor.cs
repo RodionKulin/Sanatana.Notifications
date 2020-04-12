@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sanatana.Notifications.Models;
+using Sanatana.Notifications.DispatchHandling.Channels;
 
 namespace Sanatana.Notifications.Monitoring
 {
@@ -66,10 +67,17 @@ namespace Sanatana.Notifications.Monitoring
             Trace.WriteLine(message);
         }
 
-        public void DispatchSent(SignalDispatch<TKey> item, TimeSpan time, ProcessingResult sendResult, DispatcherAvailability senderAvailability)
+        public void DispatchSent(SignalDispatch<TKey> item, ProcessingResult sendResult, TimeSpan sendTime)
         {
-            string message = string.Format(MonitorMessages.DispatchSent
-              , DateTime.Now.ToLongTimeString(), sendResult, time);
+            string message = string.Format(MonitorMessages.DispatchSent,
+                DateTime.Now.ToLongTimeString(), sendResult, sendTime);
+            Trace.WriteLine(message);
+        }
+
+        public void DispatchChannelAvailabilityChecked(IDispatchChannel<TKey> channel, DispatcherAvailability availability)
+        {
+            string message = string.Format(MonitorMessages.ChannelAvailabilityChecked,
+               DateTime.Now.ToLongTimeString(), channel.DeliveryType, availability);
             Trace.WriteLine(message);
         }
     }

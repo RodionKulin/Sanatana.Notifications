@@ -24,6 +24,20 @@ namespace Sanatana.Notifications.DAL.Entities
         /// Address of subscriber that will receive this Dispatch.
         /// </summary>
         public string ReceiverAddress { get; set; }
+        /// <summary>
+        /// Subscriber's Language setting used to fill Dispatch template.
+        /// </summary>
+        public string Language { get; set; }
+
+
+        /// <summary>
+        /// Identifier for EventSettings that is used during Dispatch building and consolidation. 
+        /// </summary>
+        public TKey? EventSettingsId { get; set; }
+        /// <summary>
+        /// Identifier for DispatchTemplate that is used to build Dispatch properties.
+        /// </summary>
+        public TKey? DispatchTemplateId { get; set; }
 
 
         /// <summary>
@@ -34,10 +48,6 @@ namespace Sanatana.Notifications.DAL.Entities
         /// CategoryId that was used to compose this dispatch and match subscribers.
         /// </summary>
         public int? CategoryId { get; set; }
-        /// <summary>
-        /// EventKey that was used to compose this dispatch and match subscribers.
-        /// </summary>
-        public int? EventKey { get; set; }
         /// <summary>
         /// TopicId that was used to compose this dispatch and match subscribers.
         /// </summary>
@@ -69,14 +79,9 @@ namespace Sanatana.Notifications.DAL.Entities
 
 
         /// <summary>
-        /// Enable storing dispatch in history database table after sending it.
+        /// EventData received with SignalEvent. Stored in json format.
+        /// Is used for consolidation of multiple Dispatches for same subscriber into single Dispatch.
         /// </summary>
-        public bool StoreInHistory { get; set; }
-
-
-        /// <summary>
-        /// Before sending get all scheduled dispatches for subscriber of same category and create a single Dispatch from all of them.
-        /// </summary>
-        public bool Consolidate { get; set; }
+        public string TemplateData { get; set; }
     }
 }

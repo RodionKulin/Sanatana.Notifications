@@ -47,5 +47,11 @@ namespace Sanatana.Notifications.DeliveryTypes.Http
             SetBaseProperties(dispatch, settings, signalEvent, subscriber);
             return dispatch;
         }
+
+        public override void Update(SignalDispatch<TKey> item, TemplateData templateData)
+        {
+            var dispatch = (HttpDispatch<TKey>)item;
+            dispatch.Content = FillTemplateProperty(ContentProvider, ContentTransformer, templateData);
+        }
     }
 }

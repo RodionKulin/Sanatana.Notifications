@@ -5,6 +5,7 @@ using Sanatana.Notifications.DispatchHandling.Channels;
 using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
+using Sanatana.Notifications.Resources;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,25 +40,22 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 
 
         //methods
-        public virtual async Task<bool> Execute(SignalWrapper<SignalDispatch<TKey>> item)
+        public virtual bool Execute(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            //find Dispatcher by deliveryType key
-            DispatchChannel<TKey> dispatchChannel = _channelRegistry.Match(item.Signal);
-            if (dispatchChannel == null)
+            //find Dispatcher by deliveryType
+            IDispatchChannel<TKey> channel = _channelRegistry.Match(item.Signal);
+            if (channel == null)
             {
                 _dispatchQueue.ApplyResult(item, ProcessingResult.NoHandlerFound);
-                _monitor.DispatchSent(item.Signal, TimeSpan.Zero, ProcessingResult.NoHandlerFound, DispatcherAvailability.NotAvailable);
                 return false;
             }
 
-            //send
+            //send with dispatcher
             ProcessingResult sendResult = ProcessingResult.Fail;
             Stopwatch sendTimer = Stopwatch.StartNew();
-            bool successfulySent = false;
             try
             {
-                sendResult = await dispatchChannel.Dispatcher.Send(item.Signal).ConfigureAwait(false);
-                successfulySent = true;
+                sendResult = channel.Send(item.Signal);
             }
             catch (Exception ex)
             {
@@ -65,18 +63,41 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
             }
             sendTimer.Stop();
 
-            //check availability if failed and increment counters
-            DispatcherAvailability availability = dispatchChannel.ApplyResult(sendResult, item.Signal, _logger);
+            //check dispatcher availability
+            DispatcherAvailability availability = CheckAvailability(channel, sendResult);
             if (sendResult == ProcessingResult.Fail && availability == DispatcherAvailability.NotAvailable)
             {
                 sendResult = ProcessingResult.Repeat;
             }
 
-            //store results
+            _monitor.DispatchSent(item.Signal, sendResult, sendTimer.Elapsed);
+            channel.CountSendAttempt(item.Signal, sendResult, availability);
             _dispatchQueue.ApplyResult(item, sendResult);
-            _monitor.DispatchSent(item.Signal, sendTimer.Elapsed, sendResult, availability);
-            return successfulySent;
+            return sendResult == ProcessingResult.Success;
         }
 
+        protected virtual DispatcherAvailability CheckAvailability(IDispatchChannel<TKey> channel, ProcessingResult sendResult)
+        {
+            if(sendResult != ProcessingResult.Fail)
+            {
+                return DispatcherAvailability.NotChecked;
+            }
+
+            DispatcherAvailability availability;
+            try
+            {
+                availability = channel.CheckAvailability();
+            }
+            catch (Exception ex)
+            {
+                availability = DispatcherAvailability.NotAvailable;
+                _logger.LogError(ex, null);
+            }
+
+            channel.CountAvailabilityCheck(availability);
+            _monitor.DispatchChannelAvailabilityChecked(channel, availability);
+
+            return availability;
+        }
     }
 }

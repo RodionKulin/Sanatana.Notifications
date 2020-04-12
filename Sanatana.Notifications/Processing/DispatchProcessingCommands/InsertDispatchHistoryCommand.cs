@@ -13,27 +13,41 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
     public class InsertDispatchHistoryCommand<TKey> : FlushJobBase<SignalDispatch<TKey>>, IDispatchProcessingCommand<TKey>
         where TKey : struct
     {
+        //fields
+        protected IEventSettingsQueries<TKey> _eventSettingsQueries;
+
+
         //properties
         public int Order { get; set; } = 2;
 
 
         //ctor
-        public InsertDispatchHistoryCommand(SenderSettings senderSettings, ISignalDispatchHistoryQueries<TKey> queries)
+        public InsertDispatchHistoryCommand(SenderSettings senderSettings, ISignalDispatchHistoryQueries<TKey> historyQueries,
+            IEventSettingsQueries<TKey> eventSettingsQueries)
             : base(senderSettings)
         {
-            _flushQueues[FlushAction.Insert] = new FlushQueue<SignalDispatch<TKey>>(items => queries.InsertMany(items));
+            _eventSettingsQueries = eventSettingsQueries;
+            _flushQueues[FlushAction.Insert] = new FlushQueue<SignalDispatch<TKey>>(items => historyQueries.InsertMany(items));
         }
 
 
         //methods
-        public virtual Task<bool> Execute(SignalWrapper<SignalDispatch<TKey>> item)
+        public virtual bool Execute(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            if (item.Signal.StoreInHistory)
+            EventSettings<TKey> eventSettings = item.Signal.EventSettingsId == null
+                ? null
+                : _eventSettingsQueries.Select(item.Signal.EventSettingsId.Value).Result;
+            if (eventSettings == null)
+            {
+                return true;
+            }
+
+            if (eventSettings.StoreInHistory)
             {
                 _flushQueues[FlushAction.Insert].Queue.Add(item.Signal);
             }
 
-            return Task.FromResult(true);
+            return true;
         }
     }
 }

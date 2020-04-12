@@ -49,8 +49,8 @@ namespace Sanatana.Notifications.EventsHandling
                 }
 
                 List<Subscriber<TKey>> templateSubscribers = delivTypeSubscribers[template.DeliveryType];
-                List<TemplateData> languageTemplateData = PrepareTemplateData(signalEvent, templateSubscribers);
-                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers, languageTemplateData);
+                List<TemplateData> templateData = PrepareTemplateData(signalEvent, templateSubscribers);
+                List<SignalDispatch<TKey>> templateDispatches = BuildTemplate(settings, signalEvent, template, templateSubscribers, templateData);
                 dispatches.AddRange(templateDispatches);
             }
 
@@ -74,7 +74,7 @@ namespace Sanatana.Notifications.EventsHandling
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, SenderInternalMessages.DispatchBuilder_DeserializeError,
+                _logger.LogError(ex, SenderInternalMessages.Common_DeserializeError,
                     nameof(signalEvent.TemplateDataObj), signalEvent.TemplateDataObj,
                     nameof(SignalEvent<TKey>), signalEvent.SignalEventId);
             }
@@ -89,7 +89,8 @@ namespace Sanatana.Notifications.EventsHandling
             //validate and log invalid language values.
             foreach (TemplateData templateData in templatesData)
             {
-                //empty langauge is not logged. tempplate provider will return default language template.
+                //empty language is not logged. 
+                //template provider will return default language template in this case.
                 if (string.IsNullOrEmpty(templateData.Language))
                 {
                     continue;
@@ -111,9 +112,9 @@ namespace Sanatana.Notifications.EventsHandling
         }
                
         protected virtual List<SignalDispatch<TKey>> BuildTemplate(EventSettings<TKey> settings, SignalEvent<TKey> signalEvent
-            , DispatchTemplate<TKey> template, List<Subscriber<TKey>> subscribers, List<TemplateData> languageTemplateData)
+            , DispatchTemplate<TKey> template, List<Subscriber<TKey>> subscribers, List<TemplateData> templateData)
         {
-            return template.Build(settings, signalEvent, subscribers, languageTemplateData);
+            return template.Build(settings, signalEvent, subscribers, templateData);
         }
 
     }

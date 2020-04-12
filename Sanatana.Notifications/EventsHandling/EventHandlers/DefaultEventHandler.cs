@@ -16,7 +16,7 @@ using Sanatana.Notifications.Models;
 
 namespace Sanatana.Notifications.EventsHandling
 {
-    public class EventHandler<TKey> : IEventHandler<TKey>
+    public class DefaultEventHandler<TKey> : IEventHandler<TKey>
         where TKey : struct
     {
         //fields
@@ -30,7 +30,7 @@ namespace Sanatana.Notifications.EventsHandling
 
 
         //init
-        public EventHandler(ISubscribersFetcher<TKey> subscribersFetcher
+        public DefaultEventHandler(ISubscribersFetcher<TKey> subscribersFetcher
             , IDispatchBuilder<TKey> dispatchBuilder, IScheduler<TKey> scheduler
             , ISubscriberQueries<TKey> subscriberQueries)
         {
@@ -88,7 +88,7 @@ namespace Sanatana.Notifications.EventsHandling
             //remember latest subscriber handled to resume on next iteration
             SetCurrentProgress(signalEvent, subscribers.Items);
 
-            //result
+
             return new EventHandleResult<SignalDispatch<TKey>>()
             {
                 Result = ProcessingResult.Success,

@@ -13,14 +13,14 @@ namespace Sanatana.Notifications.EventsHandling
         where TKey : struct
     {
         //fields
-        protected IEnumerable<IEventHandler<TKey>> _eventHandlers;
+        protected List<IEventHandler<TKey>> _eventHandlers;
         protected ILogger _logger;
 
 
         //init
-        public EventHandlerRegistry(IEnumerable<IEventHandler<TKey>> compositionHandlers, ILogger logger)
+        public EventHandlerRegistry(IEnumerable<IEventHandler<TKey>> eventHandlers, ILogger logger)
         {
-            _eventHandlers = compositionHandlers;
+            _eventHandlers = eventHandlers.ToList();
             _logger = logger;
         }
 
@@ -28,24 +28,24 @@ namespace Sanatana.Notifications.EventsHandling
         //methods
         public virtual IEventHandler<TKey> MatchHandler(int? handlerId)
         {
-            IEventHandler<TKey> handler = _eventHandlers.FirstOrDefault(
-                x => x.EventHandlerId == handlerId);
-            int handlerIdCount = _eventHandlers.Count(x => x.EventHandlerId == handlerId);
+            IEventHandler<TKey>[] matchingHandlers = _eventHandlers
+                .Where(x => x.EventHandlerId == handlerId)
+                .ToArray();
 
-            if (handler == null)
+            if (matchingHandlers.Length == 0)
             {
-                string error = string.Format(SenderInternalMessages.CompositionHandlerFactory_NotFound,
+                string error = string.Format(SenderInternalMessages.Common_NoServiceWithKeyFound,
                     typeof(IEventHandler<TKey>), nameof(IEventHandler<TKey>.EventHandlerId), handlerId);
                 _logger.LogError(error);
             }
-            else if (handlerIdCount > 1)
+            else if (matchingHandlers.Length > 1)
             {
-                string error = string.Format(SenderInternalMessages.CompositionHandlerFactory_MoreThanOneFound, 
+                string error = string.Format(SenderInternalMessages.Common_MoreThanOneServiceWithKeyFound,
                     typeof(IEventHandler<TKey>), nameof(IEventHandler<TKey>.EventHandlerId), handlerId);
                 _logger.LogError(error);
             }
 
-            return handler;
+            return matchingHandlers.FirstOrDefault();
         }
     }
 }

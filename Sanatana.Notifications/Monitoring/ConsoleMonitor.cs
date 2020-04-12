@@ -8,6 +8,7 @@ using Sanatana.Notifications.Resources;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Timers.Switchables;
 using Sanatana.Notifications.Models;
+using Sanatana.Notifications.DispatchHandling.Channels;
 
 namespace Sanatana.Notifications.Monitoring
 {
@@ -49,14 +50,20 @@ namespace Sanatana.Notifications.Monitoring
 
         public void DispatchesComposed(SignalEvent<TKey> item, TimeSpan time, ProcessingResult composeResult, List<SignalDispatch<TKey>> dispatches)
         {
-            Console.WriteLine(MonitorMessages.DispatchesComposed
-                , DateTime.Now.ToLongTimeString(), dispatches.Count, composeResult, time);
+            Console.WriteLine(MonitorMessages.DispatchesComposed,
+                DateTime.Now.ToLongTimeString(), dispatches.Count, composeResult, time);
         }
 
-        public void DispatchSent(SignalDispatch<TKey> item, TimeSpan time, ProcessingResult sendResult, DispatcherAvailability senderAvailability)
+        public void DispatchSent(SignalDispatch<TKey> item, ProcessingResult sendResult, TimeSpan sendTime)
         {
-            Console.WriteLine(MonitorMessages.DispatchSent
-               , DateTime.Now.ToLongTimeString(), sendResult, time);
+            Console.WriteLine(MonitorMessages.DispatchSent,
+               DateTime.Now.ToLongTimeString(), sendResult, sendTime);
+        }
+
+        public void DispatchChannelAvailabilityChecked(IDispatchChannel<TKey> channel, DispatcherAvailability availability)
+        {
+            Console.WriteLine(MonitorMessages.ChannelAvailabilityChecked,
+               DateTime.Now.ToLongTimeString(), channel.DeliveryType, availability);
         }
     }
 }

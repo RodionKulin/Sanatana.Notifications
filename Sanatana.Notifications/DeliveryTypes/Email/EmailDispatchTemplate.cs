@@ -54,5 +54,12 @@ namespace Sanatana.Notifications.DeliveryTypes.Email
             SetBaseProperties(dispatch, settings, signalEvent, subscriber);
             return dispatch;
         }
+
+        public override void Update(SignalDispatch<TKey> item, TemplateData templateData)
+        {
+            var emailDispatch = (EmailDispatch<TKey>)item;
+            emailDispatch.MessageSubject = FillTemplateProperty(SubjectProvider, SubjectTransformer, templateData);
+            emailDispatch.MessageBody = FillTemplateProperty(BodyProvider, BodyTransformer, templateData);
+        }
     }
 }

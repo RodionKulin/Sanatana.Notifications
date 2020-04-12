@@ -55,15 +55,15 @@ namespace Sanatana.Notifications.Processing
                 return;
             }
 
-            List<DispatchChannel<TKey>> dispatchChannels = _channelRegistry.GetAll();
-            foreach (DispatchChannel<TKey> dispatcher in dispatchChannels)
+            List<IDispatchChannel<TKey>> dispatchChannels = _channelRegistry.GetAll();
+            foreach (IDispatchChannel<TKey> dispatcher in dispatchChannels)
             {
                 dispatcher.SetLimitsCapacity();
             }
 
             DequeueAll();
 
-            foreach (DispatchChannel<TKey> dispatcher in dispatchChannels)
+            foreach (IDispatchChannel<TKey> dispatcher in dispatchChannels)
             {
                 dispatcher.SetRestrictionsDuration();
             }
@@ -112,7 +112,7 @@ namespace Sanatana.Notifications.Processing
         {
             foreach (IDispatchProcessingCommand<TKey> command in _processingCommands)
             {
-                bool completed = command.Execute(item).Result;
+                bool completed = command.Execute(item);
                 if (!completed)
                 {
                     break;

@@ -47,5 +47,12 @@ namespace Sanatana.Notifications.DeliveryTypes.StoredNotification
             SetBaseProperties(dispatch, settings, signalEvent, subscriber);
             return dispatch;
         }
+
+        public override void Update(SignalDispatch<TKey> item, TemplateData templateData)
+        {
+            var dispatch = (StoredNotificationDispatch<TKey>)item;
+            dispatch.MessageSubject = FillTemplateProperty(SubjectProvider, SubjectTransformer, templateData);
+            dispatch.MessageBody = FillTemplateProperty(BodyProvider, BodyTransformer, templateData);
+        }
     }
 }

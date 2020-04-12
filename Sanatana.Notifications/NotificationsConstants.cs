@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications
 {
-    internal static class NotificationsConstants
+    public static class NotificationsConstants
     {
         //RegularJobs
         public static readonly TimeSpan REGULAR_JOB_TICK_INTERVAL = TimeSpan.FromMilliseconds(100);

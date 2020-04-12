@@ -15,16 +15,15 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
         where TKey : struct
     {
         //fields
-        protected List<DispatchChannel<TKey>> _channels;
+        protected List<IDispatchChannel<TKey>> _channels;
         protected ILogger _logger;
 
 
         //init
-        public DispatchChannelRegistry(ILogger logger, IEnumerable<DispatchChannel<TKey>> channels)
+        public DispatchChannelRegistry(ILogger logger, IEnumerable<IDispatchChannel<TKey>> channels)
         {
             _logger = logger;
-            channels = channels ?? new List<DispatchChannel<TKey>>();
-            _channels = channels.ToList();
+            _channels = channels?.ToList() ?? new List<IDispatchChannel<TKey>>();
         }
 
 
@@ -36,7 +35,7 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
         /// <returns></returns>
         public virtual List<int> GetActiveDeliveryTypes(bool checkLimitCapacity)
         {
-            IEnumerable<DispatchChannel<TKey>> activeChannels = _channels
+            IEnumerable<IDispatchChannel<TKey>> activeChannels = _channels
                 .Where(p => p.IsActive);
 
             if (checkLimitCapacity)
@@ -55,27 +54,32 @@ namespace Sanatana.Notifications.DispatchHandling.Channels
         /// </summary>
         /// <param name="signal"></param>
         /// <returns></returns>
-        public virtual DispatchChannel<TKey> Match(SignalDispatch<TKey> signal)
+        public virtual IDispatchChannel<TKey> Match(SignalDispatch<TKey> signal)
         {
-            DispatchChannel<TKey> dispatchChannel = _channels.FirstOrDefault(
-                    p => p.IsActive
-                    && p.AvailableLimitCapacity > 0
-                    && p.DeliveryType == signal.DeliveryType);
+            IDispatchChannel<TKey> channel = _channels.FirstOrDefault(
+                p => p.DeliveryType == signal.DeliveryType);
 
-            if (dispatchChannel == null)
+            if (channel == null)
             {
-                _logger.LogError(SenderInternalMessages.DispatchChannelManager_NotFound,
-                    typeof(DispatchChannel<TKey>), nameof(DispatchChannel<TKey>.DeliveryType), signal.DeliveryType);
+                _logger.LogError(SenderInternalMessages.Common_NoServiceWithKeyFound,
+                    typeof(IDispatchChannel<TKey>), nameof(IDispatchChannel<TKey>.DeliveryType), signal.DeliveryType);
             }
 
-            return dispatchChannel;
+            if (!channel.IsActive || channel.AvailableLimitCapacity == 0)
+            {
+                _logger.LogError(SenderInternalMessages.DispatchChannelRegistry_InactiveChannelRequested,
+                    signal.DeliveryType, channel.AvailableLimitCapacity);
+                return null;
+            }
+
+            return channel;
         }
 
         /// <summary>
         /// Get all DispatchChannels
         /// </summary>
         /// <returns></returns>
-        public virtual List<DispatchChannel<TKey>> GetAll()
+        public virtual List<IDispatchChannel<TKey>> GetAll()
         {
             return _channels;
         }

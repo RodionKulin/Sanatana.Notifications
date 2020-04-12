@@ -50,5 +50,11 @@ namespace Sanatana.Notifications.DeliveryTypes.Slack
             SetBaseProperties(dispatch, settings, signalEvent, subscriber);
             return dispatch;
         }
+
+        public override void Update(SignalDispatch<TKey> item, TemplateData templateData)
+        {
+            var dispatch = (SlackDispatch<TKey>)item;
+            dispatch.Text = FillTemplateProperty(TextProvider, TextTransformer, templateData);
+        }
     }
 }

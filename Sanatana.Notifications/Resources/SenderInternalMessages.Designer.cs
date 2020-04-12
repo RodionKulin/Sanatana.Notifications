@@ -61,11 +61,38 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not deserialize {0} property json [{1}] in {2} Id {3}..
+        /// </summary>
+        public static string Common_DeserializeError {
+            get {
+                return ResourceManager.GetString("Common_DeserializeError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing {0} property on {1}.
         /// </summary>
         public static string Common_MissingPropertyValue {
             get {
                 return ResourceManager.GetString("Common_MissingPropertyValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More than one {0} registered with {1} of \&quot;{2}\&quot;..
+        /// </summary>
+        public static string Common_MoreThanOneServiceWithKeyFound {
+            get {
+                return ResourceManager.GetString("Common_MoreThanOneServiceWithKeyFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No {0} registered with {1} of \&quot;{2}\&quot;..
+        /// </summary>
+        public static string Common_NoServiceWithKeyFound {
+            get {
+                return ResourceManager.GetString("Common_NoServiceWithKeyFound", resourceCulture);
             }
         }
         
@@ -88,20 +115,11 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to More than one {0} registered with {1} of \&quot;{2}\&quot;..
+        ///   Looks up a localized string similar to Consolidation only works with Dispatches that have {0} set. Dispatch with Id {1} skipped consolidation..
         /// </summary>
-        public static string CompositionHandlerFactory_MoreThanOneFound {
+        public static string ConsolidationDispatchCommand_MissingArguments {
             get {
-                return ResourceManager.GetString("CompositionHandlerFactory_MoreThanOneFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No {0} registered with {1} of \&quot;{2}\&quot;..
-        /// </summary>
-        public static string CompositionHandlerFactory_NotFound {
-            get {
-                return ResourceManager.GetString("CompositionHandlerFactory_NotFound", resourceCulture);
+                return ResourceManager.GetString("ConsolidationDispatchCommand_MissingArguments", resourceCulture);
             }
         }
         
@@ -133,15 +151,6 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not deserialize {0} property json {1} in {2} Id {3}..
-        /// </summary>
-        public static string DispatchBuilder_DeserializeError {
-            get {
-                return ResourceManager.GetString("DispatchBuilder_DeserializeError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No template delivery type matched subscriber delivery type(s) {0}..
         /// </summary>
         public static string DispatchBuilder_NoTemplateMatched {
@@ -151,11 +160,11 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No {0} registered with {1} of \&quot;{2}\&quot;..
+        ///   Looks up a localized string similar to DispatchChannel {0} was requested, but is not active with limit {1}..
         /// </summary>
-        public static string DispatchChannelManager_NotFound {
+        public static string DispatchChannelRegistry_InactiveChannelRequested {
             get {
-                return ResourceManager.GetString("DispatchChannelManager_NotFound", resourceCulture);
+                return ResourceManager.GetString("DispatchChannelRegistry_InactiveChannelRequested", resourceCulture);
             }
         }
         
@@ -174,6 +183,15 @@ namespace Sanatana.Notifications.Resources {
         public static string DispatchQueue_HandlerNotFound {
             get {
                 return ResourceManager.GetString("DispatchQueue_HandlerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max number of failed attempts {0} reached on {1} with Id {2}.
+        /// </summary>
+        public static string DispatchQueue_MaxAttemptsReached {
+            get {
+                return ResourceManager.GetString("DispatchQueue_MaxAttemptsReached", resourceCulture);
             }
         }
         

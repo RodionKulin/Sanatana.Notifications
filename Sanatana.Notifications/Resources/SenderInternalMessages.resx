@@ -117,8 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Common_DeserializeError" xml:space="preserve">
+    <value>Could not deserialize {0} property json [{1}] in {2} Id {3}.</value>
+  </data>
   <data name="Common_MissingPropertyValue" xml:space="preserve">
     <value>Missing {0} property on {1}</value>
+  </data>
+  <data name="Common_MoreThanOneServiceWithKeyFound" xml:space="preserve">
+    <value>More than one {0} registered with {1} of \"{2}\".</value>
+  </data>
+  <data name="Common_NoServiceWithKeyFound" xml:space="preserve">
+    <value>No {0} registered with {1} of \"{2}\".</value>
   </data>
   <data name="Common_ParameterMissing" xml:space="preserve">
     <value>{0} parameter was not provided.</value>
@@ -126,11 +135,8 @@
   <data name="Common_TransformerDataMissing" xml:space="preserve">
     <value>{0} only supports dictionary data and dictionary was not provided for template [{1}].</value>
   </data>
-  <data name="CompositionHandlerFactory_MoreThanOneFound" xml:space="preserve">
-    <value>More than one {0} registered with {1} of \"{2}\".</value>
-  </data>
-  <data name="CompositionHandlerFactory_NotFound" xml:space="preserve">
-    <value>No {0} registered with {1} of \"{2}\".</value>
+  <data name="ConsolidationDispatchCommand_MissingArguments" xml:space="preserve">
+    <value>Consolidation only works with Dispatches that have {0} set. Dispatch with Id {1} skipped consolidation.</value>
   </data>
   <data name="DatabaseDispatchProvider_DatabaseError" xml:space="preserve">
     <value>Database exceptioption when selecting SignalDispatches.</value>
@@ -141,20 +147,20 @@
   <data name="DispatchBuilder_CultureNotFound" xml:space="preserve">
     <value>Could not create CultureInfo from language [{0}] for Subscriber Id=[{1}]</value>
   </data>
-  <data name="DispatchBuilder_DeserializeError" xml:space="preserve">
-    <value>Could not deserialize {0} property json {1} in {2} Id {3}.</value>
-  </data>
   <data name="DispatchBuilder_NoTemplateMatched" xml:space="preserve">
     <value>No template delivery type matched subscriber delivery type(s) {0}.</value>
   </data>
-  <data name="DispatchChannelManager_NotFound" xml:space="preserve">
-    <value>No {0} registered with {1} of \"{2}\".</value>
+  <data name="DispatchChannelRegistry_InactiveChannelRequested" xml:space="preserve">
+    <value>DispatchChannel {0} was requested, but is not active with limit {1}.</value>
   </data>
   <data name="Dispatcher_WrongInputType" xml:space="preserve">
     <value>Signal type {0} can not be sended with {1}. Expected type {2}.</value>
   </data>
   <data name="DispatchQueue_HandlerNotFound" xml:space="preserve">
     <value>No handler found for SignalDispatch with deliveryType [{0}]. SignalDispatch will be deleted.</value>
+  </data>
+  <data name="DispatchQueue_MaxAttemptsReached" xml:space="preserve">
+    <value>Max number of failed attempts {0} reached on {1} with Id {2}</value>
   </data>
   <data name="EventQueue_HandlerNotFound" xml:space="preserve">
     <value>No handler found for SignalEvent with EventKey [{0}]. SignalEvent will be deleted.</value>

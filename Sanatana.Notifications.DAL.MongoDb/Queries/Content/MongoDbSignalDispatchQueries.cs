@@ -47,7 +47,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
 
         //Select
-        public virtual async Task<List<SignalDispatch<ObjectId>>> Select(
+        public virtual Task<List<SignalDispatch<ObjectId>>> Select(
             int count, List<int> deliveryTypes, int maxFailedAttempts)
         {
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
@@ -60,49 +60,58 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 AllowPartialResults = true
             };
 
-            List<SignalDispatch<ObjectId>> list = await _collectionFactory
+            return _collectionFactory
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .Find(filter, options)
                 .SortBy(p => p.SendDateUtc)
                 .Limit(count)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return list;
+                .ToListAsync();
         }
-        
-        public virtual async Task<List<SignalDispatch<ObjectId>>> SelectCreatedBefore(
-            int pageSize, List<ObjectId> subscriberIds, List<(int deliveryType, int category)> categories, 
+
+        public virtual Task<List<SignalDispatch<ObjectId>>> SelectConsolidated(
+            int pageSize, List<ObjectId> subscriberIds, List<(int deliveryType, int category)> categories,
             DateTime createdBefore, DateTime? createdAfter = null)
         {
             if (categories.Count == 0)
             {
-                return new List<SignalDispatch<ObjectId>>();
+                return Task.FromResult(new List<SignalDispatch<ObjectId>>());
             }
 
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
                 p => p.ReceiverSubscriberId != null
                 && subscriberIds.Contains(p.ReceiverSubscriberId.Value)
-                && p.IsScheduled == true);
+                && p.CreateDateUtc <= createdBefore);
+
+            if(createdAfter != null)
+            {
+                filter &= Builders<SignalDispatch<ObjectId>>.Filter
+                    .Where(x => createdAfter.Value < x.CreateDateUtc);
+            }
 
             var categoryFilter = Builders<SignalDispatch<ObjectId>>.Filter.Where(p => false);
-            foreach ((int deliveryType, int category) deliveryTypeCategory in categories)
+            foreach ((int deliveryType, int category) pair in categories)
             {
                 categoryFilter = Builders<SignalDispatch<ObjectId>>.Filter.Or(categoryFilter, Builders<SignalDispatch<ObjectId>>.Filter.Where(
-                    p => p.DeliveryType == deliveryTypeCategory.deliveryType
-                    && p.CategoryId == deliveryTypeCategory.category));
+                    p => p.DeliveryType == pair.deliveryType
+                    && p.CategoryId == pair.category));
             }
-            filter = Builders<SignalDispatch<ObjectId>>.Filter.And(filter, categoryFilter);
+            filter &= categoryFilter;
 
-            List<SignalDispatch<ObjectId>> list = await _collectionFactory
+            var projection = Builders<SignalDispatch<ObjectId>>.Projection
+                .Include(x => x.SignalDispatchId)
+                .Include(x => x.CreateDateUtc)
+                .Include(x => x.TemplateData);
+
+            return _collectionFactory
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .Find(filter)
                 .SortBy(x => x.CreateDateUtc)
                 .Limit(pageSize)
-                .ToListAsync()
-                .ConfigureAwait(false);
-            return list;
+                .Project(projection)
+                .As<SignalDispatch<ObjectId>>()
+                .ToListAsync();
         }
+
 
         //Update
         public virtual async Task UpdateSendResults(List<SignalDispatch<ObjectId>> items)
@@ -151,7 +160,42 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .ConfigureAwait(false);
         }
 
-        
+        public virtual async Task DeleteConsolidated(List<SignalDispatch<ObjectId>> items)
+        {
+            if(items.Count == 0)
+            {
+                return;
+            }
+
+            var operations = new List<WriteModel<SignalDispatch<ObjectId>>>();
+            foreach (SignalDispatch<ObjectId> item in items)
+            {
+                if(item.ReceiverSubscriberId == null)
+                {
+                    continue;
+                }
+
+                var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                    p => p.ReceiverSubscriberId == item.ReceiverSubscriberId
+                    && p.CategoryId == item.CategoryId
+                    && p.DeliveryType == item.DeliveryType
+                    && p.CreateDateUtc <= item.SendDateUtc
+                    && p.SignalDispatchId != item.SignalDispatchId);
+                operations.Add(new DeleteManyModel<SignalDispatch<ObjectId>>(filter));
+            }
+
+            var options = new BulkWriteOptions()
+            {
+                IsOrdered = false
+            };
+
+            BulkWriteResult response = await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
+                .BulkWriteAsync(operations, options)
+                .ConfigureAwait(false);
+        }
+
+
         //IDisposable
         public virtual void Dispose()
         {

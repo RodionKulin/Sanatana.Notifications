@@ -35,8 +35,8 @@ namespace Sanatana.Notifications.Flushing.Queues
             _queries = queries;
 
             _flushQueues[FlushAction.Insert] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.Insert, signals));
-            _flushQueues[FlushAction.Delete] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.Delete, signals));
             _flushQueues[FlushAction.Update] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.Update, signals));
+            _flushQueues[FlushAction.DeleteOne] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.DeleteOne, signals));
         }
 
 
@@ -60,9 +60,9 @@ namespace Sanatana.Notifications.Flushing.Queues
             return flushedItems;
         }
 
-        protected virtual Task MakeQuery(FlushAction action, List<SignalWrapper<TSignal>> wrappedSignals)
+        protected virtual Task MakeQuery(FlushAction action, List<SignalWrapper<TSignal>> items)
         {
-            List<TSignal> signals = wrappedSignals.Select(x => x.Signal).ToList();
+            List<TSignal> signals = items.Select(x => x.Signal).ToList();
 
             if (action == FlushAction.Insert)
             {
@@ -72,7 +72,7 @@ namespace Sanatana.Notifications.Flushing.Queues
             {
                 return _queries.UpdateSendResults(signals);
             }
-            if (action == FlushAction.Delete)
+            if (action == FlushAction.DeleteOne)
             {
                 return _queries.Delete(signals);
             }
@@ -92,7 +92,7 @@ namespace Sanatana.Notifications.Flushing.Queues
 
             if (item.IsPermanentlyStored)
             {
-                _flushQueues[FlushAction.Delete].Queue.Add(item);
+                _flushQueues[FlushAction.DeleteOne].Queue.Add(item);
             }
         }
 
@@ -100,12 +100,14 @@ namespace Sanatana.Notifications.Flushing.Queues
         {
             if (item.IsPermanentlyStored == false)
             {
-                //Temp storage item will be deleted after flushing to permanent storage
+                //Temp storage item will be deleted after flushing to permanent storage.
                 _flushQueues[FlushAction.Insert].Queue.Add(item);
             }
             
             if (item.IsPermanentlyStored == true && item.IsUpdated)
             {
+                //Temp storage item will be deleted after flushing to permanent storage.
+                //Until then, preserve changes made to TempStorage.
                 if (IsTemporaryStorageEnabled && item.TempStorageId != null)
                 {
                     _temporaryStorage.Update(_temporaryStorageParameters, item.TempStorageId.Value, item.Signal);
