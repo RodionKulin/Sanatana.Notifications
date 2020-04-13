@@ -61,9 +61,10 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
                 return false;
             }
 
-            bool shouldConsolidate = Validate(item.Signal, eventSettings);
+            bool shouldConsolidate = ValidateRequiredProperties(item.Signal, eventSettings);
             if (!shouldConsolidate)
             {
+                //Continue processing dispatch without consolidation
                 return true;
             }
 
@@ -93,7 +94,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
             return true;
         }
 
-        protected virtual bool Validate(SignalDispatch<TKey> signal, EventSettings<TKey> eventSettings)
+        protected virtual bool ValidateRequiredProperties(SignalDispatch<TKey> signal, EventSettings<TKey> eventSettings)
         {
             if (eventSettings.ConsolidatorId == null)
             {
