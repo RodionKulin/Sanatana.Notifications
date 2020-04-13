@@ -105,6 +105,9 @@ namespace Sanatana.Notifications.Sender
 
 
         //SubscribersFetcher
+        /// <summary>
+        /// Number of subscribers selected in a single batch
+        /// </summary>
         public int SubscribersFetcherItemsQueryLimit { get; set; } = NotificationsConstants.SUBSCRIBERS_FETCHER_ITEMS_QUERY_LIMIT;
 
 

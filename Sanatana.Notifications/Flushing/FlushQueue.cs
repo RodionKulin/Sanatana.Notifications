@@ -30,12 +30,12 @@ namespace Sanatana.Notifications.Flushing
         //methods
         public virtual Task Flush()
         {
-            List<T> list = Queue.Select(p => p).ToList();
-            if (list.Count == 0)
+            if (Queue.Count == 0)
             {
                 return Task.CompletedTask;
             }
 
+            List<T> list = Queue.ToList();
             ItemsTaken = list.Count;
             return _flushQuery(list);
         }

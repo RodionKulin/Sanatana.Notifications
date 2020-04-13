@@ -19,7 +19,7 @@ namespace Sanatana.Notifications.Sender
     {
         //fields
         protected SenderState<TKey> _hubState;
-        protected IEnumerable<IRegularJob> _regularJobs;
+        protected List<IRegularJob> _regularJobs;
         protected IEventQueue<TKey> _eventQueue;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected List<ISignalProviderControl> _signalEndpoints;
@@ -40,17 +40,17 @@ namespace Sanatana.Notifications.Sender
 
 
         //init
-        public Sender(SenderState<TKey> hubState
-            , IEventQueue<TKey> eventQueue, IDispatchQueue<TKey> dispatchQueue
-            , IEnumerable<IRegularJob> regularJobs, IEnumerable<ISignalProviderControl> signalEndpoints)
+        public Sender(SenderState<TKey> hubState, IEventQueue<TKey> eventQueue,
+            IDispatchQueue<TKey> dispatchQueue, IEnumerable<IRegularJob> regularJobs, 
+            IEnumerable<ISignalProviderControl> signalEndpoints)
         {
             _hubState = hubState;
-            _regularJobs = regularJobs;
+            _regularJobs = regularJobs.ToList();
             _eventQueue = eventQueue;
             _dispatchQueue = dispatchQueue;
             _signalEndpoints = signalEndpoints.ToList();
 
-            _regularJobTimers = _regularJobs.Select(x => new NonReentrantTimer((Action)x.Tick
+            _regularJobTimers = _regularJobs.Select(x => new NonReentrantTimer(x.Tick
                 , NotificationsConstants.REGULAR_JOB_TICK_INTERVAL, intervalFromCallbackStarted: false))
                 .ToList();
             _stopMonitorTimer = new NonReentrantTimer(StopTimers
@@ -110,6 +110,7 @@ namespace Sanatana.Notifications.Sender
                 } 
             }
 
+            _hubState.State = SwitchState.Stopped;
         }
 
         protected virtual bool StopTimers()
@@ -120,18 +121,11 @@ namespace Sanatana.Notifications.Sender
                 return true;
             }
 
-            foreach (ISignalProviderControl endpoint in _signalEndpoints)
-            {
-                endpoint.Stop(_stopTimeout);
-            }
-            foreach (IRegularJob regularJob in _regularJobs)
-            {
-                regularJob.Flush();
-            }
+            _signalEndpoints.ForEach(x => x.Stop(_stopTimeout));
+            _regularJobs.ForEach(x => x.Flush());   //from IDispatchQueue into ISignalFlushJob
+            _regularJobs.ForEach(x => x.Flush());   //from ISignalFlushJob into database
 
-            _hubState.State = SwitchState.Stopped;
             _stopEventHandle.Set();
-
             return false;
         }
 
