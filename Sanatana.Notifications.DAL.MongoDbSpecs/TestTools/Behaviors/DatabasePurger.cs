@@ -2,6 +2,7 @@
 using Sanatana.Notifications.DAL.MongoDb;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
+using SpecsFor.Core;
 using SpecsFor.Core.Configuration;
 using StructureMap.AutoMocking;
 using System;
@@ -14,14 +15,14 @@ using System.Threading.Tasks;
 
 namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
 {
-    public class DatabasePurger : Behavior<INeedDbContext>
+    public class DatabasePurger : Behavior<ISpecs>
     {
         //fields
         private bool _isInitialized;
 
 
         //methods
-        public override void SpecInit(INeedDbContext instance)
+        public override void SpecInit(ISpecs instance)
         {
             if (_isInitialized)
             {
@@ -34,6 +35,9 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
             db.DropCollection(dbContext.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName);
             db.DropCollection(dbContext.SubscriberCategorySettings.CollectionNamespace.CollectionName);
             db.DropCollection(dbContext.SubscriberTopicSettings.CollectionNamespace.CollectionName);
+
+            db.DropCollection(dbContext.SignalDispatches.CollectionNamespace.CollectionName);
+            db.DropCollection(dbContext.SignalEvents.CollectionNamespace.CollectionName);
         }
     }
 }

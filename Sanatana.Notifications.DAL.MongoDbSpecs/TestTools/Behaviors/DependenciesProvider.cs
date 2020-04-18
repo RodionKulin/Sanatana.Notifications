@@ -11,15 +11,16 @@ using Sanatana.MongoDb;
 using Sanatana.Notifications.DAL.MongoDb;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
 using Sanatana.Notifications.DAL.MongoDb.Context;
+using SpecsFor.Core;
 
 namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
 {
-    public class DependenciesProvider : Behavior<INeedDbContext>
+    public class DependenciesProvider : Behavior<ISpecs>
     {
         private bool _serializerConfigured;
 
         //methods
-        public override void SpecInit(INeedDbContext instance)
+        public override void SpecInit(ISpecs instance)
         {
             if (!_serializerConfigured)
             {
@@ -41,8 +42,6 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
                 cfg.For<SpecsDbContext>().Use<SpecsDbContext>();
                 cfg.For<ICollectionFactory>().Use<SpecsDbContext>();
             });
-
-            instance.DbContext = instance.Mocker.GetServiceInstance<SpecsDbContext>();
         }
     }
 }

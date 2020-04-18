@@ -3,6 +3,7 @@ using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DispatchHandling.Channels;
+using Sanatana.Notifications.Locking;
 using Sanatana.Notifications.Monitoring;
 using Sanatana.Notifications.Queues;
 using Sanatana.Notifications.Resources;
@@ -24,12 +25,15 @@ namespace Sanatana.Notifications.SignalProviders
         protected List<int> _lastQueryKeys;
         protected DateTime _lastQueryTimeUtc;
         protected bool _isLastQueryMaxItemsReceived;
+        protected bool _isAllInitiallyLockedSelected;
         protected IMonitor<TKey> _monitor;
         protected ILogger _logger;
         protected IDispatchQueue<TKey> _dispatchQueue;
         protected IChangeNotifier<SignalDispatch<TKey>> _changeNotifier;
         protected IDispatchChannelRegistry<TKey> _dispatcherRegistry;
         protected ISignalDispatchQueries<TKey> _dispatchQueries;
+        protected ILockTracker<TKey> _lockTracker;
+        protected SenderSettings _senderSettings;
 
 
         //properties  
@@ -51,24 +55,28 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //init
-        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink, SenderSettings senderSettings
-            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries, ILogger logger)
+        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink, SenderSettings senderSettings,
+            IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries, ILogger logger,
+            ILockTracker<TKey> lockTracker)
         {
             _dispatchQueue = dispatchQueue;
             _monitor = eventSink;
             _dispatcherRegistry = dispatcherRegistry;
             _dispatchQueries = dispatchQueries;
             _logger = logger;
+            _lockTracker = lockTracker;
+            _senderSettings = senderSettings;
 
             QueryPeriod = senderSettings.DatabaseSignalProviderQueryPeriod;
             ItemsQueryCount = senderSettings.DatabaseSignalProviderItemsQueryCount;
             MaxFailedAttempts = senderSettings.DatabaseSignalProviderItemsMaxFailedAttempts;
         }
 
-        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings
-            , IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries
-            , ILogger logger, IChangeNotifier<SignalDispatch<TKey>> changeNotifier)
-            : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries, logger)
+        public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings,
+            IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries,
+            ILogger logger, IChangeNotifier<SignalDispatch<TKey>> changeNotifier,
+            ILockTracker<TKey> lockTracker)
+            : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries, logger, lockTracker)
         {
             _changeNotifier = changeNotifier;
         }
@@ -112,36 +120,69 @@ namespace Sanatana.Notifications.SignalProviders
 
         protected virtual void QueryStorage(List<int> activeDeliveryTypes)
         {
+            //update query state
             _lastQueryTimeUtc = DateTime.UtcNow;
             _lastQueryKeys = activeDeliveryTypes;
             _isLastQueryMaxItemsReceived = false;
 
+            //query items
             Stopwatch storageQueryTimer = Stopwatch.StartNew();
+            DateTime lockStartUtc = DateTime.UtcNow;
 
             List<SignalDispatch<TKey>> items = null;
             try
             {
-                items = _dispatchQueries
-                    .Select(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts)
-                    .Result;
+                items = PickStorageQuery(activeDeliveryTypes);
             }
             catch (Exception ex)
             {
                 items = new List<SignalDispatch<TKey>>();
                 _logger.LogError(ex, SenderInternalMessages.DatabaseDispatchProvider_DatabaseError);
             }
+            storageQueryTimer.Stop();
 
-            _monitor.DispatchPersistentStorageQueried(storageQueryTimer.Elapsed, items);
-            
+            //enqueue items for processing
+            _dispatchQueue.Append(items, true);
+
+            //turn on database event tracking
             _isLastQueryMaxItemsReceived = items.Count == ItemsQueryCount;
             if (_changeNotifier != null && _isLastQueryMaxItemsReceived == false)
             {
                 _changeNotifier.StartMonitor();
             }
 
-            _dispatchQueue.Append(items, true);
+            //store metrics
+            _monitor.DispatchPersistentStorageQueried(storageQueryTimer.Elapsed, items);
+
+            //remember processed items, not to query them again while processing
+            _lockTracker.RememberLock(items.Select(x => x.SignalDispatchId), lockStartUtc);
         }
 
+        protected virtual List<SignalDispatch<TKey>> PickStorageQuery(List<int> activeDeliveryTypes)
+        {
+            TKey[] processedIds = _lockTracker.GetLockedIds();
+            DateTime lockExpirationDate = _lockTracker.GetLockExpirationDate();
 
+            if(_isAllInitiallyLockedSelected == false)
+            {
+                //if instance was terminated and did not release lock, then process already locked items first.
+                List<SignalDispatch<TKey>> lockedItems = _dispatchQueries.SelectLocked(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts,
+                    processedIds, _senderSettings.DatabaseSignalLockId.Value, lockExpirationDate)
+                    .Result;
+                _isAllInitiallyLockedSelected = lockedItems.Count < ItemsQueryCount;
+                return lockedItems;
+            }
+
+            bool isLockingEnabled = _lockTracker.IsLockingEnabled();
+            if (isLockingEnabled)
+            {
+                return _dispatchQueries.SelectWithSetLock(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts,
+                    processedIds, _senderSettings.DatabaseSignalLockId.Value, lockExpirationDate)
+                    .Result;
+            }
+
+            //select without locking in database
+            return _dispatchQueries.Select(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts, processedIds).Result;
+        }
     }
 }

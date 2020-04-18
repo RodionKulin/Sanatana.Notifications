@@ -479,7 +479,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                 merge.Insert
                     .ExcludeProperty(t => t.SubscriberCategorySettingsId)
                     .IncludeValue(t => t.IsEnabled, true)
-                    .IncludeValue(t => t.GroupId, null)
                     .IncludeValue(t => t.LastSendDateUtc, DateTime.UtcNow);
             }
 

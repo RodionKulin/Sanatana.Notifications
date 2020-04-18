@@ -135,7 +135,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 
                     merge.Source
                         .IncludeProperty(p => p.SubscriberId)
-                        .IncludeProperty(p => p.GroupId)
                         .IncludeProperty(p => p.DeliveryType)
                         .IncludeProperty(p => p.CategoryId)
                         .IncludeProperty(p => p.LastSendDateUtc)
@@ -149,7 +148,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                         .IncludeProperty(p => p.IsEnabled);
                     merge.Insert
                         .IncludeProperty(p => p.SubscriberId)
-                        .IncludeProperty(p => p.GroupId)
                         .IncludeProperty(p => p.DeliveryType)
                         .IncludeProperty(p => p.CategoryId)
                         .IncludeProperty(p => p.LastSendDateUtc)

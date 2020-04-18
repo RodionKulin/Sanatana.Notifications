@@ -8,6 +8,6 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces
 {
     public interface INeedSubscriptionsData : ISpecs
     {
-        public InMemoryStorage GeneratedEntities { get; set; }
+        public InMemoryStorage SubscribersGenerated { get; set; }
     }
 }

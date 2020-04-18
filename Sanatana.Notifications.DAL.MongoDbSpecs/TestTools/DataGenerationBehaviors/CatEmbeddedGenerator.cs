@@ -1,118 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
 using SpecsFor.Core.Configuration;
-using StructureMap.AutoMocking;
-using Sanatana.MongoDb;
-using Sanatana.Notifications.DAL.MongoDb;
 using Sanatana.Notifications.DAL.Entities;
 using MongoDB.Bson;
-using Sanatana.DataGenerator;
-using Sanatana.DataGenerator.MongoDb;
-using MongoDB.Driver;
-using Sanatana.DataGenerator.Generators;
 using Sanatana.DataGenerator.Storages;
-using System.Diagnostics;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
-using Sanatana.DataGenerator.Entities;
-using Sanatana.DataGenerator.Internals;
+using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGeneration;
 
 namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehaviors
 {
-    public class CatEmbeddedGenerator : CatCollectionGenerator
+    public class CatEmbeddedGenerator : Behavior<INeedSubscriptionsData>
     {
-        //register entities
-        protected override void RegisterEntities(INeedSubscriptionsData instance, GeneratorSetup setup)
+        //fields
+        protected bool _isInitialized;
+        protected InMemoryStorage _storage;
+
+
+        //methods
+        public override void SpecInit(INeedSubscriptionsData instance)
         {
-            var dbContext = instance.Mocker.GetServiceInstance<SpecsDbContext>();
-            IMongoDatabase db = dbContext.SignalBounces.Database;
-            
-            setup.RegisterEntity<SubscriberWithMissingData>()
-                .SetGenerator(GenerateSubscriber)
-                .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
-
-            setup.RegisterEntity<SpecsDeliveryTypeSettings>()
-                .SetMultiGenerator<SubscriberWithMissingData>(GenerateDeliveryTypes)
-                .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberDeliveryTypeSettings.CollectionNamespace.CollectionName))
-                .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
-
-            setup.RegisterEntity<SubscriberTopicSettings<ObjectId>>()
-                .SetMultiGenerator<SpecsDeliveryTypeSettings, SubscriberWithMissingData>(GenerateTopicsForDeliveryTypeSettings)
-                .SetPersistentStorage(new MongoDbPersistentStorage(db, dbContext.SubscriberTopicSettings.CollectionNamespace.CollectionName))
-                .SetLimitedCapacityFlushTrigger(_flushAfterNumberOfEntities);
-        }
-
-        protected override void SetDataAmounts(GeneratorSetup setup)
-        {
-            setup.GetEntityDescription<SubscriberWithMissingData>()
-                .SetTargetCount(1000);
-            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
-                .SetTargetCount(2000);
-            setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
-                .SetTargetCount(8000);
-        }
-
-        protected override void SetMemoryStorage(INeedSubscriptionsData instance, GeneratorSetup setup)
-        {
-            _storage = new InMemoryStorage();
-            instance.GeneratedEntities = _storage;
-
-            setup.GetEntityDescription<SubscriberWithMissingData>()
-                .SetPersistentStorage(instance.GeneratedEntities);
-            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
-                .SetPersistentStorage(instance.GeneratedEntities);
-            setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
-                .SetPersistentStorage(instance.GeneratedEntities);
-        }
-
-
-        //generators
-        protected override List<SpecsDeliveryTypeSettings> GenerateDeliveryTypes(
-            GeneratorContext genContext, SubscriberWithMissingData subscriber)
-        {
-            List<SpecsDeliveryTypeSettings> deliveryTypes = base.GenerateDeliveryTypes(genContext, subscriber);
-
-            deliveryTypes.ForEach(dt =>
+            if (!_isInitialized)
             {
-                dt.SubscriberCategorySettings = GenerateCategories(genContext, dt, subscriber);
-            });
+                _storage = SetupGenerator(instance.Mocker.GetServiceInstance<SpecsDbContext>());
+                _isInitialized = true;
+            }
 
-            return deliveryTypes;
+            instance.SubscribersGenerated = _storage;
         }
 
-        protected virtual List<SubscriberTopicSettings<ObjectId>> GenerateTopicsForDeliveryTypeSettings(GeneratorContext genContext,
-            SpecsDeliveryTypeSettings dt, SubscriberWithMissingData subscriber)
+        private InMemoryStorage SetupGenerator(SpecsDbContext dbContext)
         {
-            string[] topics = new[]
+            var ammounts = new Dictionary<Type, long>
             {
-                "301a",
-                "302a"
+                [typeof(SubscriberWithMissingData)] = 1000,
+                [typeof(SpecsDeliveryTypeSettings)] = 2000,
+                [typeof(SubscriberCategorySettings<ObjectId>)] = 4000,
+                [typeof(SubscriberTopicSettings<ObjectId>)] = 8000
             };
-
-            var categoryTopics = dt.SubscriberCategorySettings.SelectMany(category =>
-                topics.Select((topic, i) => new SubscriberTopicSettings<ObjectId>
-                {
-                    SubscriberTopicSettingsId = ObjectId.GenerateNewId(),
-                    SubscriberId = dt.SubscriberId,
-                    DeliveryType = dt.DeliveryType,
-                    CategoryId = category.CategoryId,
-                    TopicId = topic,
-                    IsEnabled = subscriber.HasTopicsSettingsEnabled,
-                    AddDateUtc = DateTime.UtcNow,
-                    LastSendDateUtc = subscriber.HasTopicLastSendDate
-                        ? (DateTime?)DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(5))
-                        : null
-                })
-            ).ToList();
-
-            subscriber.Topics = subscriber.Topics ?? new List<SubscriberTopicSettings<ObjectId>>();
-            subscriber.Topics.AddRange(categoryTopics);
-
-            return categoryTopics;
+            return new GeneratorRunner().Generate(
+                 dbContext: dbContext,
+                 generatorData: new SubscribersEmbeddedData(),
+                 useMemoryStorage: true,
+                 ammounts: ammounts);
         }
     }
 }

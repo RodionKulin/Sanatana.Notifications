@@ -14,9 +14,10 @@ public class MongoDbTestConfig : SpecsForConfiguration
 {
     public MongoDbTestConfig()
     {
-        WhenTesting<INeedDbContext>().EnrichWith<DependenciesProvider>();
-        WhenTesting<INeedDbContext>().EnrichWith<DatabasePurger>();
-        //WhenTesting<INeedSubscriptionsData>().EnrichWith<CatCollectionLoadTestGenerator>();
+        WhenTestingAnything().EnrichWith<DependenciesProvider>();
+        WhenTestingAnything().EnrichWith<DatabasePurger>();
+        WhenTesting<INeedDbContext>().EnrichWith<DbContextProvider>();
+        WhenTesting<INeedDispatchesData>().EnrichWith<DispatchesCollectionGenerator>();
         WhenTesting<INeedSubscriptionsData>().EnrichWith<CatCollectionGenerator>();
         //WhenTestingAnything().EnrichWith<IndexesCreator>();
         WhenTestingAnything().EnrichWith<LogExecutionTimeBehavior>();

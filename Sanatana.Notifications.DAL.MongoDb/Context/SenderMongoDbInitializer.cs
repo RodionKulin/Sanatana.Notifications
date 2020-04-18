@@ -29,14 +29,15 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
 
 
         //methods
-        public virtual void CreateAllIndexes(bool useGroupId)
+        public virtual void CreateAllIndexes(TimeSpan? historyExpirationTime)
         {
             CreateSubscriberDeliveryTypeSettingsIndex();
-            CreateSubscriberCategorySettingsIndex(useGroupId);
+            CreateSubscriberCategorySettingsIndex();
             CreateSubscriberTopicSettingsIndex();
             CreateSubscriberReceivePeriodsIndex();
             CreateSignalEventIndex();
             CreateSignalDispatchIndex();
+            CreateSignalDispatchHistoryIndex(historyExpirationTime);
             CreateStoredNotificationIndex();
             CreateSignalBounceIndex();
             CreateEventSettingsIndex();
@@ -82,7 +83,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             string subscriberName = collection.Indexes.CreateOne(subscriberModel);
             string addressName = collection.Indexes.CreateOne(addressModel);
         }
-        public virtual void CreateSubscriberCategorySettingsIndex(bool useGroupId)
+        public virtual void CreateSubscriberCategorySettingsIndex()
         {
             IndexKeysDefinition<SubscriberCategorySettings<ObjectId>> subscriberIndex = Builders<SubscriberCategorySettings<ObjectId>>.IndexKeys
                 .Ascending(p => p.SubscriberId);
@@ -93,18 +94,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             };
             var subscriberModel = new CreateIndexModel<SubscriberCategorySettings<ObjectId>>(subscriberIndex, subscriberOptions);
 
-            IndexKeysDefinition<SubscriberCategorySettings<ObjectId>> categoryIndex = null;            
-            if(useGroupId)
-            {
-                categoryIndex = Builders<SubscriberCategorySettings<ObjectId>>.IndexKeys
-                    .Ascending(p => p.GroupId)
-                    .Ascending(p => p.CategoryId);
-            }
-            else
-            {
-                categoryIndex = Builders<SubscriberCategorySettings<ObjectId>>.IndexKeys
-                    .Ascending(p => p.CategoryId);
-            }
+            var categoryIndex = Builders<SubscriberCategorySettings<ObjectId>>.IndexKeys
+                .Ascending(p => p.CategoryId);
             CreateIndexOptions categoryOptions = new CreateIndexOptions()
             {
                 Name = "CategoryId",
@@ -115,7 +106,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             IMongoCollection<SubscriberCategorySettings<ObjectId>> collection = _context.SubscriberCategorySettings;
             string subscriberName = collection.Indexes.CreateOne(subscriberModel);
             string categoryName = collection.Indexes.CreateOne(categoryModel);
-
         }
         public virtual void CreateSubscriberTopicSettingsIndex()
         {
@@ -194,11 +184,51 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 Unique = false
             };
             var receiverModel = new CreateIndexModel<SignalDispatch<ObjectId>>(receiverIndex, receiverOptions);
+            
+            var lockIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
+               .Ascending(p => p.LockedBy)
+               .Ascending(p => p.LockedDateUtc);
+            var lockOptions = new CreateIndexOptions<SignalDispatch<ObjectId>>()
+            {
+                Name = "LockedBy + LockedDateUtc",
+                Unique = false,
+                PartialFilterExpression = Builders<SignalDispatch<ObjectId>>.Filter.Ne(i => i.LockedBy, null)
+            };
+            var lockModel = new CreateIndexModel<SignalDispatch<ObjectId>>(lockIndex, lockOptions);
 
-            IMongoCollection<SignalDispatch<ObjectId>> collection = _context.SignalDispatches;
+            IMongoCollection <SignalDispatch<ObjectId>> collection = _context.SignalDispatches;
             string sendDateName = collection.Indexes.CreateOne(sendDateModel);
             string receiverName = collection.Indexes.CreateOne(receiverModel);
+            string lockName = collection.Indexes.CreateOne(lockModel);
+        }
+        public virtual void CreateSignalDispatchHistoryIndex(TimeSpan? historyExpirationTime)
+        {
+            var receiverIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
+               .Ascending(p => p.ReceiverSubscriberId)
+               .Ascending(p => p.SendDateUtc);
+            CreateIndexOptions receiverOptions = new CreateIndexOptions()
+            {
+                Name = "ReceiverSubscriberId + SendDateUtc",
+                Unique = false
+            };
+            var receiverModel = new CreateIndexModel<SignalDispatch<ObjectId>>(receiverIndex, receiverOptions);
 
+            var ttlIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
+               .Ascending(p => p.CreateDateUtc);
+            CreateIndexOptions ttlOptions = new CreateIndexOptions()
+            {
+                Name = "CreateDateUtc TTL",
+                Unique = false,
+                ExpireAfter = historyExpirationTime
+            };
+            var ttlModel = new CreateIndexModel<SignalDispatch<ObjectId>>(ttlIndex, ttlOptions);
+
+            IMongoCollection<SignalDispatch<ObjectId>> collection = _context.SignalDispatchesHistory;
+            string receiverName = collection.Indexes.CreateOne(receiverModel);
+            if(historyExpirationTime != null)
+            {
+                string ttlName = collection.Indexes.CreateOne(ttlModel);
+            }
         }
         public virtual void CreateStoredNotificationIndex()
         {

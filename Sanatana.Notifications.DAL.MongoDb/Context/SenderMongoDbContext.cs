@@ -37,8 +37,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             ( typeof(EventSettings<ObjectId>), "EventSettings" ),
             ( typeof(DispatchTemplate<ObjectId>), "DispatchTemplates" ),
             ( typeof(SignalEvent<ObjectId>), "SignalEvents" ),
-            ( typeof(SignalDispatch<ObjectId>), "SignalDispatches" ),
-            ( typeof(SignalDispatch<ObjectId>), "SignalDispatchesHistory" ),
+            ( typeof(SignalDispatch<ObjectId>), CollectionNames.DISPATCHES ),
+            ( typeof(SignalDispatch<ObjectId>), CollectionNames.DISPATCHES_HISTORY ),
             ( typeof(StoredNotification<ObjectId>), "StoredNotifications" ),
             ( typeof(SignalBounce<ObjectId>), "SignalBounces" ),
             ( typeof(TDeliveryType), "SubscriberDeliveryTypeSettings" ),
@@ -74,7 +74,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
         {
             get
             {
-                return GetCollection<SignalDispatch<ObjectId>>();
+                return GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES);
+            }
+        }
+        public virtual IMongoCollection<SignalDispatch<ObjectId>> SignalDispatchesHistory
+        {
+            get
+            {
+                return GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES_HISTORY);
             }
         }
         public virtual IMongoCollection<StoredNotification<ObjectId>> StoredNotifications

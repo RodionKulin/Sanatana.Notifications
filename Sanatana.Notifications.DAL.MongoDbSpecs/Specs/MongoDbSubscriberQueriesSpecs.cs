@@ -28,11 +28,11 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void When()
             {
-                _subscribersToQuery = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                _subscribersToQuery = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress)
                     .Take(10)
                     .Select(x => x.SubscriberId)
@@ -81,11 +81,11 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void When()
             {
-                _subscribersWithEmptyAddressToQuery = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                _subscribersWithEmptyAddressToQuery = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => !x.HasAddress)
                     .Take(5)
                     .Select(x => x.SubscriberId)
@@ -129,11 +129,11 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void When()
             {
-                _subscribersWithTopicLastSendDate = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                _subscribersWithTopicLastSendDate = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasTopicLastSendDate)
                     .Select(x => x.SubscriberId)
                     .ToList();
@@ -164,7 +164,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             [Test]
             public void then_subscribers_count_are_matched()
             {
-                int expectedMatchedTopics = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                int expectedMatchedTopics = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasTopicLastSendDate)
                     //has visit date in future or has visit date NULL
                     .Where(x => x.HasVisitDateFuture || !x.HasVisitDatePast)
@@ -185,7 +185,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void When()
             {
@@ -202,7 +202,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
                 };
 
-                int totalMatchingCount = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                int totalMatchingCount = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress && x.HasCategorySettingsEnabled)
                     .Count();
 
@@ -216,7 +216,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
                 _actualSubscribers.Should().NotBeEmpty();
 
-                int expectedCount = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                int expectedCount = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress && x.HasCategorySettingsEnabled)
                     .Count();
                 _actualSubscribers.Count.Should().Be(expectedCount);
@@ -252,11 +252,11 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void Given()
             {
-                _expectedSubscribers = GeneratedEntities.GetList<SubscriberWithMissingData>()
+                _expectedSubscribers = SubscribersGenerated.GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress && x.HasTopicsSettingsEnabled)
                     .ToList();
             }
@@ -322,11 +322,11 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void When()
             {
-                _expectedSubscribers = GeneratedEntities
+                _expectedSubscribers = SubscribersGenerated
                     .GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress && x.HasCategorySettingsEnabled)
                     .TakeLast(10)
@@ -381,11 +381,11 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 
             //properties
             public SpecsDbContext DbContext { get; set; }
-            public InMemoryStorage GeneratedEntities { get; set; }
+            public InMemoryStorage SubscribersGenerated { get; set; }
 
             protected override void When()
             {
-                _expectedSubscribers = GeneratedEntities
+                _expectedSubscribers = SubscribersGenerated
                     .GetList<SubscriberWithMissingData>()
                     .Where(x => x.HasAddress && x.HasTopicsSettingsEnabled)
                     .TakeLast(10)

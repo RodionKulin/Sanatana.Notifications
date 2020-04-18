@@ -16,6 +16,7 @@ using Sanatana.Notifications.SignalProviders;
 using Sanatana.Notifications.SignalProviders.Interfaces;
 using Sanatana.Notifications.Processing.DispatchProcessingCommands;
 using Sanatana.Notifications.Flushing.Queues;
+using Sanatana.Notifications.Locking;
 
 namespace Sanatana.Notifications.DI.Autofac
 {
@@ -49,6 +50,7 @@ namespace Sanatana.Notifications.DI.Autofac
             RegisterProcessors(builder);
             RegisterTempStorage(builder);
             RegisterDispatching(builder);
+            RegisterLockTracker(builder);
         }
 
         protected virtual void RegisterSender(ContainerBuilder builder)
@@ -162,6 +164,11 @@ namespace Sanatana.Notifications.DI.Autofac
                 .As<IRegularJob>()
                 .IfNotRegistered(typeof(IStoredNotificationFlushJob<TKey>))
                 .SingleInstance();
+        }
+
+        protected virtual void RegisterLockTracker(ContainerBuilder builder)
+        {
+            builder.RegisterType<LockTracker<TKey>>().As<ILockTracker<TKey>>().SingleInstance();
         }
     }
 }

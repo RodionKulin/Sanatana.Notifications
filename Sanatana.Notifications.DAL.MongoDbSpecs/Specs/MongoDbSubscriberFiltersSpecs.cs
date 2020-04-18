@@ -24,10 +24,9 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
 {
     public class MongoDbSubscriberFiltersSpecs
     {
-
         //filters specs
         [TestFixture]
-        public class when_fitlering_delivery_types
+        public class when_filtering_delivery_types
            : SpecsFor<SpecsSubscriberQueriesEmbedded>, INeedDbContext
         {
             private int _deliveryType = 101;

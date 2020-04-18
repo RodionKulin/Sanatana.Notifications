@@ -9,6 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sanatana.Notifications.DAL.MongoDb.Context;
+using MongoDB.Driver.Core.Operations;
+using System.Threading;
+using MongoDB.Driver.Core.Bindings;
+using Sanatana.MongoDb.Extensions;
+using System.Linq.Expressions;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
@@ -47,13 +52,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
 
         //Select
-        public virtual Task<List<SignalDispatch<ObjectId>>> Select(
-            int count, List<int> deliveryTypes, int maxFailedAttempts)
+        public virtual Task<List<SignalDispatch<ObjectId>>> Select(int count, List<int> deliveryTypes, 
+            int maxFailedAttempts, ObjectId[] excludeIds)
         {
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
-                    p => p.SendDateUtc <= DateTime.UtcNow
-                    && deliveryTypes.Contains(p.DeliveryType)
-                    && p.FailedAttempts < maxFailedAttempts);
+                p => p.SendDateUtc <= DateTime.UtcNow
+                && deliveryTypes.Contains(p.DeliveryType)
+                && p.FailedAttempts < maxFailedAttempts
+                && !excludeIds.Contains(p.SignalDispatchId));
 
             var options = new FindOptions()
             {
@@ -64,6 +70,85 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .Find(filter, options)
                 .SortBy(p => p.SendDateUtc)
+                .Limit(count)
+                .ToListAsync();
+        }
+
+        public virtual async Task<List<SignalDispatch<ObjectId>>> SelectWithSetLock(int count, List<int> deliveryTypes,
+            int maxFailedAttempts, ObjectId[] excludeIds, Guid lockId, DateTime lockExpirationDate)
+        {
+            //same date as stored in LockTracker
+            DateTime lockStartTimeUtc = DateTime.UtcNow;
+
+            List<SignalDispatch<ObjectId>> selected = await SelectUnlocked(count, deliveryTypes, maxFailedAttempts, excludeIds, lockExpirationDate)
+                .ConfigureAwait(false);
+            if(selected.Count == 0)
+            {
+                return selected;
+            }
+
+            List<ObjectId> dispatchIds = selected.Select(x => x.SignalDispatchId).ToList();
+            bool lockSetOnAllEntities = await SetLock(dispatchIds, lockId, lockStartTimeUtc, lockExpirationDate)
+                .ConfigureAwait(false);
+            if (lockSetOnAllEntities)
+            {
+                return selected;
+            }
+
+            return await SelectLocked(count, deliveryTypes, maxFailedAttempts, excludeIds, lockId, lockExpirationDate)
+                .ConfigureAwait(false);
+        }
+
+        public virtual Task<List<SignalDispatch<ObjectId>>> SelectUnlocked(int count, List<int> deliveryTypes,
+            int maxFailedAttempts, ObjectId[] excludeIds, DateTime lockExpirationDate)
+        {
+            var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                p => p.SendDateUtc <= DateTime.UtcNow
+                && deliveryTypes.Contains(p.DeliveryType)
+                && p.FailedAttempts < maxFailedAttempts
+                && !excludeIds.Contains(p.SignalDispatchId));
+
+            filter &= Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                p => p.LockedBy == null
+                || p.LockedDateUtc == null
+                || p.LockedDateUtc < lockExpirationDate);
+
+            var options = new FindOptions()
+            {
+                AllowPartialResults = true
+            };
+
+            //string filterJson = FilterDefinitionExtensions.ToJson(filter);
+
+            return _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
+                .Find(filter, options)
+                .SortBy(p => p.SendDateUtc)
+                .Limit(count)
+                .ToListAsync();
+        }
+
+        public virtual Task<List<SignalDispatch<ObjectId>>> SelectLocked(int count, List<int> deliveryTypes,
+            int maxFailedAttempts, ObjectId[] excludeIds, Guid lockId, DateTime lockExpirationDate)
+        {
+            var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                p => p.SendDateUtc <= DateTime.UtcNow
+                && deliveryTypes.Contains(p.DeliveryType)
+                && p.FailedAttempts < maxFailedAttempts
+                && !excludeIds.Contains(p.SignalDispatchId)
+                && p.LockedBy == lockId
+                && p.LockedDateUtc != null 
+                && p.LockedDateUtc >= lockExpirationDate);
+
+            var options = new FindOptions()
+            {
+                AllowPartialResults = true
+            };
+
+            return _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
+                .Find(filter, options)
+                .SortBy(x => x.SendDateUtc)
                 .Limit(count)
                 .ToListAsync();
         }
@@ -125,7 +210,9 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 var update = Builders<SignalDispatch<ObjectId>>.Update
                     .Set(p => p.SendDateUtc, item.SendDateUtc)
                     .Set(p => p.FailedAttempts, item.FailedAttempts)
-                    .Set(p => p.IsScheduled, item.IsScheduled);
+                    .Set(p => p.IsScheduled, item.IsScheduled)
+                    .Set(p => p.LockedBy, item.LockedBy)
+                    .Set(p => p.LockedDateUtc, item.LockedDateUtc);
 
                 operations.Add(new UpdateOneModel<SignalDispatch<ObjectId>>(filter, update)
                 {
@@ -142,6 +229,35 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .BulkWriteAsync(operations, options)
                 .ConfigureAwait(false);
+        }
+
+        public virtual async Task<bool> SetLock(List<ObjectId> dispatchIds, Guid lockId, DateTime lockStartTime, DateTime lockExpirationDate)
+        {
+            var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                p => dispatchIds.Contains(p.SignalDispatchId));
+
+            var lockFilter = Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedBy == null);
+            lockFilter |= Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedDateUtc == null);
+            lockFilter |= Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedDateUtc < lockExpirationDate);
+            filter &= lockFilter;
+
+            var update = Builders<SignalDispatch<ObjectId>>.Update
+                .Set(p => p.LockedBy, lockId)
+                .Set(p => p.LockedDateUtc, lockStartTime);
+
+            var options = new UpdateOptions
+            {
+                IsUpsert = false
+            };
+
+            UpdateResult updateResult = await _collectionFactory
+                .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
+                .UpdateManyAsync(filter, update, options)
+                .ConfigureAwait(false);
+
+            //string filterJson = FilterDefinitionExtensions.ToJson(filter);
+
+            return updateResult.ModifiedCount == dispatchIds.Count;
         }
 
 

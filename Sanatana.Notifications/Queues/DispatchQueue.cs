@@ -149,6 +149,7 @@ namespace Sanatana.Notifications.Queues
             {
                 //dispatcher throws error
                 IncrementFailedAttempts(item);
+                Unlock(item);
                 item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
                 _signalFlushJob.Return(item);
@@ -156,6 +157,7 @@ namespace Sanatana.Notifications.Queues
             else if (result == ProcessingResult.Repeat)
             {
                 //dispatcher is not available
+                Unlock(item);
                 item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
                 _signalFlushJob.Return(item);
@@ -164,6 +166,7 @@ namespace Sanatana.Notifications.Queues
             {
                 //no dispatcher found matching deliveryType
                 IncrementFailedAttempts(item);
+                Unlock(item);
                 item.Signal.SendDateUtc = DateTime.UtcNow.Add(RetryPeriod);
                 item.IsUpdated = true;
                 _signalFlushJob.Return(item);
@@ -172,6 +175,7 @@ namespace Sanatana.Notifications.Queues
             {
                 //1. stoped Sender and saving everything from queue to database
                 //2. insert scheduled dispatch after it is composed
+                Unlock(item);
                 _signalFlushJob.Return(item);
             }
         }
@@ -184,6 +188,18 @@ namespace Sanatana.Notifications.Queues
                 _logger.LogError(SenderInternalMessages.DispatchQueue_MaxAttemptsReached,
                     MaxFailedAttempts, nameof(SignalDispatch<TKey>), item.Signal.SignalDispatchId);
             }
+        }
+
+        protected virtual void Unlock(SignalWrapper<SignalDispatch<TKey>> item)
+        {
+            if(item.Signal.LockedBy == null && item.Signal.LockedDateUtc == null)
+            {
+                return;
+            }
+
+            item.Signal.LockedBy = null;
+            item.Signal.LockedDateUtc = null;
+            item.IsUpdated = true;
         }
     }
 }

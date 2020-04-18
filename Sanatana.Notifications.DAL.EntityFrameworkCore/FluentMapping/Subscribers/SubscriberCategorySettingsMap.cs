@@ -21,7 +21,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore
             // Key
             builder.HasKey(t => t.SubscriberCategorySettingsId);
             builder.HasIndex(t => t.SubscriberId).IsUnique(false);
-            builder.HasIndex(t => new { t.GroupId, t.CategoryId }).IsUnique(false);
+            builder.HasIndex(t => t.CategoryId).IsUnique(false);
             
             // Properties
             builder.Property(t => t.LastSendDateUtc).HasColumnType("datetime2");

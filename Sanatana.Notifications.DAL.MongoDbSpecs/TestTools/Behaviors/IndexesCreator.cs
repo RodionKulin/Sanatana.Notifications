@@ -33,7 +33,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Behaviors
             var connectionSettings = instance.Mocker.GetServiceInstance<MongoDbConnectionSettings>();
             var context = new SpecsDbContext(connectionSettings);
             var indexCreator = new SpecsDbInitializer(context);
-            indexCreator.CreateAllIndexes(useGroupId: false);
+            indexCreator.CreateAllIndexes(historyExpirationTime: null);
         }
     }
 }

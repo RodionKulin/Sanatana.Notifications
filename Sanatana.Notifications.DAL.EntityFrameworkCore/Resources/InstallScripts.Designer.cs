@@ -141,7 +141,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Resources {
         /// <summary>
         ///   Looks up a localized string similar to CREATE TYPE [pref].[SubscriberCategorySettingsType] AS TABLE(
         ///	[SubscriberId] [bigint] NOT NULL,
-        ///	[GroupId] [bigint] NULL,
         ///	[DeliveryType] [int] NOT NULL,
         ///	[CategoryId] [int] NOT NULL,
         ///	[LastSendDateUtc] [datetime2](7) NULL,

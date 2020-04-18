@@ -3,69 +3,50 @@ using Sanatana.DataGenerator;
 using Sanatana.DataGenerator.Entities;
 using Sanatana.DataGenerator.Generators;
 using Sanatana.DataGenerator.Internals;
+using Sanatana.DataGenerator.Storages;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.MongoDbSpecs.SpecObjects;
+using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGeneration;
 using Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.Interfaces;
+using SpecsFor.Core.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGenerationBehaviors
 {
-    public class CatEmbeddedLoadTestGenerator : CatEmbeddedGenerator
+    public class CatEmbeddedLoadTestGenerator : Behavior<INeedSubscriptionsData>
     {
-        //register entities
-        protected override void SetDataAmounts(GeneratorSetup setup)
+        //fields
+        protected bool _isInitialized;
+        protected InMemoryStorage _storage;
+
+
+        //methods
+        public override void SpecInit(INeedSubscriptionsData instance)
         {
-            setup.GetEntityDescription<SubscriberWithMissingData>()
-                .SetTargetCount(5000000);
-            setup.GetEntityDescription<SpecsDeliveryTypeSettings>()
-                .SetTargetCount(10000000);
-            setup.GetEntityDescription<SubscriberTopicSettings<ObjectId>>()
-                .SetTargetCount(40000000);
-        }
-
-        protected override void SetMemoryStorage(INeedSubscriptionsData instance, GeneratorSetup setup)
-        {
-            //do not store all entities in memory
-        }
-
-
-        //generators
-        protected override List<SubscriberTopicSettings<ObjectId>> GenerateTopicsForDeliveryTypeSettings(GeneratorContext genContext,
-            SpecsDeliveryTypeSettings dt, SubscriberWithMissingData subscriber)
-        {
-            EntityContext subscriberContext = genContext.EntityContexts[typeof(SubscriberWithMissingData)];
-            long subscriberNumber = subscriberContext.EntityProgress.CurrentCount;
-            int subscribersPerTopic = 1000;
-            long subscribersTopicGroup = subscriberNumber / subscribersPerTopic;
-
-            string[] topics = new[]
+            if (!_isInitialized)
             {
-                "301" + subscribersTopicGroup,
-                "302" + subscribersTopicGroup
+                _storage = SetupGenerator(instance.Mocker.GetServiceInstance<SpecsDbContext>());
+                _isInitialized = true;
+            }
+
+            instance.SubscribersGenerated = _storage;
+        }
+
+        private InMemoryStorage SetupGenerator(SpecsDbContext dbContext)
+        {
+            var ammounts = new Dictionary<Type, long>
+            {
+                [typeof(SubscriberWithMissingData)] = 5000000,
+                [typeof(SpecsDeliveryTypeSettings)] = 10000000,
+                [typeof(SubscriberTopicSettings<ObjectId>)] = 40000000
             };
-
-            var categoryTopics = dt.SubscriberCategorySettings.SelectMany(category =>
-                topics.Select((topic, i) => new SubscriberTopicSettings<ObjectId>
-                {
-                    SubscriberTopicSettingsId = ObjectId.GenerateNewId(),
-                    SubscriberId = dt.SubscriberId,
-                    DeliveryType = dt.DeliveryType,
-                    CategoryId = category.CategoryId,
-                    TopicId = topic,
-                    IsEnabled = true,
-                    AddDateUtc = DateTime.UtcNow,
-                    LastSendDateUtc = subscriber.HasTopicLastSendDate
-                        ? (DateTime?)DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(5))
-                        : null
-                })
-            ).ToList();
-
-            subscriber.Topics = subscriber.Topics ?? new List<SubscriberTopicSettings<ObjectId>>();
-            subscriber.Topics.AddRange(categoryTopics);
-
-            return categoryTopics;
+            return new GeneratorRunner().Generate(
+                dbContext: dbContext,
+                generatorData: new SubscribersEmbeddedData(),
+                useMemoryStorage: false,
+                ammounts: ammounts);
         }
     }
 }

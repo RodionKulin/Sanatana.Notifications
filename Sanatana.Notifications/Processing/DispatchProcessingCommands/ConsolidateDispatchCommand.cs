@@ -90,6 +90,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
             TemplateData consolidatedData = consolidator.Consolidate(batches);
             dispatchTemplate.Update(item.Signal, consolidatedData);
             item.IsUpdated = true;
+            item.IsConsolidationCompleted = true;
 
             return true;
         }

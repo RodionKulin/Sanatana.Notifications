@@ -137,8 +137,8 @@
     <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="Sanatana.EntityFrameworkCore.Batch, Version=1.0.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sanatana.EntityFrameworkCore.Batch.1.0.7\lib\netstandard2.0\Sanatana.EntityFrameworkCore.Batch.dll</HintPath>
+    <Reference Include="Sanatana.EntityFrameworkCore.Batch, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sanatana.EntityFrameworkCore.Batch.1.0.8\lib\netstandard2.0\Sanatana.EntityFrameworkCore.Batch.dll</HintPath>
     </Reference>
     <Reference Include="Sanatana.Timers, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Sanatana.Timers.1.0.1\lib\netstandard2.0\Sanatana.Timers.dll</HintPath>

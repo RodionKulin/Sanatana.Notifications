@@ -2,6 +2,7 @@
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.Notifications.DAL.Parameters;
+using Sanatana.Notifications.Locking;
 using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Sender;
 using System;
@@ -17,13 +18,16 @@ namespace Sanatana.Notifications.Flushing.Queues
     {
         //fields
         protected ISignalDispatchQueries<TKey> _dispatchQueries;
+        protected ILockTracker<TKey> _lockTracker;
+
 
         //init
         public SignalDispatchFlushJob(SenderSettings senderSettings, ITemporaryStorage<SignalDispatch<TKey>> temporaryStorage
-            , ISignalDispatchQueries<TKey> queries)
+            , ISignalDispatchQueries<TKey> queries, ILockTracker<TKey> lockTracker)
             : base(senderSettings, temporaryStorage, queries)
         {
             _dispatchQueries = queries;
+            _lockTracker = lockTracker;
 
             IsTemporaryStorageEnabled = senderSettings.SignalQueueIsTemporaryStorageEnabled;
             _temporaryStorageParameters = new TemporaryStorageParameters()
@@ -44,14 +48,23 @@ namespace Sanatana.Notifications.Flushing.Queues
             return _dispatchQueries.DeleteConsolidated(signals);
         }
 
+        protected override List<SignalWrapper<SignalDispatch<TKey>>> FlushQueues()
+        {
+            List<SignalWrapper<SignalDispatch<TKey>>> flushedItems = base.FlushQueues();
+
+            _lockTracker.ForgetLock(flushedItems.Select(x => x.Signal.SignalDispatchId));
+
+            return flushedItems;
+        }
+
+
 
         //enqueue methods
         public override void Delete(SignalWrapper<SignalDispatch<TKey>> item)
         {
             base.Delete(item);
 
-            bool isConsolidated = item.Signal.TemplateData != null;
-            if (isConsolidated)
+            if (item.IsConsolidationCompleted)
             {
                 _flushQueues[FlushAction.DeleteConsolidated].Queue.Add(item);
             }
@@ -61,10 +74,7 @@ namespace Sanatana.Notifications.Flushing.Queues
         {
             base.Return(item);
 
-            bool isConsolidated = item.Signal.TemplateData != null;
-            //Assume IsUpdated can only be set if consolidation happened.
-            //Otherwise would need to introduce new property SignalWrapper.ConsolidationCompleted.
-            if (isConsolidated && item.IsUpdated)
+            if (item.IsConsolidationCompleted)
             {
                 _flushQueues[FlushAction.DeleteConsolidated].Queue.Add(item);
             }

@@ -17,21 +17,6 @@ namespace Sanatana.Notifications.Sender
 
 
 
-        //DatabaseSignalsProviders
-        /// <summary>
-        /// Number of signals queried from permanent storage on signle request.
-        /// </summary>
-        public int DatabaseSignalProviderItemsQueryCount { get; set; } = NotificationsConstants.DATABASE_SIGNAL_PROVIDER_ITEMS_QUERY_COUNT;
-        /// <summary>
-        /// Maximum number of failed attempts after which item won't be fetched from permanent storage any more.
-        /// </summary>
-        public int DatabaseSignalProviderItemsMaxFailedAttempts { get; set; } = NotificationsConstants.DATABASE_SIGNAL_PROVIDER_MAX_FAILED_ATTEMPTS;
-        /// <summary>
-        /// Query period to permanent storage to fetch new signals.
-        /// </summary>
-        public TimeSpan DatabaseSignalProviderQueryPeriod { get; set; } = NotificationsConstants.DATABASE_SIGNAL_PROVIDER_QUERY_PERIOD;
-
-
         //Queues
         /// <summary>
         /// Pause duration after failed attempt or dispatcher not available before retrying.
@@ -116,6 +101,30 @@ namespace Sanatana.Notifications.Sender
         /// Register derived types that should be accepted by WcfSignalProvider
         /// </summary>
         public static List<Type> KnownWCFServiceTypes { get; set; }
+
+
+        //DatabaseSignalsProviders
+        /// <summary>
+        /// Number of signals queried from permanent storage on signle request.
+        /// </summary>
+        public int DatabaseSignalProviderItemsQueryCount { get; set; } = NotificationsConstants.DATABASE_SIGNAL_PROVIDER_ITEMS_QUERY_COUNT;
+        /// <summary>
+        /// Maximum number of failed attempts after which item won't be fetched from permanent storage any more.
+        /// </summary>
+        public int DatabaseSignalProviderItemsMaxFailedAttempts { get; set; } = NotificationsConstants.DATABASE_SIGNAL_PROVIDER_MAX_FAILED_ATTEMPTS;
+        /// <summary>
+        /// Query period to permanent storage to fetch new signals.
+        /// </summary>
+        public TimeSpan DatabaseSignalProviderQueryPeriod { get; set; } = NotificationsConstants.DATABASE_SIGNAL_PROVIDER_QUERY_PERIOD;
+        /// <summary>
+        /// Release lock period when SignalDispatch becomes available for processing again after unreleased lock.
+        /// </summary>
+        public TimeSpan DispatchLockDuration { get; set; } = NotificationsConstants.DATABASE_SIGNAL_LOCK_DURATION;
+        /// <summary>
+        /// Lock Id that should be unique for each instance of Sender. 
+        /// Null value will disable locking of signals in database.
+        /// </summary>
+        public Guid? DatabaseSignalLockId { get; set; }
 
 
         //Other network SignalProviders

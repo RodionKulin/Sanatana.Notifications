@@ -17,6 +17,7 @@ namespace Sanatana.Notifications
         public const int DATABASE_SIGNAL_PROVIDER_ITEMS_QUERY_COUNT = 100;
         public static readonly TimeSpan DATABASE_SIGNAL_PROVIDER_QUERY_PERIOD = TimeSpan.FromSeconds(60);
         public const int DATABASE_SIGNAL_PROVIDER_MAX_FAILED_ATTEMPTS = 2;
+        public static readonly TimeSpan DATABASE_SIGNAL_LOCK_DURATION = TimeSpan.FromMinutes(30);
 
 
         //Queues

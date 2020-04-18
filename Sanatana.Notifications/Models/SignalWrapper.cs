@@ -24,6 +24,10 @@ namespace Sanatana.Notifications.Models
         /// </summary>
         public bool IsUpdated { get; set; }
         /// <summary>
+        /// If existing items were consolidated into single one and can be deleted from database.
+        /// </summary>
+        public bool IsConsolidationCompleted { get; set; }
+        /// <summary>
         /// Identifier used as a name to store in temporary file storage before storing in database
         /// </summary>
         public Guid? TempStorageId { get; set; }

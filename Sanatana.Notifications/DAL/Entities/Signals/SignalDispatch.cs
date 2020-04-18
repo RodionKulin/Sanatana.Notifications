@@ -17,6 +17,18 @@ namespace Sanatana.Notifications.DAL.Entities
 
 
         /// <summary>
+        /// Lock property holding identifier of Sender instance currently processing SignalDispatch.
+        /// Setting LockedBy on SignalDispatch prevents it from being processed concurently by another Sender instance in parallel.
+        /// </summary>
+        public Guid? LockedBy { get; set; }
+        /// <summary>
+        /// Date of lock started. Used to expire unreleased lock on SignalDispatch when Sender instance was not stopped gracefully.
+        /// </summary>
+        public DateTime? LockedDateUtc { get; set; }
+
+
+
+        /// <summary>
         /// SubscriberId that will receive this Dispatch
         /// </summary>
         public TKey? ReceiverSubscriberId { get; set; }

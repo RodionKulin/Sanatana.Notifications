@@ -12,7 +12,6 @@ namespace Sanatana.Notifications.DAL.Entities
         //properties
         public TKey SubscriberCategorySettingsId { get; set; }
         public TKey SubscriberId { get; set; }
-        public TKey? GroupId { get; set; }
         public int DeliveryType { get; set; }
         public int CategoryId { get; set; }
 
@@ -24,14 +23,13 @@ namespace Sanatana.Notifications.DAL.Entities
 
         //init
         public static SubscriberCategorySettings<TKey> Create(
-            TKey subscriberId, int deliveryType, int categoryId, TKey? groupId = null)
+            TKey subscriberId, int deliveryType, int categoryId)
         {
             return new SubscriberCategorySettings<TKey>()
             {
                 SubscriberId = subscriberId,
                 DeliveryType = deliveryType,
                 CategoryId = categoryId,
-                GroupId = groupId,
 
                 LastSendDateUtc = null,
                 SendCount = 0,
