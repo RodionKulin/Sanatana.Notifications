@@ -15,9 +15,11 @@ namespace Sanatana.Notifications.EventsHandling.Tests
     public class EmailDispatchTemplateTests
     {
         [TestMethod()]
-        public void EmailDispatchTemplate_BuildTest()
+        [DataRow("en-US", "Eng-ContentValue")]
+        [DataRow("ru-RU", "Ru-ContentValue")]
+        public void EmailDispatchTemplate_BuildTest(string language, string expectedText)
         {
-            //prepare
+            //arrange
             var emailTemplate = new EmailDispatchTemplate<long>()
             {
                 BodyProvider = new ResourceTemplate(typeof(ContentRes), "ContentKey"),
@@ -34,7 +36,10 @@ namespace Sanatana.Notifications.EventsHandling.Tests
             var signalEvent = new SignalEvent<long>();
             var subscriberList = new List<Subscriber<long>>() 
             {
-                new Subscriber<long>() { SubscriberId = 2 }
+                new Subscriber<long>() { 
+                    SubscriberId = 2,
+                    Language = language
+                }
             };
             var templateData = new List<TemplateData>()
             {
@@ -43,15 +48,17 @@ namespace Sanatana.Notifications.EventsHandling.Tests
                     {
                         { "key", "value" }
                     }, 
-                    objectModel: null)
+                    objectModel: null,
+                    language: language
+                )
             };
 
-            //invoke
+            //act
             List<SignalDispatch<long>> actual = emailTemplate.Build(settings, signalEvent, subscriberList, templateData);
 
             //assert
             EmailDispatch<long> item = (EmailDispatch<long>)actual.First();
-            Assert.AreEqual(ContentRes.ContentKey, item.MessageBody);
+            Assert.AreEqual(expectedText, item.MessageBody);
         }
     }
 }

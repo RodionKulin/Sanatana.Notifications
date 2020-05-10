@@ -319,7 +319,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
             string subscriberIdField = FieldDefinitions.GetFieldMappedName<TDeliveryType>(x => x.SubscriberId);
 
             var deliveryTypesFilter = ToDeliveryTypeSettingsFilter(parameters, subscribersRange);
-            string deliveryTypesFilterJson = FilterDefinitionExtensions.ToJson(deliveryTypesFilter);
+            string deliveryTypesFilterJson = deliveryTypesFilter.RenderJson();
 
             return $@"""$and"": 
             [
@@ -405,7 +405,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 : "";
 
             var categoryFilter = ToCategorySettingsFilter(parameters, subscribersRange);
-            string categoryFilterJson = FilterDefinitionExtensions.ToJson(categoryFilter);
+            string categoryFilterJson = categoryFilter.RenderJson();
 
             return $@"""$and"": 
             [ 

@@ -1,5 +1,4 @@
 ﻿using Sanatana.MongoDb;
-
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Sanatana.Notifications.DAL;

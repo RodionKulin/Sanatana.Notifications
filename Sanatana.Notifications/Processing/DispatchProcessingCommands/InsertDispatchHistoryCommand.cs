@@ -18,7 +18,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 
 
         //properties
-        public int Order { get; set; } = 3;
+        public int Order { get; set; } = 4;
 
 
         //ctor

@@ -17,7 +17,9 @@ namespace Sanatana.Notifications
         public const int DATABASE_SIGNAL_PROVIDER_ITEMS_QUERY_COUNT = 100;
         public static readonly TimeSpan DATABASE_SIGNAL_PROVIDER_QUERY_PERIOD = TimeSpan.FromSeconds(60);
         public const int DATABASE_SIGNAL_PROVIDER_MAX_FAILED_ATTEMPTS = 2;
-        public static readonly TimeSpan DATABASE_SIGNAL_LOCK_DURATION = TimeSpan.FromMinutes(30);
+        public static readonly TimeSpan DATABASE_LOCK_DURATION = TimeSpan.FromMinutes(30);
+        public static readonly TimeSpan DATABASE_MIN_LOCK_DURATION = TimeSpan.FromMinutes(2);
+        public static readonly TimeSpan DATABASE_LOCK_BEFOREHAND_EXPIRATION = TimeSpan.FromMinutes(1);
 
 
         //Queues
@@ -30,6 +32,11 @@ namespace Sanatana.Notifications
         //FlushJobs
         public static readonly TimeSpan FLUSH_JOB_FLUSH_PERIOD = TimeSpan.FromSeconds(2);
         public const int FLUSH_JOB_QUEUE_LIMIT = 100;
+        public const bool FLUSH_JOB_BATCHING_ENABLED = true;
+
+
+        //Consolidation
+        public const int DEFAULT_CONSOLIDATION_BATCH_SIZE = 10000;
 
 
         //Temporary storage
@@ -38,7 +45,7 @@ namespace Sanatana.Notifications
         public const string TS_DISPATCH_QUEUE_KEY = "D";
 
 
-        //Composer
+        //Selecing Subscribers for SignalEvents
         public const int SUBSCRIBERS_FETCHER_ITEMS_QUERY_LIMIT = 1000;
 
 

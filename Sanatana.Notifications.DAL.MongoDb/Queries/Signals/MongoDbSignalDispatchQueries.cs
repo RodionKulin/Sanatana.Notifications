@@ -14,6 +14,8 @@ using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using Sanatana.MongoDb.Extensions;
 using System.Linq.Expressions;
+using Sanatana.Notifications.DAL.Parameters;
+using System.ComponentModel;
 
 namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
@@ -52,14 +54,30 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
 
 
         //Select
-        public virtual Task<List<SignalDispatch<ObjectId>>> Select(int count, List<int> deliveryTypes, 
-            int maxFailedAttempts, ObjectId[] excludeIds)
+        protected virtual FilterDefinition<SignalDispatch<ObjectId>> ToFilter(DispatchQueryParameters<ObjectId> parameters)
         {
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
-                p => p.SendDateUtc <= DateTime.UtcNow
-                && deliveryTypes.Contains(p.DeliveryType)
-                && p.FailedAttempts < maxFailedAttempts
-                && !excludeIds.Contains(p.SignalDispatchId));
+              p => p.SendDateUtc <= DateTime.UtcNow
+              && parameters.ActiveDeliveryTypes.Contains(p.DeliveryType)
+              && p.FailedAttempts < parameters.MaxFailedAttempts
+              && !parameters.ExcludeIds.Contains(p.SignalDispatchId));
+
+            foreach (ConsolidationLock<ObjectId> locked in parameters.ExcludeConsolidated)
+            {
+                filter &= Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                   x => x.ReceiverSubscriberId != locked.ReceiverSubscriberId
+                   || x.CategoryId != locked.CategoryId
+                   || x.DeliveryType != locked.DeliveryType);
+            }
+
+            //string json = FilterDefinitionExtensions.ToJson(filter);
+
+            return filter;
+        }
+
+        public virtual Task<List<SignalDispatch<ObjectId>>> SelectNotSetLock(DispatchQueryParameters<ObjectId> parameters)
+        {
+            FilterDefinition<SignalDispatch<ObjectId>> filter = ToFilter(parameters);
 
             var options = new FindOptions()
             {
@@ -70,17 +88,16 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .Find(filter, options)
                 .SortBy(p => p.SendDateUtc)
-                .Limit(count)
+                .Limit(parameters.Count)
                 .ToListAsync();
         }
 
-        public virtual async Task<List<SignalDispatch<ObjectId>>> SelectWithSetLock(int count, List<int> deliveryTypes,
-            int maxFailedAttempts, ObjectId[] excludeIds, Guid lockId, DateTime lockExpirationDate)
+        public virtual async Task<List<SignalDispatch<ObjectId>>> SelectWithSetLock(DispatchQueryParameters<ObjectId> parameters, Guid lockId, DateTime lockExpirationDate)
         {
             //same date as stored in LockTracker
             DateTime lockStartTimeUtc = DateTime.UtcNow;
 
-            List<SignalDispatch<ObjectId>> selected = await SelectUnlocked(count, deliveryTypes, maxFailedAttempts, excludeIds, lockExpirationDate)
+            List<SignalDispatch<ObjectId>> selected = await SelectUnlocked(parameters, lockExpirationDate)
                 .ConfigureAwait(false);
             if(selected.Count == 0)
             {
@@ -95,23 +112,16 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 return selected;
             }
 
-            return await SelectLocked(count, deliveryTypes, maxFailedAttempts, excludeIds, lockId, lockExpirationDate)
-                .ConfigureAwait(false);
+            return await SelectLocked(parameters, lockId, lockExpirationDate).ConfigureAwait(false);
         }
 
-        public virtual Task<List<SignalDispatch<ObjectId>>> SelectUnlocked(int count, List<int> deliveryTypes,
-            int maxFailedAttempts, ObjectId[] excludeIds, DateTime lockExpirationDate)
+        public virtual Task<List<SignalDispatch<ObjectId>>> SelectUnlocked(DispatchQueryParameters<ObjectId> parameters, DateTime lockExpirationDate)
         {
-            var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
-                p => p.SendDateUtc <= DateTime.UtcNow
-                && deliveryTypes.Contains(p.DeliveryType)
-                && p.FailedAttempts < maxFailedAttempts
-                && !excludeIds.Contains(p.SignalDispatchId));
-
+            FilterDefinition<SignalDispatch<ObjectId>> filter = ToFilter(parameters);
             filter &= Builders<SignalDispatch<ObjectId>>.Filter.Where(
                 p => p.LockedBy == null
-                || p.LockedDateUtc == null
-                || p.LockedDateUtc < lockExpirationDate);
+                || p.LockedSinceUtc == null
+                || p.LockedSinceUtc < lockExpirationDate);
 
             var options = new FindOptions()
             {
@@ -124,21 +134,17 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .Find(filter, options)
                 .SortBy(p => p.SendDateUtc)
-                .Limit(count)
+                .Limit(parameters.Count)
                 .ToListAsync();
         }
 
-        public virtual Task<List<SignalDispatch<ObjectId>>> SelectLocked(int count, List<int> deliveryTypes,
-            int maxFailedAttempts, ObjectId[] excludeIds, Guid lockId, DateTime lockExpirationDate)
+        public virtual Task<List<SignalDispatch<ObjectId>>> SelectLocked(DispatchQueryParameters<ObjectId> parameters, Guid lockId, DateTime lockExpirationDate)
         {
-            var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
-                p => p.SendDateUtc <= DateTime.UtcNow
-                && deliveryTypes.Contains(p.DeliveryType)
-                && p.FailedAttempts < maxFailedAttempts
-                && !excludeIds.Contains(p.SignalDispatchId)
-                && p.LockedBy == lockId
-                && p.LockedDateUtc != null 
-                && p.LockedDateUtc >= lockExpirationDate);
+            FilterDefinition<SignalDispatch<ObjectId>> filter = ToFilter(parameters);
+            filter &= Builders<SignalDispatch<ObjectId>>.Filter.Where(
+                p => p.LockedBy == lockId
+                && p.LockedSinceUtc != null
+                && p.LockedSinceUtc >= lockExpirationDate);
 
             var options = new FindOptions()
             {
@@ -149,7 +155,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .GetCollection<SignalDispatch<ObjectId>>(CollectionNames.DISPATCHES)
                 .Find(filter, options)
                 .SortBy(x => x.SendDateUtc)
-                .Limit(count)
+                .Limit(parameters.Count)
                 .ToListAsync();
         }
 
@@ -212,7 +218,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                     .Set(p => p.FailedAttempts, item.FailedAttempts)
                     .Set(p => p.IsScheduled, item.IsScheduled)
                     .Set(p => p.LockedBy, item.LockedBy)
-                    .Set(p => p.LockedDateUtc, item.LockedDateUtc);
+                    .Set(p => p.LockedSinceUtc, item.LockedSinceUtc);
 
                 operations.Add(new UpdateOneModel<SignalDispatch<ObjectId>>(filter, update)
                 {
@@ -231,19 +237,19 @@ namespace Sanatana.Notifications.DAL.MongoDb.Queries
                 .ConfigureAwait(false);
         }
 
-        public virtual async Task<bool> SetLock(List<ObjectId> dispatchIds, Guid lockId, DateTime lockStartTime, DateTime lockExpirationDate)
+        public virtual async Task<bool> SetLock(List<ObjectId> dispatchIds, Guid lockId, DateTime newLockSinceTimeUtc, DateTime existingLockSinceDateUtc)
         {
             var filter = Builders<SignalDispatch<ObjectId>>.Filter.Where(
                 p => dispatchIds.Contains(p.SignalDispatchId));
 
             var lockFilter = Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedBy == null);
-            lockFilter |= Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedDateUtc == null);
-            lockFilter |= Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedDateUtc < lockExpirationDate);
+            lockFilter |= Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedSinceUtc == null);
+            lockFilter |= Builders<SignalDispatch<ObjectId>>.Filter.Where(p => p.LockedSinceUtc < existingLockSinceDateUtc);
             filter &= lockFilter;
 
             var update = Builders<SignalDispatch<ObjectId>>.Update
                 .Set(p => p.LockedBy, lockId)
-                .Set(p => p.LockedDateUtc, lockStartTime);
+                .Set(p => p.LockedSinceUtc, newLockSinceTimeUtc);
 
             var options = new UpdateOptions
             {

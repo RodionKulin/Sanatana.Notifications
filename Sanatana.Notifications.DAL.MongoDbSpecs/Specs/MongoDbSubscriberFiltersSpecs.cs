@@ -32,7 +32,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
             private int _deliveryType = 101;
             private int _categoryId = 201;
             private string _topicId = "301a";
-            private string _actual_json;
+            private string _actualJson;
 
             public SpecsDbContext DbContext { get; set; }
 
@@ -57,16 +57,16 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.Specs
                 };
 
                 var deliveryTypefilterDefinition = SUT.ToDeliveryTypeSettingsFilter(subscriberParameters, subscribersRange);
-                _actual_json = FilterDefinitionExtensions.ToJson(deliveryTypefilterDefinition);
+                _actualJson = deliveryTypefilterDefinition.RenderJson();
             }
 
             [Test]
             public void then_json_is_not_empty()
             {
-                _actual_json.Should().NotBeEmpty();
+                _actualJson.Should().NotBeEmpty();
 
                 string expected = "{ \"Address\" : { \"$ne\" : null }, \"SubscriberId\" : { \"$gte\" : ObjectId(\"5e62aec745e7c56d244a4de0\"), \"$lte\" : ObjectId(\"5e62aec745e7c56d244a4de1\") }, \"DeliveryType\" : 101 }";
-                _actual_json.Should().Match(expected);
+                _actualJson.Should().Match(expected);
             }
         }
     }

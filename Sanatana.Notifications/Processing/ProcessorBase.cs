@@ -91,10 +91,7 @@ namespace Sanatana.Notifications.Processing
             Array.Resize(ref _runningTasks, runningTasksCount);
 
             Task.WaitAll(_runningTasks);
-
             _runningTasks = null;
         }
-
-
     }
 }

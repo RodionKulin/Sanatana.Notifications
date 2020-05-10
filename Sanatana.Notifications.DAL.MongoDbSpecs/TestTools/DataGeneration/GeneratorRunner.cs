@@ -71,6 +71,7 @@ namespace Sanatana.Notifications.DAL.MongoDbSpecs.TestTools.DataGeneration
             foreach (Type type in dataAmmounts.Keys)
             {
                 IEntityDescription entityDescription = GetEntityDescription(setup, type);
+                entityDescription.PersistentStorages = entityDescription.PersistentStorages ?? new List<IPersistentStorage>();
                 entityDescription.PersistentStorages.Add(storage);
             }
             return storage;

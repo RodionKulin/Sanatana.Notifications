@@ -169,6 +169,10 @@ namespace Sanatana.Notifications.DI.Autofac
         protected virtual void RegisterLockTracker(ContainerBuilder builder)
         {
             builder.RegisterType<LockTracker<TKey>>().As<ILockTracker<TKey>>().SingleInstance();
+            builder.RegisterType<ConsolidationLockTracker<TKey>>()
+                .As<IConsolidationLockTracker<TKey>>()
+                .As<IRegularJob>()
+                .SingleInstance();
         }
     }
 }

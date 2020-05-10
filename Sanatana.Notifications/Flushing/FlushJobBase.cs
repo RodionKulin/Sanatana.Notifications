@@ -5,6 +5,7 @@ using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Sender;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace Sanatana.Notifications.Flushing
         //fields
         protected DateTime _lastFlushTimeUtc;
         protected Dictionary<FlushAction, FlushQueue<T>> _flushQueues;
+        protected List<Action<List<T>>> _flushedItemsHandlers = new List<Action<List<T>>>();
 
 
         //properties
@@ -27,6 +29,10 @@ namespace Sanatana.Notifications.Flushing
         /// Limit of queue size in FlushJob when exceeded starts to flush processing results to permanent storage.
         /// </summary>
         public int QueueLimit { get; set; }
+        /// <summary>
+        /// Wait during FlushJobFlushPeriod to accumulate batch of notifications to flush into database.
+        /// </summary>
+        public bool IsBatchingEnabled { get; set; }
 
 
         //init
@@ -34,7 +40,9 @@ namespace Sanatana.Notifications.Flushing
         {
             FlushPeriod = senderSettings.FlushJobFlushPeriod;
             QueueLimit = senderSettings.FlushJobQueueLimit;
+            IsBatchingEnabled = senderSettings.FlushJobBatchingEnabled;
 
+            //how to flush items
             _flushQueues = new Dictionary<FlushAction, FlushQueue<T>>();
         }
 
@@ -72,7 +80,7 @@ namespace Sanatana.Notifications.Flushing
             return doScheduledQuery || hasMaxItems;
         }
 
-        protected virtual List<T> FlushQueues()
+        protected virtual void FlushQueues()
         {
             _lastFlushTimeUtc = DateTime.UtcNow;
 
@@ -83,10 +91,26 @@ namespace Sanatana.Notifications.Flushing
             Task.WaitAll(flushTasks);
 
             //remove items from queue
-            return _flushQueues.Values
+            List<T> flushedItems = _flushQueues.Values
                 .SelectMany(x => x.Clear())
                 .ToList();
+
+            foreach (Action<List<T>> handlers in _flushedItemsHandlers)
+            {
+                handlers.Invoke(flushedItems);
+            }
         }
 
+
+        //enqueue item
+        public virtual void EnqueueItem(T item, FlushAction action)
+        {
+            _flushQueues[action].Queue.Add(item);
+
+            if (!IsBatchingEnabled)
+            {
+                FlushQueues();
+            }
+        }
     }
 }

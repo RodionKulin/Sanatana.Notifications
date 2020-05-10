@@ -72,12 +72,19 @@ namespace Sanatana.Notifications.Queues
         protected virtual void AppendToTemporaryStorage(SignalWrapper<TSignal> item)
         {
             if (IsTemporaryStorageEnabled 
-                && item.IsPermanentlyStored == false
+                && item.IsPersistentlyStored == false
                 && item.TempStorageId == null)
             {
                 item.TempStorageId = Guid.NewGuid();
                 _temporaryStorage.Insert(_temporaryStorageParameters, item.TempStorageId.Value, item.Signal);
-            }            
+            }
+
+            if(item.ConsolidatedSignals != null)
+            {
+                item.ConsolidatedSignals
+                    .ToList()
+                    .ForEach(AppendToTemporaryStorage);
+            }
         }
         public virtual void RestoreFromTemporaryStorage()
         {

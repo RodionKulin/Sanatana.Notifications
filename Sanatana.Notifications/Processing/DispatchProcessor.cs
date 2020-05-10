@@ -110,13 +110,21 @@ namespace Sanatana.Notifications.Processing
 
         protected void ProcessSignal(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            foreach (IDispatchProcessingCommand<TKey> command in _processingCommands)
+            try
             {
-                bool completed = command.Execute(item);
-                if (!completed)
+                foreach (IDispatchProcessingCommand<TKey> command in _processingCommands)
                 {
-                    break;
+                    bool completed = command.Execute(item);
+                    if (!completed)
+                    {
+                        break;
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, null);
+                _dispatchQueue.ApplyResult(item, ProcessingResult.Fail);
             }
         }
 

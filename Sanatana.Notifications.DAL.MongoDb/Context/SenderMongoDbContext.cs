@@ -33,9 +33,10 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
         private MongoDbConnectionSettings _settings;
 
         private (Type type, string collectionName)[] _collectionNames = new (Type type, string collectionName)[]
-       {
+        {
             ( typeof(EventSettings<ObjectId>), "EventSettings" ),
             ( typeof(DispatchTemplate<ObjectId>), "DispatchTemplates" ),
+            ( typeof(ConsolidationLock<ObjectId>), "ConsolidationLocks" ),
             ( typeof(SignalEvent<ObjectId>), "SignalEvents" ),
             ( typeof(SignalDispatch<ObjectId>), CollectionNames.DISPATCHES ),
             ( typeof(SignalDispatch<ObjectId>), CollectionNames.DISPATCHES_HISTORY ),
@@ -44,8 +45,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             ( typeof(TDeliveryType), "SubscriberDeliveryTypeSettings" ),
             ( typeof(TCategory), "SubscriberCategorySettings" ),
             ( typeof(TTopic), "SubscriberTopicSettings" ),
-            ( typeof(SubscriberScheduleSettings<ObjectId>), "SubscriberScheduleSettings" )
-       };
+            ( typeof(SubscriberScheduleSettings<ObjectId>), "SubscriberScheduleSettings" ),
+        };
 
 
         //properties     
@@ -61,6 +62,13 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             get
             {
                 return GetCollection<DispatchTemplate<ObjectId>>();
+            }
+        }
+        public virtual IMongoCollection<ConsolidationLock<ObjectId>> ConsolidationLocks
+        {
+            get
+            {
+                return GetCollection<ConsolidationLock<ObjectId>>();
             }
         }
         public virtual IMongoCollection<SignalEvent<ObjectId>> SignalEvents
@@ -156,7 +164,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
         {
             var dateSerializer = new DateTimeSerializer(DateTimeKind.Utc);
             BsonSerializer.RegisterSerializer(typeof(DateTime), dateSerializer);
-            
+
             BsonSerializer.UseNullIdChecker = true;
             BsonSerializer.UseZeroIdChecker = true;
         }
@@ -191,6 +199,13 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
 
         protected virtual void MapSignals()
         {
+            BsonClassMap.RegisterClassMap<ConsolidationLock<ObjectId>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap(m => m.ConsolidationLockId));
+                cm.SetIgnoreExtraElements(true);
+            });
+
             BsonClassMap.RegisterClassMap<SignalEvent<ObjectId>>(cm =>
             {
                 cm.AutoMap();
@@ -256,7 +271,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 cm.SetIdMember(cm.GetMemberMap(m => m.SubscriberDeliveryTypeSettingsId));
                 cm.SetIgnoreExtraElements(true);
             });
-            
+
             BsonClassMap.RegisterClassMap<SubscriberCategorySettings<ObjectId>>(cm =>
             {
                 cm.AutoMap();
@@ -345,7 +360,7 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             string collectionName = entityMappings.First().collectionName;
             IMongoCollection<TEntity> collection = _database.GetCollection<TEntity>(
                 _settings.CollectionsPrefix + collectionName);
-            return collection;           
+            return collection;
         }
 
         public virtual IMongoCollection<TEntity> GetCollection<TEntity>(string collectionName)

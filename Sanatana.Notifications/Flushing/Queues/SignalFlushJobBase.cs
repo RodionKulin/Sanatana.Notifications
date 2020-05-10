@@ -34,33 +34,22 @@ namespace Sanatana.Notifications.Flushing.Queues
             _temporaryStorage = temporaryStorage;
             _queries = queries;
 
-            _flushQueues[FlushAction.Insert] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.Insert, signals));
-            _flushQueues[FlushAction.Update] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.Update, signals));
-            _flushQueues[FlushAction.DeleteOne] = new FlushQueue<SignalWrapper<TSignal>>(signals => MakeQuery(FlushAction.DeleteOne, signals));
+            //how to flush items
+            new List<FlushAction>
+            {
+                FlushAction.Insert,
+                FlushAction.Update,
+                FlushAction.DeleteOne
+            }
+            .ForEach(action => _flushQueues[action] = new FlushQueue<SignalWrapper<TSignal>>(items => MakeQuery(items, action)));
+
+            //what to do after flushing
+            _flushedItemsHandlers.Add(RemovedFlushedFromTempStorage);
         }
 
 
         //perform flush
-        protected override List<SignalWrapper<TSignal>> FlushQueues()
-        {
-            //dequeue items from flush queue
-            List<SignalWrapper<TSignal>> flushedItems = base.FlushQueues();
-
-            //get item's Ids that were successfully flushed to remove them from temp storage
-            List<Guid> tempStorageIds = flushedItems
-                .Where(x => x.TempStorageId.HasValue)
-                .Select(x => x.TempStorageId.Value)
-                .ToList();
-
-            if (IsTemporaryStorageEnabled)
-            {
-                _temporaryStorage.Delete(_temporaryStorageParameters, tempStorageIds);
-            }
-
-            return flushedItems;
-        }
-
-        protected virtual Task MakeQuery(FlushAction action, List<SignalWrapper<TSignal>> items)
+        protected virtual Task MakeQuery(List<SignalWrapper<TSignal>> items, FlushAction action)
         {
             List<TSignal> signals = items.Select(x => x.Signal).ToList();
 
@@ -77,8 +66,23 @@ namespace Sanatana.Notifications.Flushing.Queues
                 return _queries.Delete(signals);
             }
 
-            throw new NotImplementedException($"Unknow flush action type {action}");
+            throw new NotImplementedException($"Unknown flush action type {action}");
         }
+
+        protected virtual void RemovedFlushedFromTempStorage(List<SignalWrapper<TSignal>> flushedItems)
+        {
+            //get item's Ids that were successfully flushed to remove them from temp storage
+            List<Guid> tempStorageIds = flushedItems
+                .Where(x => x.TempStorageId.HasValue)
+                .Select(x => x.TempStorageId.Value)
+                .ToList();
+
+            if (IsTemporaryStorageEnabled)
+            {
+                _temporaryStorage.Delete(_temporaryStorageParameters, tempStorageIds);
+            }
+        }
+
 
 
         //add to flush queue
@@ -90,7 +94,7 @@ namespace Sanatana.Notifications.Flushing.Queues
                 item.TempStorageId = null;
             }
 
-            if (item.IsPermanentlyStored)
+            if (item.IsPersistentlyStored)
             {
                 _flushQueues[FlushAction.DeleteOne].Queue.Add(item);
             }
@@ -98,13 +102,13 @@ namespace Sanatana.Notifications.Flushing.Queues
 
         public virtual void Return(SignalWrapper<TSignal> item)
         {
-            if (item.IsPermanentlyStored == false)
+            if (item.IsPersistentlyStored == false)
             {
                 //Temp storage item will be deleted after flushing to permanent storage.
-                _flushQueues[FlushAction.Insert].Queue.Add(item);
+                EnqueueItem(item, FlushAction.Insert);
             }
             
-            if (item.IsPermanentlyStored == true && item.IsUpdated)
+            if (item.IsPersistentlyStored == true && item.IsUpdated)
             {
                 //Temp storage item will be deleted after flushing to permanent storage.
                 //Until then, preserve changes made to TempStorage.
@@ -113,7 +117,7 @@ namespace Sanatana.Notifications.Flushing.Queues
                     _temporaryStorage.Update(_temporaryStorageParameters, item.TempStorageId.Value, item.Signal);
                 }
 
-                _flushQueues[FlushAction.Update].Queue.Add(item);
+                EnqueueItem(item, FlushAction.Update);
             }
         }
     }

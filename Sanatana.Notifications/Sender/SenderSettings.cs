@@ -1,4 +1,5 @@
-﻿using Sanatana.Notifications.Models;
+﻿using Sanatana.Notifications.Locking;
+using Sanatana.Notifications.Models;
 using Sanatana.Notifications.Resources;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Sanatana.Notifications.Sender
         //fields
         protected int _maxParallelDispatchesProcessed;
         protected int _maxParallelEventsProcessed;
+        protected TimeSpan _lockDuration = NotificationsConstants.DATABASE_LOCK_DURATION;
 
 
 
@@ -46,6 +48,10 @@ namespace Sanatana.Notifications.Sender
         /// Number of items in flush queue when reached will trigger flush of SignalEvent and SignalDispatch batch of Insert, Update, Delete operations.
         /// </summary>
         public int FlushJobQueueLimit { get; set; } = NotificationsConstants.FLUSH_JOB_QUEUE_LIMIT;
+        /// <summary>
+        /// Wait during FlushJobFlushPeriod to accumulate batch of notifications to flush into database.
+        /// </summary>
+        public bool FlushJobBatchingEnabled { get; set; } = NotificationsConstants.FLUSH_JOB_BATCHING_ENABLED;
 
 
         //Processors
@@ -119,12 +125,45 @@ namespace Sanatana.Notifications.Sender
         /// <summary>
         /// Release lock period when SignalDispatch becomes available for processing again after unreleased lock.
         /// </summary>
-        public TimeSpan DispatchLockDuration { get; set; } = NotificationsConstants.DATABASE_SIGNAL_LOCK_DURATION;
+        public virtual TimeSpan LockDuration
+        {
+            get
+            {
+                return _lockDuration;
+            }
+            set
+            {
+                TimeSpan min = NotificationsConstants.DATABASE_MIN_LOCK_DURATION;
+                if (_lockDuration <= min)
+                {
+                    string message = string.Format(SenderInternalMessages.SenderSettings_MinLockDurationException,
+                        min, nameof(SenderSettings.LockDuration), "_expireBeforehandInterval", typeof(LockTracker<>).FullName);
+                    throw new NotSupportedException(message);
+                }
+                _lockDuration = value;
+            }
+        }
+        
         /// <summary>
         /// Lock Id that should be unique for each instance of Sender. 
-        /// Null value will disable locking of signals in database.
+        /// Null value will disable locking in database.
+        /// Is used for Signal locks and ConsolidatinoLocks
         /// </summary>
-        public Guid? DatabaseSignalLockId { get; set; }
+        public Guid? LockedByInstanceId { get; set; }
+
+        /// <summary>
+        /// Show if lock property be updated when selecting Signals and from database, so they are not processed multiple times by different Sender instances.
+        /// Shows status of individual Signals locks enabled and consolidation locks enabled.
+        /// To enable assign not null value to DatabaseSignalLockId.
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool IsDbLockStorageEnabled
+        {
+            get
+            {
+                return LockedByInstanceId != null;
+            }
+        }
 
 
         //Other network SignalProviders

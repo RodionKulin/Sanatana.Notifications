@@ -17,11 +17,11 @@ namespace Sanatana.Notifications.DAL.Interfaces
             int pageIndex, int pageSize, bool orderDescending = false, 
             Expression<Func<SignalDispatch<TKey>, object>> orderExpression = null, CancellationToken token = default);
 
-        Task<long> DeleteMany(Expression<Func<SignalDispatch<TKey>, bool>> filterConditions, CancellationToken token = default);
-
         Task<long> CountDocuments(Expression<Func<SignalDispatch<TKey>, bool>> filterConditions, CancellationToken token = default);
 
         Task<long> ReplaceMany(IEnumerable<SignalDispatch<TKey>> entities, bool isUpsert, CancellationToken token = default);
+
+        Task<long> DeleteMany(Expression<Func<SignalDispatch<TKey>, bool>> filterConditions, CancellationToken token = default);
 
     }
 }

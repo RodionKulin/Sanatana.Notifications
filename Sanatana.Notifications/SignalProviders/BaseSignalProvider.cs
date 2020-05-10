@@ -136,7 +136,7 @@ namespace Sanatana.Notifications.SignalProviders
         protected virtual async Task EnqueueSignalEvent(SignalEvent<TKey> signalEvent, SignalWriteConcern writeConcern)
         {
             writeConcern = _senderSettings.GetWriteConcernOrDefault(writeConcern);
-            bool ensurePersisted = writeConcern == SignalWriteConcern.PermanentStorage;
+            bool ensurePersisted = writeConcern == SignalWriteConcern.PersistentStorage;
             if (ensurePersisted)
             {
                 await _eventQueries.Insert(new List<SignalEvent<TKey>> { signalEvent })
@@ -152,9 +152,14 @@ namespace Sanatana.Notifications.SignalProviders
         public virtual async Task EnqueueDispatch(SignalDispatch<TKey> signalDispatch, SignalWriteConcern writeConcern)
         {
             writeConcern = _senderSettings.GetWriteConcernOrDefault(writeConcern);
-            bool ensurePersisted = writeConcern == SignalWriteConcern.PermanentStorage;
+            bool ensurePersisted = writeConcern == SignalWriteConcern.PersistentStorage;
             if (ensurePersisted)
             {
+                if (_senderSettings.IsDbLockStorageEnabled)
+                {
+                    signalDispatch.LockedBy = _senderSettings.LockedByInstanceId;
+                    signalDispatch.LockedSinceUtc = DateTime.UtcNow;
+                }
                 await _dispatchQueries.Insert(new List<SignalDispatch<TKey>> { signalDispatch })
                     .ConfigureAwait(false);
             }

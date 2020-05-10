@@ -8,7 +8,7 @@ using Sanatana.Notifications.Sender;
 namespace Sanatana.Notifications.Locking
 {
     /// <summary>
-    /// Remember locked signals so they are not queried again from database while being processsed by same Sender instance.
+    /// Remember currently selected signal, so they are not queried again from database while being processsed by same Sender instance and their lock (if enabled) does not expire.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     public class LockTracker<TKey> : ILockTracker<TKey> 
@@ -16,15 +16,15 @@ namespace Sanatana.Notifications.Locking
     {
         //fields
         protected ConcurrentDictionary<TKey, DateTime> _lockStartTime;
-        protected SenderSettings _senderSettings;
-        protected TimeSpan _expireBeforehandInterval = TimeSpan.FromMinutes(1);
+        protected SenderSettings _settings;
+        protected TimeSpan _expireBeforehandInterval = NotificationsConstants.DATABASE_LOCK_BEFOREHAND_EXPIRATION;
 
 
         //ctor
         public LockTracker(SenderSettings senderSettings)
         {
             _lockStartTime = new ConcurrentDictionary<TKey, DateTime>();
-            _senderSettings = senderSettings;
+            _settings = senderSettings;
         }
 
 
@@ -38,10 +38,12 @@ namespace Sanatana.Notifications.Locking
         }
 
         /// <summary>
-        /// Remove SignalIds, so it is not excluded in database queries. 
+        /// Remove Signal Ids from tracker, so it is not excluded in database queries.
+        /// Flushing Signal processing results to database happens with a dellay after queue becomes empty. 
+        /// Because of this delay need to exlude Signals Ids already processed but not flushed results to database.
         /// </summary>
         /// <param name="signalIds"></param>
-        public virtual void ForgetLock(IEnumerable<TKey> signalIds)
+        public virtual void ForgetLocks(IEnumerable<TKey> signalIds)
         {
             foreach (TKey signalId in signalIds)
             {
@@ -50,7 +52,7 @@ namespace Sanatana.Notifications.Locking
         }
 
         /// <summary>
-        /// Get Signal Ids that should be queries again while remaining in Queue.
+        /// Get Signal Ids that should not be queried again while being processed by Sender.
         /// </summary>
         /// <returns></returns>
         public virtual TKey[] GetLockedIds()
@@ -64,9 +66,10 @@ namespace Sanatana.Notifications.Locking
         /// </summary>
         /// <param name="signalId"></param>
         /// <returns></returns>
-        public virtual bool CheckIsExpired(TKey signalId)
+        public virtual bool CheckNeedToExtendLock(TKey signalId)
         {
-            if (!IsLockingEnabled())
+            bool isLockEnabled = _settings.IsDbLockStorageEnabled;
+            if (!isLockEnabled)
             {
                 //It makes sense to disable locking if there is only single instance of Sender, 
                 //So expiration of lock should not matter
@@ -76,36 +79,31 @@ namespace Sanatana.Notifications.Locking
             bool hasValue = _lockStartTime.TryGetValue(signalId, out DateTime lockStartUtc);
             if (!hasValue)
             {
-                //should be possible to land here, only if Signal is not stored in database (and should not be locked)
+                //should be possible to land here, only if Signal is not stored in database (so no signal level locking is required)
                 //because only DatabaseSignalProvider calls RememberLock method
                 return false;
             }
 
             DateTime lockExpirationTime = lockStartUtc
-                .Add(_senderSettings.DispatchLockDuration)
+                .Add(_settings.LockDuration)
                 .Subtract(_expireBeforehandInterval); //if lock is close to expiration, update it's value in database, so it is not expired during sending.
-            bool isLockExpired = lockExpirationTime > DateTime.UtcNow;
+            bool isLockExpired = lockExpirationTime < DateTime.UtcNow;
             return isLockExpired;
-        }
-
-        public virtual bool IsLockingEnabled()
-        {
-            return _senderSettings.DatabaseSignalLockId != null;
         }
 
         /// <summary>
         /// Get date to select locked signals before. 
-        /// If database LockDateUtc is before date returned, than it will be locked by different Sender instance and selected for processing.
+        /// If database LockSinceUtc is before date returned, than it will be locked by different Sender instance and selected for processing.
         /// </summary>
         /// <returns></returns>
         public virtual DateTime GetLockExpirationDate()
         {
             //where this method is used
-            //1.In DatabaseDispatchProvider to SelectLocked all items locked before date
-            //2.In DatabaseDispatchProvider to SelectWithSetLock (SelectLocked + SelectLocked) all items locked before date and reselect items from database where Dispatch.LockExpirationUtc < GetLockExpirationDate();
-            //3.In CheckLockExpirationCommand to SetLocked to find items to reset LockedBy where Dispatch.LockExpirationUtc < GetLockExpirationDate();
+            //1.From DatabaseDispatchProvider to SelectLocked all items locked before date
+            //2.From DatabaseDispatchProvider to SelectWithSetLock (SelectLocked + SelectLocked) all items locked before date and reselect items from database where Dispatch.LockExpirationUtc < GetLockExpirationDate();
+            //3.From CheckLockExpirationCommand to SetLocked to find items to reset LockedBy where Dispatch.LockExpirationUtc < GetLockExpirationDate();
 
-            return DateTime.UtcNow.Subtract(_senderSettings.DispatchLockDuration);            
+            return DateTime.UtcNow.Subtract(_settings.LockDuration);            
         }
     }
 }

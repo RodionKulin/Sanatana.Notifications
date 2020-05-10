@@ -17,14 +17,14 @@ namespace Sanatana.Notifications.DAL.Entities
 
 
         /// <summary>
-        /// Lock property holding identifier of Sender instance currently processing SignalDispatch.
-        /// Setting LockedBy on SignalDispatch prevents it from being processed concurently by another Sender instance in parallel.
+        /// Identifier of Sender instance currently processing SignalDispatch.
+        /// Setting LockedBy on SignalDispatch prevents it from being processed by another Sender instance in parallel.
         /// </summary>
         public Guid? LockedBy { get; set; }
         /// <summary>
-        /// Date of lock started. Used to expire unreleased lock on SignalDispatch when Sender instance was not stopped gracefully.
+        /// Time of lock start. Used to expire unreleased lock on SignalDispatch when Sender instance was not stopped gracefully.
         /// </summary>
-        public DateTime? LockedDateUtc { get; set; }
+        public DateTime? LockedSinceUtc { get; set; }
 
 
 
@@ -95,5 +95,15 @@ namespace Sanatana.Notifications.DAL.Entities
         /// Is used for consolidation of multiple Dispatches for same subscriber into single Dispatch.
         /// </summary>
         public string TemplateData { get; set; }
+
+
+        //methods
+        public bool ShouldBeConsolidated()
+        {
+            return TemplateData != null         //TempalteData is present only on consolidated Dispatches
+                && ReceiverSubscriberId != null //required for consolidation
+                & CategoryId != null;           //required for consolidation
+                                                //DeliveryType is also required, but it is not nullable
+        }
     }
 }

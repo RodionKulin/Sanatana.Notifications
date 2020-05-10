@@ -1,12 +1,9 @@
 ﻿using Autofac;
-using Sanatana.EntityFrameworkCore;
 using Sanatana.EntityFrameworkCore.Batch;
-using Sanatana.Notifications.DAL.EntityFrameworkCore;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.AutoMapper;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Context;
 using Sanatana.Notifications.DAL.EntityFrameworkCore.Queries;
 using Sanatana.Notifications.DAL.Interfaces;
-using Sanatana.Notifications.DAL.Queries;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,7 +33,9 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.DI.Autofac
             builder.RegisterType<NotificationsMapperFactory>().As<INotificationsMapperFactory>().SingleInstance();          
             builder.RegisterType<SenderDbContextFactory>().As<ISenderDbContextFactory>().SingleInstance();
 
+            builder.RegisterType<SqlConsolidationLockQueries>().As<IConsolidationLockQueries<long>>().SingleInstance();
             builder.RegisterType<SqlSignalBounceQueries>().As<ISignalBounceQueries<long>>().SingleInstance();
+            builder.RegisterType<SqlSignalDispatchHistoryQueries>().As<ISignalDispatchHistoryQueries<long>>().SingleInstance();
             builder.RegisterType<SqlSignalDispatchQueries>().As<ISignalDispatchQueries<long>>().SingleInstance();
             builder.RegisterType<SqlSignalEventQueries>().As<ISignalEventQueries<long>>().SingleInstance();
             builder.RegisterType<SqlStoredNotificationQueries>().As<IStoredNotificationQueries<long>>().SingleInstance();

@@ -18,7 +18,7 @@ namespace Sanatana.Notifications.Models
         /// <summary>
         /// Is stored in database already. Different actions occure on returning to database. Insert or Update existing for example.
         /// </summary>
-        public bool IsPermanentlyStored { get; set; }
+        public bool IsPersistentlyStored { get; set; }
         /// <summary>
         /// Were any changes made to Signal during processing
         /// </summary>
@@ -42,7 +42,7 @@ namespace Sanatana.Notifications.Models
         public SignalWrapper(T signal, bool isPermanentlyStored)
         {
             Signal = signal;
-            IsPermanentlyStored = isPermanentlyStored;
+            IsPersistentlyStored = isPermanentlyStored;
         }
     }
 

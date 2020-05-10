@@ -35,24 +35,31 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             CreateSubscriberCategorySettingsIndex();
             CreateSubscriberTopicSettingsIndex();
             CreateSubscriberReceivePeriodsIndex();
+
             CreateSignalEventIndex();
             CreateSignalDispatchIndex();
             CreateSignalDispatchHistoryIndex(historyExpirationTime);
             CreateStoredNotificationIndex();
+            CreateConsolidationLockIndex();
             CreateSignalBounceIndex();
+
             CreateEventSettingsIndex();
             CreateDispatchTemplateIndex();
         }
         public virtual void DropAllIndexes()
         {
-            _context.GetCollection<TDeliveryType>().Indexes.DropAll();
+            _context.SubscriberDeliveryTypeSettings.Indexes.DropAll();
             _context.SubscriberCategorySettings.Indexes.DropAll();
             _context.SubscriberTopicSettings.Indexes.DropAll();
             _context.SubscriberScheduleSettings.Indexes.DropAll();
+
             _context.SignalEvents.Indexes.DropAll();
             _context.SignalDispatches.Indexes.DropAll();
+            _context.SignalDispatchesHistory.Indexes.DropAll();
             _context.StoredNotifications.Indexes.DropAll();
+            _context.ConsolidationLocks.Indexes.DropAll();
             _context.SignalBounces.Indexes.DropAll();
+
             _context.EventSettings.Indexes.DropAll();
             _context.DispatchTemplates.Indexes.DropAll();
         }
@@ -64,17 +71,14 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 .Ascending(p => p.SubscriberId);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "SubscriberId",
                 Unique = false
             };
             var subscriberModel = new CreateIndexModel<TDeliveryType>(subscriberIndex, subscriberOptions);
 
-            IndexKeysDefinition<TDeliveryType> addressIndex = 
-                Builders<TDeliveryType>.IndexKeys
+            IndexKeysDefinition<TDeliveryType> addressIndex = Builders<TDeliveryType>.IndexKeys
                 .Ascending(p => p.Address);
             CreateIndexOptions addressOptions = new CreateIndexOptions()
             {
-                Name = "Address",
                 Unique = false
             };
             var addressModel = new CreateIndexModel<TDeliveryType>(addressIndex, addressOptions);
@@ -89,7 +93,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 .Ascending(p => p.SubscriberId);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "SubscriberId",
                 Unique = false
             };
             var subscriberModel = new CreateIndexModel<SubscriberCategorySettings<ObjectId>>(subscriberIndex, subscriberOptions);
@@ -98,7 +101,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 .Ascending(p => p.CategoryId);
             CreateIndexOptions categoryOptions = new CreateIndexOptions()
             {
-                Name = "CategoryId",
                 Unique = false
             };
             var categoryModel = new CreateIndexModel<SubscriberCategorySettings<ObjectId>>(categoryIndex, categoryOptions);
@@ -114,7 +116,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 .Ascending(p => p.TopicId);
             CreateIndexOptions topicOptions = new CreateIndexOptions()
             {
-                Name = "CategoryId + TopicId",
                 Unique = false
             };
             var topicModel = new CreateIndexModel<SubscriberTopicSettings<ObjectId>>(topicIndex, topicOptions);
@@ -123,7 +124,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 .Ascending(p => p.SubscriberId);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "SubscriberId",
                 Unique = false
             };
             var subscriberModel = new CreateIndexModel<SubscriberTopicSettings<ObjectId>>(subscriberIndex, subscriberOptions);
@@ -140,7 +140,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                 .Ascending(p => p.SubscriberId);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "SubscriberId",
                 Unique = false
             };
             var subscriberModel = new CreateIndexModel<SubscriberScheduleSettings<ObjectId>>(subscriberIndex, subscriberOptions);
@@ -155,7 +154,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                .Ascending(p => p.FailedAttempts);
             CreateIndexOptions failedAttemptsOptions = new CreateIndexOptions()
             {
-                Name = "FailedAttempts",
                 Unique = false
             };
             var failedAttemptsModel = new CreateIndexModel<SignalEvent<ObjectId>>(failedAttemptsIndex, failedAttemptsOptions);
@@ -170,7 +168,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                .Ascending(p => p.FailedAttempts);
             CreateIndexOptions sendDateOptions = new CreateIndexOptions()
             {
-                Name = "SendDateUtc + FailedAttempts",
                 Unique = false
             };
             var sendDateModel = new CreateIndexModel<SignalDispatch<ObjectId>>(sendDateIndex, sendDateOptions);
@@ -178,25 +175,24 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             var receiverIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
                .Ascending(p => p.ReceiverSubscriberId)
                .Ascending(p => p.SendDateUtc);
-            CreateIndexOptions receiverOptions = new CreateIndexOptions()
+            var receiverOptions = new CreateIndexOptions()
             {
-                Name = "ReceiverSubscriberId + SendDateUtc",
                 Unique = false
             };
             var receiverModel = new CreateIndexModel<SignalDispatch<ObjectId>>(receiverIndex, receiverOptions);
             
             var lockIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
                .Ascending(p => p.LockedBy)
-               .Ascending(p => p.LockedDateUtc);
+               .Ascending(p => p.LockedSinceUtc);
             var lockOptions = new CreateIndexOptions<SignalDispatch<ObjectId>>()
             {
-                Name = "LockedBy + LockedDateUtc",
                 Unique = false,
+                //range index only in SignalDispatches that have LockedBy not null
                 PartialFilterExpression = Builders<SignalDispatch<ObjectId>>.Filter.Ne(i => i.LockedBy, null)
             };
             var lockModel = new CreateIndexModel<SignalDispatch<ObjectId>>(lockIndex, lockOptions);
 
-            IMongoCollection <SignalDispatch<ObjectId>> collection = _context.SignalDispatches;
+            IMongoCollection<SignalDispatch<ObjectId>> collection = _context.SignalDispatches;
             string sendDateName = collection.Indexes.CreateOne(sendDateModel);
             string receiverName = collection.Indexes.CreateOne(receiverModel);
             string lockName = collection.Indexes.CreateOne(lockModel);
@@ -206,9 +202,8 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             var receiverIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
                .Ascending(p => p.ReceiverSubscriberId)
                .Ascending(p => p.SendDateUtc);
-            CreateIndexOptions receiverOptions = new CreateIndexOptions()
+            var receiverOptions = new CreateIndexOptions()
             {
-                Name = "ReceiverSubscriberId + SendDateUtc",
                 Unique = false
             };
             var receiverModel = new CreateIndexModel<SignalDispatch<ObjectId>>(receiverIndex, receiverOptions);
@@ -237,7 +232,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                .Ascending(p => p.CreateDateUtc);
             CreateIndexOptions sendDateOptions = new CreateIndexOptions()
             {
-                Name = "SubscriberId + CreateDateUtc",
                 Unique = false
             };
             var model = new CreateIndexModel<StoredNotification<ObjectId>>(subscriberIndex, sendDateOptions);
@@ -246,6 +240,21 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
             string subscriberName = collection.Indexes.CreateOne(model);
 
         }
+        public virtual void CreateConsolidationLockIndex()
+        {
+            var lockIndex = Builders<SignalDispatch<ObjectId>>.IndexKeys
+               .Ascending(p => p.ReceiverSubscriberId)
+               .Ascending(p => p.DeliveryType)
+               .Ascending(p => p.CategoryId);
+            var lockOptions = new CreateIndexOptions<SignalDispatch<ObjectId>>()
+            {
+                Unique = true
+            };
+            var lockModel = new CreateIndexModel<SignalDispatch<ObjectId>>(lockIndex, lockOptions);
+
+            IMongoCollection<SignalDispatch<ObjectId>> collection = _context.SignalDispatches;
+            string lockName = collection.Indexes.CreateOne(lockModel);
+        }
         public virtual void CreateSignalBounceIndex()
         {
             IndexKeysDefinition<SignalBounce<ObjectId>> subscriberIndex = Builders<SignalBounce<ObjectId>>.IndexKeys
@@ -253,7 +262,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                .Ascending(p => p.BounceReceiveDateUtc);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "ReceiverSubscriberId + BounceReceiveDateUtc",
                 Unique = false
             };
             var model = new CreateIndexModel<SignalBounce<ObjectId>>(subscriberIndex, subscriberOptions);
@@ -268,7 +276,6 @@ namespace Sanatana.Notifications.DAL.MongoDb.Context
                .Ascending(p => p.EventKey);
             CreateIndexOptions subscriberOptions = new CreateIndexOptions()
             {
-                Name = "EventKey",
                 Unique = false
             };
             var model = new CreateIndexModel<EventSettings<ObjectId>>(subscriberIndex, subscriberOptions);

@@ -180,6 +180,9 @@
   <data name="ProcessorBase_ParallelNumberOutOfRange" xml:space="preserve">
     <value>Number of parallel items processed can not be lower than 1.</value>
   </data>
+  <data name="SenderSettings_MinLockDurationException" xml:space="preserve">
+    <value>Lock duration can not be lower than {0}. To support lower value will have to override {1} virtual property and change {2} field value in {3} class using Dependecy Injection.</value>
+  </data>
   <data name="SmtpEmailSender_Fail" xml:space="preserve">
     <value>Exception while delivering email to address {0}.</value>
   </data>

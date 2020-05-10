@@ -13,12 +13,6 @@ namespace Sanatana.Notifications.DAL.Queries
 {
     public class FileRepository : IFileRepository
     {
-        //init
-        public FileRepository()
-        {
-        }
-
-
         //methods
         public virtual void CreateBinary<T>(string filePath, T item)
         {

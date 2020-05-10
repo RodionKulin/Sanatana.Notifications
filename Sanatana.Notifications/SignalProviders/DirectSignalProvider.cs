@@ -19,6 +19,9 @@ namespace Sanatana.Notifications.SignalProviders
         where TKey : struct
     {
         //fields
+        /// <summary>
+        /// During stopping and flushing to database, need to prevent enqueue new signals
+        /// </summary>
         protected bool _isStarted;
 
 

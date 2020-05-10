@@ -26,6 +26,8 @@ namespace Sanatana.Notifications.SignalProviders
         protected DateTime _lastQueryTimeUtc;
         protected bool _isLastQueryMaxItemsReceived;
         protected bool _isAllInitiallyLockedSelected;
+
+        //dependencies
         protected IMonitor<TKey> _monitor;
         protected ILogger _logger;
         protected IDispatchQueue<TKey> _dispatchQueue;
@@ -33,6 +35,7 @@ namespace Sanatana.Notifications.SignalProviders
         protected IDispatchChannelRegistry<TKey> _dispatcherRegistry;
         protected ISignalDispatchQueries<TKey> _dispatchQueries;
         protected ILockTracker<TKey> _lockTracker;
+        protected IConsolidationLockTracker<TKey> _consolidationLockTracker;
         protected SenderSettings _senderSettings;
 
 
@@ -53,11 +56,10 @@ namespace Sanatana.Notifications.SignalProviders
         public int MaxFailedAttempts { get; set; }
 
 
-
         //init
         public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueue, IMonitor<TKey> eventSink, SenderSettings senderSettings,
             IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries, ILogger logger,
-            ILockTracker<TKey> lockTracker)
+            ILockTracker<TKey> lockTracker, IConsolidationLockTracker<TKey> consolidationLockTracker)
         {
             _dispatchQueue = dispatchQueue;
             _monitor = eventSink;
@@ -65,6 +67,7 @@ namespace Sanatana.Notifications.SignalProviders
             _dispatchQueries = dispatchQueries;
             _logger = logger;
             _lockTracker = lockTracker;
+            _consolidationLockTracker = consolidationLockTracker;
             _senderSettings = senderSettings;
 
             QueryPeriod = senderSettings.DatabaseSignalProviderQueryPeriod;
@@ -75,8 +78,8 @@ namespace Sanatana.Notifications.SignalProviders
         public DatabaseDispatchProvider(IDispatchQueue<TKey> dispatchQueues, IMonitor<TKey> eventSink, SenderSettings senderSettings,
             IDispatchChannelRegistry<TKey> dispatcherRegistry, ISignalDispatchQueries<TKey> dispatchQueries,
             ILogger logger, IChangeNotifier<SignalDispatch<TKey>> changeNotifier,
-            ILockTracker<TKey> lockTracker)
-            : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries, logger, lockTracker)
+            ILockTracker<TKey> lockTracker, IConsolidationLockTracker<TKey> consolidationLockTracker)
+            : this(dispatchQueues, eventSink, senderSettings, dispatcherRegistry, dispatchQueries, logger, lockTracker, consolidationLockTracker)
         {
             _changeNotifier = changeNotifier;
         }
@@ -160,29 +163,40 @@ namespace Sanatana.Notifications.SignalProviders
 
         protected virtual List<SignalDispatch<TKey>> PickStorageQuery(List<int> activeDeliveryTypes)
         {
-            TKey[] processedIds = _lockTracker.GetLockedIds();
             DateTime lockExpirationDate = _lockTracker.GetLockExpirationDate();
+            var queryParams = new DAL.Parameters.DispatchQueryParameters<TKey>
+            {
+                Count = ItemsQueryCount,
+                ActiveDeliveryTypes = activeDeliveryTypes,
+                MaxFailedAttempts = MaxFailedAttempts,
+                ExcludeIds = _lockTracker.GetLockedIds(),
+                ExcludeConsolidated = _consolidationLockTracker.GetLockedGroups()
+            };
 
-            if(_isAllInitiallyLockedSelected == false)
+            if (_isAllInitiallyLockedSelected == false)
             {
                 //if instance was terminated and did not release lock, then process already locked items first.
-                List<SignalDispatch<TKey>> lockedItems = _dispatchQueries.SelectLocked(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts,
-                    processedIds, _senderSettings.DatabaseSignalLockId.Value, lockExpirationDate)
+                List<SignalDispatch<TKey>> lockedItems = _dispatchQueries.SelectLocked(queryParams, _senderSettings.LockedByInstanceId.Value, lockExpirationDate)
                     .Result;
                 _isAllInitiallyLockedSelected = lockedItems.Count < ItemsQueryCount;
-                return lockedItems;
+                if(lockedItems.Count > 0)
+                {
+                    //if locked items are present then process them,
+                    //else make query for next unlocked items.
+                    return lockedItems;
+                }
             }
 
-            bool isLockingEnabled = _lockTracker.IsLockingEnabled();
+            bool isLockingEnabled = _senderSettings.IsDbLockStorageEnabled;
             if (isLockingEnabled)
             {
-                return _dispatchQueries.SelectWithSetLock(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts,
-                    processedIds, _senderSettings.DatabaseSignalLockId.Value, lockExpirationDate)
+                return _dispatchQueries
+                    .SelectWithSetLock(queryParams, _senderSettings.LockedByInstanceId.Value, lockExpirationDate)
                     .Result;
             }
 
             //select without locking in database
-            return _dispatchQueries.Select(ItemsQueryCount, activeDeliveryTypes, MaxFailedAttempts, processedIds).Result;
+            return _dispatchQueries.SelectNotSetLock(queryParams).Result;
         }
     }
 }

@@ -250,6 +250,15 @@ namespace Sanatana.Notifications.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lock duration can not be lower than {0}. To support lower value will have to override {1} virtual property and change {2} field value in {3} class using Dependecy Injection..
+        /// </summary>
+        public static string SenderSettings_MinLockDurationException {
+            get {
+                return ResourceManager.GetString("SenderSettings_MinLockDurationException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exception while delivering email to address {0}..
         /// </summary>
         public static string SmtpEmailSender_Fail {

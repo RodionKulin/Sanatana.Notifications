@@ -7,7 +7,7 @@ using Sanatana.MongoDb.Repository;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.MongoDb.Context;
 
-namespace Sanatana.Notifications.DAL.MongoDb.Queries.Content
+namespace Sanatana.Notifications.DAL.MongoDb.Queries
 {
     public class MongoDbSignalDispatchHistoryQueries : MongoDbRepository<SignalDispatch<ObjectId>>, ISignalDispatchHistoryQueries<ObjectId>
     {

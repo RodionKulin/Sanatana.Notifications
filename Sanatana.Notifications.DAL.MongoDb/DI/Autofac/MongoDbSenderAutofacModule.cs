@@ -43,10 +43,12 @@ namespace Sanatana.Notifications.DAL.MongoDb.DI.Autofac
 
             builder.RegisterType<MongoDbEventSettingsQueries>().As<IEventSettingsQueries<ObjectId>>().SingleInstance();
 
-            builder.RegisterType<MongoDbSignalEventQueries>().As<ISignalEventQueries<ObjectId>>().SingleInstance();
-            builder.RegisterType<MongoDbSignalDispatchQueries>().As<ISignalDispatchQueries<ObjectId>>().SingleInstance();
-            builder.RegisterType<MongoDbStoredNotificationQueries>().As<IStoredNotificationQueries<ObjectId>>().SingleInstance();
+            builder.RegisterType<MongoDbConsolidationLockQueries>().As<IConsolidationLockQueries<ObjectId>>().SingleInstance();
             builder.RegisterType<MongoDbSignalBounceQueries>().As<ISignalBounceQueries<ObjectId>>().SingleInstance();
+            builder.RegisterType<MongoDbSignalDispatchHistoryQueries>().As<ISignalDispatchHistoryQueries<ObjectId>>().SingleInstance();
+            builder.RegisterType<MongoDbSignalDispatchQueries>().As<ISignalDispatchQueries<ObjectId>>().SingleInstance();
+            builder.RegisterType<MongoDbSignalEventQueries>().As<ISignalEventQueries<ObjectId>>().SingleInstance();
+            builder.RegisterType<MongoDbStoredNotificationQueries>().As<IStoredNotificationQueries<ObjectId>>().SingleInstance();
 
             builder.RegisterType<MongoDbSubscriberQueries<TDeliveryType, TCategory, TTopic>>().As<ISubscriberQueries<ObjectId>>().SingleInstance();
             builder.RegisterType<MongoDbSubscriberCategorySettingsQueries<TCategory>>().As<ISubscriberCategorySettingsQueries<TCategory, ObjectId>>().SingleInstance();

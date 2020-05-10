@@ -17,6 +17,7 @@ using Sanatana.Notifications.DAL.Interfaces;
 using Sanatana.EntityFrameworkCore.Batch;
 using Sanatana.EntityFrameworkCore.Batch.Commands;
 using Sanatana.EntityFrameworkCore.Batch.Commands.Merge;
+using Sanatana.Notifications.DAL.Parameters;
 
 namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 {
@@ -55,22 +56,81 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
 
 
         //Select
-        public virtual async Task<List<SignalDispatch<long>>> Select(int count, List<int> deliveryTypes,
-            int maxFailedAttempts, long[] excludeIds)
+        protected virtual IQueryable<SignalDispatchLong> Filter(IQueryable<SignalDispatchLong> query, DispatchQueryParameters<long> parameters)
+        {
+            query = query.Where(msg => msg.SendDateUtc <= DateTime.UtcNow
+                && msg.FailedAttempts < parameters.MaxFailedAttempts
+                && parameters.ActiveDeliveryTypes.Contains(msg.DeliveryType)
+                && !parameters.ExcludeIds.Contains(msg.SignalDispatchId));
+
+            foreach (ConsolidationLock<long> locked in parameters.ExcludeConsolidated)
+            {
+                query = query.Where(
+                   x => x.ReceiverSubscriberId != locked.ReceiverSubscriberId
+                   || x.CategoryId != locked.CategoryId
+                   || x.DeliveryType != locked.DeliveryType);
+            }
+
+            return query;
+        }
+
+        public virtual async Task<List<SignalDispatch<long>>> SelectNotSetLock(DispatchQueryParameters<long> parameters)
         {
             List<SignalDispatch<long>> list = null;
 
             using (SenderDbContext context = _dbContextFactory.GetDbContext())
             {
-                List<SignalDispatchLong> response = await
-                    (from msg in context.SignalDispatches
-                     orderby msg.SendDateUtc ascending
-                     where msg.SendDateUtc <= DateTime.UtcNow
-                         && msg.FailedAttempts < maxFailedAttempts
-                         && deliveryTypes.Contains(msg.DeliveryType)
-                         && !excludeIds.Contains(msg.SignalDispatchId)
-                     select msg)
-                    .Take(count)
+                IQueryable<SignalDispatchLong> query = context.SignalDispatches.AsQueryable<SignalDispatchLong>();
+                query = Filter(query, parameters);
+                List<SignalDispatchLong> response = await query
+                    .OrderBy(msg => msg.SendDateUtc)
+                    .Take(parameters.Count)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                list = response
+                    .Select(_mapper.Map<SignalDispatch<long>>)
+                    .ToList();
+            }
+
+            return list;
+        }
+
+        public virtual async Task<List<SignalDispatch<long>>> SelectWithSetLock(DispatchQueryParameters<long> parameters, 
+            Guid lockId, DateTime lockExpirationDate)
+        {
+            //same date as stored in LockTracker
+            DateTime lockStartTimeUtc = DateTime.UtcNow;
+
+            int lockedDispatches = await SetLock(parameters, lockId,
+                lockStartDate: lockStartTimeUtc, lockExpirationDate: lockExpirationDate)
+                .ConfigureAwait(false); 
+            if (lockedDispatches == 0)
+            {
+                return new List<SignalDispatch<long>>();
+            }
+
+            return await SelectLocked(parameters, lockId, lockExpirationDate)
+               .ConfigureAwait(false);
+        }
+
+        public virtual async Task<List<SignalDispatch<long>>> SelectLocked(DispatchQueryParameters<long> parameters, 
+            Guid lockId, DateTime lockExpirationDate)
+        {
+            List<SignalDispatch<long>> list = null;
+
+            using (SenderDbContext context = _dbContextFactory.GetDbContext())
+            {
+                IQueryable<SignalDispatchLong> query = context.SignalDispatches.AsQueryable<SignalDispatchLong>();
+                
+                query = Filter(query, parameters);
+                query = query.Where(msg => msg.LockedBy == lockId
+                    && msg.LockedSinceUtc != null
+                    && msg.LockedSinceUtc >= lockExpirationDate);
+
+                List<SignalDispatchLong> response = await query
+                    .OrderBy(msg => msg.SendDateUtc)
+                    .Take(parameters.Count)
                     .ToListAsync()
                     .ConfigureAwait(false);
 
@@ -83,7 +143,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
         }
 
         public virtual async Task<List<SignalDispatch<long>>> SelectConsolidated(
-            int pageSize, List<long> subscriberIds, List<(int deliveryType, int category)> categories, 
+            int pageSize, List<long> subscriberIds, List<(int deliveryType, int category)> categories,
             DateTime createdBefore, DateTime? createdAfter = null)
         {
             if (categories.Count == 0)
@@ -100,7 +160,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     && subscriberIds.Contains(p.ReceiverSubscriberId.Value)
                     && p.CreateDateUtc <= createdBefore);
 
-                if(createdAfter != null)
+                if (createdAfter != null)
                 {
                     request = request.Where(x => createdAfter.Value < x.CreateDateUtc);
                 }
@@ -131,54 +191,6 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
             return list;
         }
 
-        public virtual async Task<List<SignalDispatch<long>>> SelectWithSetLock(int count, List<int> deliveryTypes,
-            int maxFailedAttempts, long[] excludeIds, Guid lockId, DateTime lockExpirationDate)
-        {
-            //same date as stored in LockTracker
-            DateTime lockStartTimeUtc = DateTime.UtcNow;
-
-            int lockedDispatches = await SetLock(count, deliveryTypes, maxFailedAttempts, excludeIds, lockId,
-                lockStartDate: lockStartTimeUtc, lockExpirationDate: lockExpirationDate)
-                .ConfigureAwait(false); 
-            if (lockedDispatches == 0)
-            {
-                return new List<SignalDispatch<long>>();
-            }
-
-            return await SelectLocked(count, deliveryTypes, maxFailedAttempts, excludeIds, lockId, lockExpirationDate)
-               .ConfigureAwait(false);
-        }
-
-        public virtual async Task<List<SignalDispatch<long>>> SelectLocked(int count, List<int> deliveryTypes,
-            int maxFailedAttempts, long[] excludeIds, Guid lockId, DateTime lockExpirationDate)
-        {
-            List<SignalDispatch<long>> list = null;
-
-            using (SenderDbContext context = _dbContextFactory.GetDbContext())
-            {
-                List<SignalDispatchLong> response = await
-                    (from msg in context.SignalDispatches
-                     orderby msg.SendDateUtc ascending
-                     where msg.SendDateUtc <= DateTime.UtcNow
-                         && deliveryTypes.Contains(msg.DeliveryType)
-                         && msg.FailedAttempts < maxFailedAttempts
-                         && !excludeIds.Contains(msg.SignalDispatchId)
-                         && msg.LockedBy == lockId
-                         && msg.LockedDateUtc != null
-                         && msg.LockedDateUtc >= lockExpirationDate
-                     select msg)
-                    .Take(count)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
-
-                list = response
-                    .Select(_mapper.Map<SignalDispatch<long>>)
-                    .ToList();
-            }
-
-            return list;
-        }
-
 
         //Update
         public virtual async Task UpdateSendResults(List<SignalDispatch<long>> items)
@@ -198,7 +210,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     .IncludeProperty(p => p.FailedAttempts)
                     .IncludeProperty(p => p.IsScheduled)
                     .IncludeProperty(p => p.LockedBy)
-                    .IncludeProperty(p => p.LockedDateUtc);
+                    .IncludeProperty(p => p.LockedSinceUtc);
 
                 upsert.Compare.IncludeProperty(p => p.SignalDispatchId);
 
@@ -207,7 +219,7 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                     .IncludeProperty(p => p.FailedAttempts)
                     .IncludeProperty(p => p.IsScheduled)
                     .IncludeProperty(p => p.LockedBy)
-                    .IncludeProperty(p => p.LockedDateUtc);
+                    .IncludeProperty(p => p.LockedSinceUtc);
 
                 int changes = await upsert.ExecuteAsync(MergeType.Update).ConfigureAwait(false);
             }
@@ -220,10 +232,10 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
                 int changes = await repository.UpdateMany<SignalDispatchLong>(
                     p => dispatchIds.Contains(p.SignalDispatchId)
                     && (p.LockedBy == null
-                    || p.LockedDateUtc == null
-                    || p.LockedDateUtc < lockExpirationDate))
+                    || p.LockedSinceUtc == null
+                    || p.LockedSinceUtc < lockExpirationDate))
                     .Assign(x => x.LockedBy, x => lockId)
-                    .Assign(x => x.LockedDateUtc, x => lockStartDate)
+                    .Assign(x => x.LockedSinceUtc, x => lockStartDate)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
@@ -231,22 +243,21 @@ namespace Sanatana.Notifications.DAL.EntityFrameworkCore.Queries
             }
         }
 
-        public virtual async Task<int> SetLock(int limit, List<int> deliveryTypes, int maxFailedAttempts, 
-            long[] excludeIds, Guid lockId, DateTime lockStartDate, DateTime lockExpirationDate)
+        public virtual async Task<int> SetLock(DispatchQueryParameters<long> parameters, Guid lockId, DateTime lockStartDate, DateTime lockExpirationDate)
         {
             using (Repository repository = new Repository(_dbContextFactory.GetDbContext()))
             {
                 int changes = await repository.UpdateMany<SignalDispatchLong>(
                     p => p.SendDateUtc <= DateTime.UtcNow
-                    && p.FailedAttempts < maxFailedAttempts
-                    && deliveryTypes.Contains(p.DeliveryType)
-                    && !excludeIds.Contains(p.SignalDispatchId)
+                    && p.FailedAttempts < parameters.MaxFailedAttempts
+                    && parameters.ActiveDeliveryTypes.Contains(p.DeliveryType)
+                    && !parameters.ExcludeIds.Contains(p.SignalDispatchId)
                     && (p.LockedBy == null
-                    || p.LockedDateUtc == null
-                    || p.LockedDateUtc < lockExpirationDate))
+                    || p.LockedSinceUtc == null
+                    || p.LockedSinceUtc < lockExpirationDate))
                     .Assign(x => x.LockedBy, x => lockId)
-                    .Assign(x => x.LockedDateUtc, x => lockStartDate)
-                    .SetLimit(limit)
+                    .Assign(x => x.LockedSinceUtc, x => lockStartDate)
+                    .SetLimit(parameters.Count)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 

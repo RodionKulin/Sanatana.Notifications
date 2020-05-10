@@ -19,7 +19,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 
 
         //properties
-        public int Order { get; set; } = 1;
+        public int Order { get; set; } = 0;
 
 
 
@@ -36,12 +36,19 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
         //methods
         public bool Execute(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            if (!_lockTracker.IsLockingEnabled())
+            bool isLockingEnabled = _settings.IsDbLockStorageEnabled;
+            if (!isLockingEnabled)
             {
                 return true;
             }
 
-            bool isLockExpired = _lockTracker.CheckIsExpired(item.Signal.SignalDispatchId);
+            if (item.Signal.ShouldBeConsolidated())
+            {
+                //consolidated items have their own locks for the whole consolidated group of dispatches
+                return true;
+            }
+
+            bool isLockExpired = _lockTracker.CheckNeedToExtendLock(item.Signal.SignalDispatchId);
             if (!isLockExpired)
             {
                 return true;
@@ -50,9 +57,9 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
             //Lock again before sending
             DateTime lockExpirationDate = _lockTracker.GetLockExpirationDate();
             bool lockSet = _dispatchQueries.SetLock(new List<TKey> { item.Signal.SignalDispatchId },
-                lockId: _settings.DatabaseSignalLockId.Value,
-                lockStartDate: DateTime.UtcNow,
-                lockExpirationDate: lockExpirationDate)
+                lockId: _settings.LockedByInstanceId.Value,
+                newLockSinceTimeUtc: DateTime.UtcNow,
+                existingLockSinceDateUtc: lockExpirationDate)
                 .Result;
             if (lockSet)
             {
@@ -60,7 +67,9 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
             }
 
             //If already expired and locked by another Sender instance, do nothing and let another instance to process.
-            _lockTracker.ForgetLock(new List<TKey> { item.Signal.SignalDispatchId });
+            _lockTracker.ForgetLocks(new List<TKey> { item.Signal.SignalDispatchId });
+
+            //cancel any future steps
             return false;
         }
     }

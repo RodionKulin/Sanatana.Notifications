@@ -65,13 +65,14 @@ namespace Sanatana.Notifications.Queues
         }
 
 
-        //queue methods
+        //append methods
         public virtual void Append(List<SignalDispatch<TKey>> signals, bool isPermanentlyStored)
         {
             SignalWrapper<SignalDispatch<TKey>>[] items = signals
                 .Select(x => SignalWrapper.Create(x, isPermanentlyStored))
                 .ToArray();
 
+            //return to database scheduled dispatches
             SignalWrapper<SignalDispatch<TKey>>[] scheduledItems = items
                 .Where(x => x.Signal.IsScheduled && x.Signal.SendDateUtc > DateTime.UtcNow)
                 .ToArray();
@@ -81,6 +82,7 @@ namespace Sanatana.Notifications.Queues
                 ApplyResult(item, ProcessingResult.ReturnToStorage);
             }
 
+            //consolidate and enqueue immediate dispatches
             List<SignalWrapper<SignalDispatch<TKey>>> immediateItems = items.Except(scheduledItems).ToList();
             immediateItems = Consolidate(immediateItems);
             immediateItems.ForEach(Append);
@@ -90,16 +92,15 @@ namespace Sanatana.Notifications.Queues
             List<SignalWrapper<SignalDispatch<TKey>>> items)
         {
             List<SignalWrapper<SignalDispatch<TKey>>> newList = items
-                .Where(x => x.Signal.TemplateData == null //TempalteData is present only on consolodated Dispatches
-                    || x.Signal.ReceiverSubscriberId == null
-                    || x.Signal.CategoryId == null)
+                .Where(x => !x.Signal.ShouldBeConsolidated())
                 .ToList();
 
-            items.Except(newList)
+            items.Where(x => x.Signal.ShouldBeConsolidated())
                 .GroupBy(x => new
                 {
                     x.Signal.ReceiverSubscriberId,
-                    x.Signal.CategoryId
+                    x.Signal.CategoryId,
+                    x.Signal.SignalDispatchId
                 })
                 .Select(x =>
                 {
@@ -118,6 +119,8 @@ namespace Sanatana.Notifications.Queues
             base.Append(item, item.Signal.DeliveryType);
         }
 
+
+        //dequeue methods
         public virtual SignalWrapper<SignalDispatch<TKey>> DequeueNext()
         {
             SignalWrapper<SignalDispatch<TKey>> item = null;
@@ -138,6 +141,9 @@ namespace Sanatana.Notifications.Queues
             return item;
         }
 
+
+
+        //apply result methods
         public override void ApplyResult(SignalWrapper<SignalDispatch<TKey>> item, ProcessingResult result)
         {
             if (result == ProcessingResult.Success)
@@ -192,13 +198,13 @@ namespace Sanatana.Notifications.Queues
 
         protected virtual void Unlock(SignalWrapper<SignalDispatch<TKey>> item)
         {
-            if(item.Signal.LockedBy == null && item.Signal.LockedDateUtc == null)
+            if(item.Signal.LockedBy == null && item.Signal.LockedSinceUtc == null)
             {
                 return;
             }
 
             item.Signal.LockedBy = null;
-            item.Signal.LockedDateUtc = null;
+            item.Signal.LockedSinceUtc = null;
             item.IsUpdated = true;
         }
     }

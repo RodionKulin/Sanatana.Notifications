@@ -19,6 +19,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
         where TKey: struct
     {
         //fields
+        protected int _defaultConsolidationBatchSize = NotificationsConstants.DEFAULT_CONSOLIDATION_BATCH_SIZE;
         protected ISignalDispatchQueries<TKey> _signalDispatchQueries;
         protected ILogger _logger;
         protected ITemplateDataConsolidator[] _consolidators;
@@ -27,7 +28,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 
 
         //properties
-        public int Order { get; set; } = 0;
+        public int Order { get; set; } = 2;
 
 
         //ctor
@@ -88,6 +89,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
 
             IEnumerable<TemplateData[]> batches = GetTemplateDataBatches(item, consolidator.BatchSize);
             TemplateData consolidatedData = consolidator.Consolidate(batches);
+
             dispatchTemplate.Update(item.Signal, consolidatedData);
             item.IsUpdated = true;
             item.IsConsolidationCompleted = true;
@@ -149,18 +151,8 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
         protected virtual IEnumerable<TemplateData[]> GetTemplateDataBatches(
             SignalWrapper<SignalDispatch<TKey>> item, int? batchSize)
         {
-            if(item.ConsolidatedSignals != null && item.ConsolidatedSignals.Length > 0)
-            {
-                yield return item.ConsolidatedSignals
-                    .Select(x => x.Signal)
-                    .Select(DeserializeTemplateData)
-                    .Where(x => x != null)
-                    .ToArray();
-            }
-
-            batchSize = batchSize ?? 1000;
+            batchSize = batchSize ?? _defaultConsolidationBatchSize;
             DateTime? previousBatchLatest = null;
-
             var categories = new List<(int deliveryType, int category)>();
             categories.Add((item.Signal.DeliveryType, item.Signal.CategoryId.Value));
 
@@ -179,7 +171,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
                     break;
                 }
 
-                //assume already ordered by CreateDateUtc
+                //assume already ordered by CreateDateUtc asc
                 previousBatchLatest = sameCategoryDispatches.LastOrDefault()?.CreateDateUtc;
 
                 yield return sameCategoryDispatches
