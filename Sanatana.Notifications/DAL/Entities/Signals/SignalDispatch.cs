@@ -50,6 +50,15 @@ namespace Sanatana.Notifications.DAL.Entities
         /// Identifier for DispatchTemplate that is used to build Dispatch properties.
         /// </summary>
         public TKey? DispatchTemplateId { get; set; }
+        /// <summary>
+        /// MachineName metadata where Sender API was triggered.
+        /// </summary>
+        public string MachineName { get; set; }
+        /// <summary>
+        /// ApplicationName metadata where Sender API was triggered.
+        /// </summary>
+        public string ApplicationName { get; set; }
+
 
 
         /// <summary>

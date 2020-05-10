@@ -96,7 +96,7 @@ namespace Sanatana.Notifications.Locking
         /// If database LockSinceUtc is before date returned, than it will be locked by different Sender instance and selected for processing.
         /// </summary>
         /// <returns></returns>
-        public virtual DateTime GetLockExpirationDate()
+        public virtual DateTime GetMaxExpiredLockSinceUtc()
         {
             //where this method is used
             //1.From DatabaseDispatchProvider to SelectLocked all items locked before date

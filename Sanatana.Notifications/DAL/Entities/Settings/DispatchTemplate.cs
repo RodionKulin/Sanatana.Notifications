@@ -84,6 +84,8 @@ namespace Sanatana.Notifications.DAL.Entities
         {
             dispatch.EventSettingsId = settings.EventSettingsId;
             dispatch.DispatchTemplateId = DispatchTemplateId;
+            dispatch.MachineName = signalEvent.MachineName;
+            dispatch.ApplicationName = signalEvent.ApplicationName;
 
             dispatch.DeliveryType = DeliveryType;
             dispatch.CategoryId = settings.Subscription.CategoryId;

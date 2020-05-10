@@ -1,6 +1,7 @@
 ﻿using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.Models;
+using Sanatana.Notifications.SignalProviders.WCF.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,16 +17,16 @@ namespace Sanatana.Notifications.SignalProviders.WCF
         where TKey : struct
     {
         [OperationContract]
-        Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId, Dictionary<string, string> subscriberFilters = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task MatchSubscribersEvent(SignalDataDC signalDataDto, Dictionary<string, string> subscriberFilters = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
 
         [OperationContract]
-        Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task DirectSubscriberIdsEvent(SignalDataDC signalDataDto, List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
 
         [OperationContract]
-        Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId, List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task DirectAddressesEvent(SignalDataDC signalDataDto, List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
 
         [OperationContract]
-        Task EnqueueDispatch(SignalDispatch<TKey> dispatch, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
+        Task Dispatch(SignalDispatch<TKey> dispatch, SignalWriteConcern writeConcern = SignalWriteConcern.Default);
     }
     
 }

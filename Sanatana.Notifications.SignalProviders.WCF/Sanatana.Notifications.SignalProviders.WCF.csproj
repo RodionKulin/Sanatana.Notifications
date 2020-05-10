@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DI\Autofac\WcfSignalEndpointAutofacModule.cs" />
+    <Compile Include="Dtos\SignalDataDataContract.cs" />
     <Compile Include="ISignalService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Behavior\KnownTypesDataContractFormatAttribute.cs" />

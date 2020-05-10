@@ -55,7 +55,7 @@ namespace Sanatana.Notifications.Processing.DispatchProcessingCommands
             }
 
             //Lock again before sending
-            DateTime lockExpirationDate = _lockTracker.GetLockExpirationDate();
+            DateTime lockExpirationDate = _lockTracker.GetMaxExpiredLockSinceUtc();
             bool lockSet = _dispatchQueries.SetLock(new List<TKey> { item.Signal.SignalDispatchId },
                 lockId: _settings.LockedByInstanceId.Value,
                 newLockSinceTimeUtc: DateTime.UtcNow,

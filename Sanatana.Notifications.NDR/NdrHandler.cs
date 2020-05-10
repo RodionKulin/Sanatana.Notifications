@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Sanatana.Notifications.DAL;
 using Sanatana.Notifications.DAL.Entities;
 using Sanatana.Notifications.DAL.Interfaces;
-using Sanatana.Notifications.DAL.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.NDR

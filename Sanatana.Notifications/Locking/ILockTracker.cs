@@ -10,6 +10,6 @@ namespace Sanatana.Notifications.Locking
         void ForgetLocks(IEnumerable<TKey> signalIds);
         TKey[] GetLockedIds();
         void RememberLock(IEnumerable<TKey> signalIds, DateTime lockStartUtc);
-        DateTime GetLockExpirationDate();
+        DateTime GetMaxExpiredLockSinceUtc();
     }
 }

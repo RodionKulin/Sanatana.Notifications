@@ -8,7 +8,6 @@ using Sanatana.Notifications.NDR.AWS.SNS;
 using Sanatana.Notifications.NDR.AWS.SES;
 using System.Xml.Linq;
 using Sanatana.Notifications.DAL.Entities;
-using Sanatana.Notifications.DAL.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Sanatana.Notifications.NDR.AWS

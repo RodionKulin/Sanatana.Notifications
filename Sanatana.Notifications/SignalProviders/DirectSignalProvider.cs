@@ -55,7 +55,7 @@ namespace Sanatana.Notifications.SignalProviders
             throw new InvalidOperationException(message);
         }
 
-        public override Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateData, int categoryId,
+        public override Task EnqueueMatchSubscribersEvent(SignalDataDto signalData,
             Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if (_isStarted == false)
@@ -63,20 +63,10 @@ namespace Sanatana.Notifications.SignalProviders
                 ThrowStoppedInstanceError();
             }
 
-            return base.EnqueueMatchSubscribersEvent(templateData, categoryId, subscriberFiltersData, topicId, writeConcern);
+            return base.EnqueueMatchSubscribersEvent(signalData, subscriberFiltersData, topicId, writeConcern);
         }
 
-        public override Task EnqueueMatchSubscribersEvent(string templateDataObj, int eventKey, Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
-        {
-            if (_isStarted == false)
-            {
-                ThrowStoppedInstanceError();
-            }
-
-            return base.EnqueueMatchSubscribersEvent(templateDataObj, eventKey, subscriberFiltersData, topicId, writeConcern);
-        }
-
-        public override Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateData, int categoryId, 
+        public override Task EnqueueDirectSubscriberIdsEvent(SignalDataDto signalData,
             List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if (_isStarted == false)
@@ -84,20 +74,10 @@ namespace Sanatana.Notifications.SignalProviders
                 ThrowStoppedInstanceError();
             }
 
-            return base.EnqueueDirectSubscriberIdsEvent(templateData, categoryId, subscriberIds, topicId, writeConcern);
+            return base.EnqueueDirectSubscriberIdsEvent(signalData, subscriberIds, topicId, writeConcern);
         }
 
-        public override Task EnqueueDirectSubscriberIdsEvent(string templateDataObj, int eventKey, List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
-        {
-            if (_isStarted == false)
-            {
-                ThrowStoppedInstanceError();
-            }
-
-            return base.EnqueueDirectSubscriberIdsEvent(templateDataObj, eventKey, subscriberIds, topicId, writeConcern);
-        }
-
-        public override Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateData, int categoryId,
+        public override Task EnqueueDirectAddressesEvent(SignalDataDto signalData,
             List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             if (_isStarted == false)
@@ -105,17 +85,7 @@ namespace Sanatana.Notifications.SignalProviders
                 ThrowStoppedInstanceError();
             }
 
-            return base.EnqueueDirectAddressesEvent(templateData, categoryId, deliveryAddresses, writeConcern);
-        }
-
-        public override Task EnqueueDirectAddressesEvent(string templateDataObj, int eventKey, List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
-        {
-            if (_isStarted == false)
-            {
-                ThrowStoppedInstanceError();
-            }
-
-            return base.EnqueueDirectAddressesEvent(templateDataObj, eventKey, deliveryAddresses, writeConcern);
+            return base.EnqueueDirectAddressesEvent(signalData, deliveryAddresses, writeConcern);
         }
 
         public override Task EnqueueDispatch(SignalDispatch<TKey> dispatch, 

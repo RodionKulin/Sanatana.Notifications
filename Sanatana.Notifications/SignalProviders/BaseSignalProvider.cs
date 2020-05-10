@@ -39,97 +39,59 @@ namespace Sanatana.Notifications.SignalProviders
 
 
         //methods
-        public virtual Task EnqueueMatchSubscribersEvent(Dictionary<string, string> templateDataDict, int eventKey,
+        public virtual Task EnqueueMatchSubscribersEvent(SignalDataDto signalDataDto,
             Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.SubscriptionParameters,
-                CreateDateUtc = DateTime.UtcNow,
-                EventKey = eventKey,
+                SubscriberFiltersData = subscriberFiltersData,
                 TopicId = topicId,
-                TemplateDataDict = templateDataDict,
-                SubscriberFiltersData = subscriberFiltersData
+                CreateDateUtc = DateTime.UtcNow,
+                EventKey = signalDataDto.EventKey,
+                TemplateDataDict = signalDataDto.TemplateDataDict,
+                TemplateDataObj = signalDataDto.TemplateDataObj,
+                MachineName = signalDataDto.MachineName,
+                ApplicationName = signalDataDto.ApplicationName
             };
 
             return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        public virtual Task EnqueueMatchSubscribersEvent(string templateDataObj, int eventKey,
-            Dictionary<string, string> subscriberFiltersData = null, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
-        {
-            var signalEvent = new SignalEvent<TKey>()
-            {
-                AddresseeType = AddresseeType.SubscriptionParameters,
-                CreateDateUtc = DateTime.UtcNow,
-                EventKey = eventKey,
-                TopicId = topicId,
-                TemplateDataObj = templateDataObj,
-                SubscriberFiltersData = subscriberFiltersData
-            };
-
-            return EnqueueSignalEvent(signalEvent, writeConcern);
-        }
-
-        public virtual Task EnqueueDirectSubscriberIdsEvent(Dictionary<string, string> templateDataDict, int eventKey, 
+        public virtual Task EnqueueDirectSubscriberIdsEvent(SignalDataDto signalDataDto,
             List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.SubscriberIds,
-                CreateDateUtc = DateTime.UtcNow,
-                EventKey = eventKey,
+                PredefinedSubscriberIds = subscriberIds,
                 TopicId = topicId,
-                TemplateDataDict = templateDataDict,
-                PredefinedSubscriberIds = subscriberIds
+                CreateDateUtc = DateTime.UtcNow,
+                EventKey = signalDataDto.EventKey,
+                TemplateDataDict = signalDataDto.TemplateDataDict,
+                TemplateDataObj = signalDataDto.TemplateDataObj,
+                MachineName = signalDataDto.MachineName,
+                ApplicationName = signalDataDto.ApplicationName
             };
 
             return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 
-        public virtual Task EnqueueDirectSubscriberIdsEvent(string templateDataObj, int eventKey,
-            List<TKey> subscriberIds, string topicId = null, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
-        {
-            var signalEvent = new SignalEvent<TKey>()
-            {
-                AddresseeType = AddresseeType.SubscriberIds,
-                CreateDateUtc = DateTime.UtcNow,
-                EventKey = eventKey,
-                TopicId = topicId,
-                TemplateDataObj = templateDataObj,
-                PredefinedSubscriberIds = subscriberIds
-            };
-
-            return EnqueueSignalEvent(signalEvent, writeConcern);
-        }
-
-        public virtual Task EnqueueDirectAddressesEvent(Dictionary<string, string> templateDataDict, int eventKey, 
+        public virtual Task EnqueueDirectAddressesEvent(SignalDataDto signalDataDto,
             List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
         {
             var signalEvent = new SignalEvent<TKey>()
             {
                 AddresseeType = AddresseeType.DirectAddresses,
+                PredefinedAddresses = deliveryAddresses,
                 CreateDateUtc = DateTime.UtcNow,
-                EventKey = eventKey,
-                TemplateDataDict = templateDataDict,
-                PredefinedAddresses = deliveryAddresses
+                EventKey = signalDataDto.EventKey,
+                TemplateDataDict = signalDataDto.TemplateDataDict,
+                TemplateDataObj = signalDataDto.TemplateDataObj,
+                MachineName = signalDataDto.MachineName,
+                ApplicationName = signalDataDto.ApplicationName
             };
             
-            return EnqueueSignalEvent(signalEvent, writeConcern);
-        }
-
-        public virtual Task EnqueueDirectAddressesEvent(string templateDataObj, int eventKey,
-            List<DeliveryAddress> deliveryAddresses, SignalWriteConcern writeConcern = SignalWriteConcern.Default)
-        {
-            var signalEvent = new SignalEvent<TKey>()
-            {
-                AddresseeType = AddresseeType.DirectAddresses,
-                CreateDateUtc = DateTime.UtcNow,
-                EventKey = eventKey,
-                TemplateDataObj = templateDataObj,
-                PredefinedAddresses = deliveryAddresses
-            };
-
             return EnqueueSignalEvent(signalEvent, writeConcern);
         }
 

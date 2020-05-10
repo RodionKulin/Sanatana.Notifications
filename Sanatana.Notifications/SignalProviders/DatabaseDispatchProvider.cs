@@ -163,7 +163,7 @@ namespace Sanatana.Notifications.SignalProviders
 
         protected virtual List<SignalDispatch<TKey>> PickStorageQuery(List<int> activeDeliveryTypes)
         {
-            DateTime lockExpirationDate = _lockTracker.GetLockExpirationDate();
+            DateTime lockExpirationDate = _lockTracker.GetMaxExpiredLockSinceUtc();
             var queryParams = new DAL.Parameters.DispatchQueryParameters<TKey>
             {
                 Count = ItemsQueryCount,

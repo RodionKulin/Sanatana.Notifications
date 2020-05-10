@@ -87,6 +87,16 @@ namespace Sanatana.Notifications.DAL.Entities
         public List<DeliveryAddress> PredefinedAddresses { get; set; }
 
 
+        /// <summary>
+        /// MachineName metadata where Sender API was triggered.
+        /// </summary>
+        public string MachineName { get; set; }
+        /// <summary>
+        /// ApplicationName metadata where Sender API was triggered.
+        /// </summary>
+        public string ApplicationName { get; set; }
+
+
         //methods
         public virtual SignalEvent<TKey> CreateClone()
         {

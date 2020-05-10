@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sanatana.Notifications.DAL.Enums
+namespace Sanatana.Notifications.DAL.Entities
 {
     /// <summary>
     /// Bounce type that describes reason on message rejection.
