@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sanatana.Notifications.SignalProviders.WCF</RootNamespace>
     <AssemblyName>Sanatana.Notifications.SignalProviders.WCF</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Description>Notifications library WCF input Signal listener</Description>
     <PackageTags>Notifications;WCF;SignalProviders</PackageTags>

@@ -134,6 +134,8 @@ namespace Sanatana.Notifications.DI.Autofac
                 .IfNotRegistered(typeof(IDispatchProcessor))
                 .SingleInstance();
 
+            builder.RegisterType<CheckLockExpirationCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
+            builder.RegisterType<CheckConsolidationLockExpirationCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
             builder.RegisterType<ConsolidateDispatchCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
             builder.RegisterType<SendDispatchCommand<TKey>>().As<IDispatchProcessingCommand<TKey>>();
             builder.RegisterType<InsertDispatchHistoryCommand<TKey>>()

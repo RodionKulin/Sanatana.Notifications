@@ -1,0 +1,62 @@
+name: Notifications nuget push
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3.0.3
+      with:
+        dotnet-version: 7.0.x
+
+    - name: Build Sanatana.Notifications
+      run: dotnet build "Sanatana.Notifications/Sanatana.Notifications.csproj" --configuration Release
+      
+    - name: Build Sanatana.Notifications.DAL.EntityFrameworkCore
+      run: dotnet build "Sanatana.Notifications.DAL.EntityFrameworkCore/Sanatana.Notifications.DAL.EntityFrameworkCore.csproj" --configuration Release
+      
+    - name: Build Sanatana.Notifications.DAL.MongoDb
+      run: dotnet build "Sanatana.Notifications.DAL.MongoDb/Sanatana.Notifications.DAL.MongoDb.csproj" --configuration Release
+      
+    - name: Build Sanatana.Notifications.NDR
+      run: dotnet build "Sanatana.Notifications.NDR/Sanatana.Notifications.NDR.csproj" --configuration Release
+      
+    - name: Build Sanatana.Notifications.Dispatchers.AWS_SES
+      run: dotnet build "Sanatana.Notifications.Dispatchers.AWS_SES/Sanatana.Notifications.Dispatchers.AWS_SES.csproj" --configuration Release
+      
+    - name: Build Sanatana.Notifications.NDR.AWS
+      run: dotnet build "Sanatana.Notifications.NDR.AWS/Sanatana.Notifications.NDR.AWS.csproj" --configuration Release
+      
+
+    - name: Nuget pack for Sanatana.Notifications
+      run: dotnet pack Sanatana.Notifications/Sanatana.Notifications.csproj -o ../nuget -c Release -v n
+      
+    - name: Nuget pack for Sanatana.Notifications.DAL.EntityFrameworkCore
+      run: dotnet pack Sanatana.Notifications.DAL.EntityFrameworkCore/Sanatana.Notifications.DAL.EntityFrameworkCore.csproj -o ../nuget -c Release -v n
+
+    - name: Nuget pack for Sanatana.Notifications.DAL.MongoDb
+      run: dotnet pack Sanatana.Notifications.DAL.MongoDb/Sanatana.Notifications.DAL.MongoDb.csproj -o ../nuget -c Release -v n
+
+    - name: Nuget pack for Sanatana.Notifications.NDR
+      run: dotnet pack Sanatana.Notifications.NDR/Sanatana.Notifications.NDR.csproj -o ../nuget -c Release -v n
+
+    - name: Nuget pack for Sanatana.Notifications.Dispatchers.AWS_SES
+      run: dotnet pack Sanatana.Notifications.Dispatchers.AWS_SES/Sanatana.Notifications.Dispatchers.AWS_SES.csproj -o ../nuget -c Release -v n
+
+    - name: Nuget pack for Sanatana.Notifications.NDR.AWS
+      run: dotnet pack Sanatana.Notifications.NDR.AWS/Sanatana.Notifications.NDR.AWS.csproj -o ../nuget -c Release -v n
+
+
+    - name: Publish all nuget packages
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ../nuget/Sanatana.Notifications.*.nupkg --force-english-output -k $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+
+    
